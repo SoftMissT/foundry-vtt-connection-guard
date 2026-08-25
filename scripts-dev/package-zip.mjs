@@ -42,13 +42,14 @@ async function main() {
 
   await patchManifestVersion()
 
+  const zipPath = path.join(dist, 'module.zip')
   await zip({
     source: '*',
-    destination: '../module.zip',
+    destination: zipPath,
     cwd: dist,
   })
 
-  console.log(`Empacotado: ${path.join(dist, 'module.zip')}`)
+  console.log(`Empacotado: ${zipPath}`)
   console.log(`Manifesto solto (para o asset "module.json" do release): ${path.join(dist, 'module.json')}`)
 }
 
