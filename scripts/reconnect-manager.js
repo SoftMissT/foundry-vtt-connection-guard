@@ -1,4 +1,4 @@
-import { MODULE_ID, SETTINGS, DEFAULTS } from './constants.js'
+import { MODULE_ID, SETTINGS, DEFAULTS, JOURNAL_TYPES } from './constants.js'
 
 /**
  * Ajusta os parâmetros de reconexão do Socket.IO (game.socket.io é a
@@ -14,10 +14,12 @@ import { MODULE_ID, SETTINGS, DEFAULTS } from './constants.js'
  */
 export class ReconnectManager {
   #diagnostics
+  #journal
   #bannerEl = null
 
-  constructor(diagnostics) {
+  constructor(diagnostics, journal = null) {
     this.#diagnostics = diagnostics
+    this.#journal = journal
   }
 
   start() {
@@ -57,6 +59,7 @@ export class ReconnectManager {
 
   #onDisconnect(reason) {
     this.#diagnostics.recordLocalDisconnect()
+    this.#journal?.log(JOURNAL_TYPES.CONNECTION, { event: 'Desconectado', details: String(reason) })
     this.#showBanner(game.i18n.format('CONNGUARD.Banner.Disconnected', { reason }))
     console.warn(`${MODULE_ID} | desconectado do servidor (${reason})`)
   }
@@ -68,6 +71,7 @@ export class ReconnectManager {
     this.#hideBanner()
 
     const seconds = entry ? (entry.durationMs / 1000).toFixed(1) : '?'
+    this.#journal?.log(JOURNAL_TYPES.CONNECTION, { event: 'Reconectado', details: `${seconds}s fora do ar` })
     ui.notifications.info(game.i18n.format('CONNGUARD.Notif.Reconnected', { seconds }))
     console.log(`${MODULE_ID} | reconectado após ${seconds}s`)
   }

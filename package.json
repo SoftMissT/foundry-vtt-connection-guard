@@ -1,6 +1,6 @@
 {
   "name": "connection-guard",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "description": "Latência, diagnóstico de conexão, reconexão automática e assistente de STUN/TURN para Foundry VTT.",

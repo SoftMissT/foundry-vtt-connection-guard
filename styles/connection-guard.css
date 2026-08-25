@@ -81,3 +81,16 @@
   padding-left: 18px;
   font-size: 12px;
 }
+
+.connguard-journal-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.connguard-journal-table th,
+.connguard-journal-table td {
+  border: 1px solid var(--color-border-light-tertiary, #999);
+  padding: 4px 8px;
+  text-align: left;
+  font-size: 12px;
+}

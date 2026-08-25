@@ -5,6 +5,12 @@ import { MODULE_ID, SOCKET_EVENT, SETTINGS, DEFAULTS } from './constants.js'
  * game.time.sync() (mesma técnica do foundry-user-latency original), com
  * timeout para detectar ciclos "perdidos" (usado na estimativa de perda).
  * Transmite os resultados via socket para todos os outros clientes.
+ *
+ * Evolução v2.0.0:
+ * - Adaptive interval: mede mais frequente quando a conexão está ruim,
+ *   menos quando está estável (RF-004).
+ * - Detecção preditiva: conta ciclos consecutivos acima do limiar de
+ *   degradação e emite alerta via callback onDegradation (RF-003.2).
  */
 export class LatencyMonitor {
   static HISTORY_SIZE = DEFAULTS.HISTORY_SIZE
@@ -14,11 +20,17 @@ export class LatencyMonitor {
   #cycles = 0
   #running = false
   #intervalMs = DEFAULTS.LATENCY_INTERVAL_SECONDS * 1000
+  #consecutiveBadCycles = 0
   #onSample
+  #onDegradation
 
-  /** @param {(sample: object) => void} onSample chamado a cada ciclo local */
-  constructor(onSample) {
+  /**
+   * @param {(sample: object) => void} onSample chamado a cada ciclo local
+   * @param {(alert: object) => void} [onDegradation] chamado quando degradação é detectada
+   */
+  constructor(onSample, onDegradation = null) {
     this.#onSample = onSample
+    this.#onDegradation = onDegradation
   }
 
   start() {
@@ -51,6 +63,60 @@ export class LatencyMonitor {
     this.#intervalMs = Math.max(seconds, DEFAULTS.MIN_INTERVAL_SECONDS) * 1000
   }
 
+  /**
+   * Ajusta o intervalo conforme a qualidade da conexão (RF-004).
+   * Bom → multiplica por 1.5 (mede menos).
+   * Ruim → multiplica por 0.5 (mede mais).
+   * Respeita min/max configurados.
+   */
+  #adaptInterval(average) {
+    if (average === null) return
+
+    if (average <= 100) {
+      this.#intervalMs = Math.min(
+        this.#intervalMs * DEFAULTS.ADAPTIVE_GOOD_MULTIPLIER,
+        DEFAULTS.ADAPTIVE_MAX_INTERVAL_MS,
+      )
+    } else if (average >= 250) {
+      this.#intervalMs = Math.max(
+        this.#intervalMs * DEFAULTS.ADAPTIVE_BAD_MULTIPLIER,
+        DEFAULTS.ADAPTIVE_MIN_INTERVAL_MS,
+      )
+    }
+  }
+
+  /**
+   * Verifica degradação preditiva (RF-003.2).
+   * Se RTT médio > limiar por N ciclos consecutivos, emite alerta.
+   */
+  #checkDegradation(average) {
+    if (average === null) {
+      this.#consecutiveBadCycles = 0
+      return
+    }
+
+    const threshold = Number(game.settings.get(MODULE_ID, SETTINGS.DEGRADATION_THRESHOLD))
+    const limit = Number.isFinite(threshold) ? threshold : DEFAULTS.DEGRADATION_THRESHOLD_MS
+    const requiredCycles = Number(game.settings.get(MODULE_ID, SETTINGS.DEGRADATION_CYCLES))
+    const cycles = Number.isFinite(requiredCycles) ? requiredCycles : DEFAULTS.DEGRADATION_CYCLES
+
+    if (average > limit) {
+      this.#consecutiveBadCycles++
+    } else {
+      this.#consecutiveBadCycles = 0
+    }
+
+    if (this.#consecutiveBadCycles >= cycles) {
+      this.#onDegradation?.({
+        userId: game.user?.id,
+        userName: game.user?.name,
+        rtt: average,
+        cycles: this.#consecutiveBadCycles,
+      })
+      this.#consecutiveBadCycles = 0
+    }
+  }
+
   #sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
@@ -71,7 +137,11 @@ export class LatencyMonitor {
     }
 
     this.#cycles += 1
-    this.#broadcast()
+    const stats = this.#stats()
+
+    this.#adaptInterval(stats.average)
+    this.#checkDegradation(stats.average)
+    this.#broadcast(stats)
   }
 
   #withTimeout(promise, ms) {
@@ -107,8 +177,7 @@ export class LatencyMonitor {
     return { average, jitter, min, max, lossPct }
   }
 
-  #broadcast() {
-    const stats = this.#stats()
+  #broadcast(stats) {
     const payload = {
       userId: game.user.id,
       timestamp: Date.now(),

@@ -1,8 +1,8 @@
 {
   "id": "connection-guard",
   "title": "Connection Guard",
-  "description": "Mostra a latência de todos os usuários (incluindo o GM), mantém histórico de quedas e jitter, tenta reconectar automaticamente quando a conexão com o servidor cai, e ajuda a escolher os melhores servidores STUN/TURN para voz e vídeo. Baseado em foundry-user-latency de mawburn.",
-  "version": "1.0.0",
+  "description": "Monitora latência de todos os usuários (incluindo GM), detecta degradação preditiva, reconecta automaticamente, otimiza WebRTC escolhendo o melhor servidor STUN/TURN, e exporta journal de testes como Journal Entry.",
+  "version": "2.0.0",
   "compatibility": {
     "minimum": "13",
     "verified": "13.350"
@@ -10,7 +10,8 @@
   "authors": [
     {
       "name": "Kazuto",
-      "flags": {}
+      "url": "https://github.com/SoftMissT",
+      "discord": "Kazuto"
     }
   ],
   "esmodules": [
@@ -32,13 +33,14 @@
     }
   ],
   "socket": true,
+  "url": "https://github.com/SoftMissT/foundry-vtt-connection-guard",
+  "manifest": "https://github.com/SoftMissT/foundry-vtt-connection-guard/releases/latest/download/module.json",
+  "download": "https://github.com/SoftMissT/foundry-vtt-connection-guard/releases/download/v2.0.0/module.zip",
   "license": "LICENSE",
   "readme": "README.md",
   "changelog": "CHANGELOG.md",
+  "bugs": "https://github.com/SoftMissT/foundry-vtt-connection-guard/issues",
   "relationships": {
     "requires": []
-  },
-  "url": "https://github.com/SoftMissT/foundry-vtt-connection-guard",
-  "manifest": "https://github.com/SoftMissT/foundry-vtt-connection-guard/releases/latest/download/module.json",
-  "download": "https://github.com/SoftMissT/foundry-vtt-connection-guard/releases/download/v1.0.0/module.zip"
+  }
 }

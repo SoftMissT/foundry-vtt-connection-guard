@@ -3,13 +3,14 @@ import { MODULE_ID, SETTINGS, DEFAULTS } from './constants.js'
 /**
  * Guarda em memória (dura enquanto a aba estiver aberta — não persiste
  * entre sessões, de propósito, para não acumular dados sensíveis de rede
- * em um setting do mundo) o estado de conexão de cada usuário e o
- * histórico de quedas do cliente local.
+ * em um setting do mundo) o estado de conexão de cada usuário, o
+ * histórico de quedas do cliente local, e alertas de degradação preditiva.
  */
 export class DiagnosticsStore {
-  #users = new Map() // userId -> { average, jitter, lossPct, lastSeen, missedCycles }
+  #users = new Map() // userId -> { average, jitter, lossPct, lastSeen, missedCycles, stale }
   #localDrops = [] // { start, end, durationMs }
   #dropStart = null
+  #degradationAlerts = [] // { timestamp, userId, rtt, cycles }
 
   recordSample(payload) {
     const prev = this.#users.get(payload.userId)
@@ -65,5 +66,18 @@ export class DiagnosticsStore {
 
   isCurrentlyDown() {
     return this.#dropStart !== null
+  }
+
+  /** Registra um alerta de degradação preditiva (RF-003.2). */
+  recordDegradation(userId, rtt, cycles) {
+    this.#degradationAlerts.push({ timestamp: Date.now(), userId, rtt, cycles })
+
+    const max = Number(game.settings.get(MODULE_ID, SETTINGS.DIAGNOSTICS_HISTORY_SIZE))
+    const limit = Number.isFinite(max) ? max : DEFAULTS.DIAGNOSTICS_HISTORY_SIZE
+    if (this.#degradationAlerts.length > limit) this.#degradationAlerts.shift()
+  }
+
+  getDegradationAlerts() {
+    return [...this.#degradationAlerts]
   }
 }

@@ -16,6 +16,20 @@ export const SETTINGS = {
   DIAGNOSTICS_HISTORY_SIZE: 'diagnosticsHistorySize',
   GM_PANEL_MENU: 'gmPanelMenu',
   WEBRTC_ADVISOR_MENU: 'webrtcAdvisorMenu',
+  DEGRADATION_THRESHOLD: 'degradationThreshold',
+  DEGRADATION_CYCLES: 'degradationCycles',
+  CUSTOM_STUN_SERVERS: 'customStunServers',
+  TURN_CREDENTIALS: 'turnCredentials',
+}
+
+export const JOURNAL_TYPES = {
+  LIFECYCLE: 'lifecycle',
+  LATENCY: 'latency',
+  CONNECTION: 'connection',
+  STALE: 'stale',
+  WEBRTC: 'webrtc',
+  DEGRADATION: 'degradation',
+  ERROR: 'error',
 }
 
 export const DEFAULTS = {
@@ -25,6 +39,12 @@ export const DEFAULTS = {
   DIAGNOSTICS_HISTORY_SIZE: 30,
   RECONNECT_MAX_DELAY_SECONDS: 15,
   MISSED_PINGS_FOR_TIMEOUT: 3,
+  DEGRADATION_THRESHOLD_MS: 300,
+  DEGRADATION_CYCLES: 3,
+  ADAPTIVE_MIN_INTERVAL_MS: 10000,
+  ADAPTIVE_MAX_INTERVAL_MS: 90000,
+  ADAPTIVE_GOOD_MULTIPLIER: 1.5,
+  ADAPTIVE_BAD_MULTIPLIER: 0.5,
 }
 
 // Servidores STUN públicos conhecidos, usados apenas para BENCHMARK local

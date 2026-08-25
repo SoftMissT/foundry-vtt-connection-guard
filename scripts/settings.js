@@ -1,6 +1,6 @@
 import { MODULE_ID, SETTINGS, DEFAULTS } from './constants.js'
 import { GmPanel } from './gm-panel.js'
-import { WebRtcAdvisor } from './webrtc-advisor.js'
+import { WebRtcOptimizer } from './webrtc-optimizer.js'
 
 export function registerSettings() {
   const g = game
@@ -68,6 +68,45 @@ export function registerSettings() {
     config: true,
   })
 
+  g.settings.register(MODULE_ID, SETTINGS.DEGRADATION_THRESHOLD, {
+    name: g.i18n.localize('CONNGUARD.Settings.DegradationThreshold.Name'),
+    hint: g.i18n.localize('CONNGUARD.Settings.DegradationThreshold.Hint'),
+    type: Number,
+    range: { min: 100, max: 1000, step: 50 },
+    default: DEFAULTS.DEGRADATION_THRESHOLD_MS,
+    scope: 'world',
+    config: true,
+  })
+
+  g.settings.register(MODULE_ID, SETTINGS.DEGRADATION_CYCLES, {
+    name: g.i18n.localize('CONNGUARD.Settings.DegradationCycles.Name'),
+    hint: g.i18n.localize('CONNGUARD.Settings.DegradationCycles.Hint'),
+    type: Number,
+    range: { min: 2, max: 10, step: 1 },
+    default: DEFAULTS.DEGRADATION_CYCLES,
+    scope: 'world',
+    config: true,
+  })
+
+  g.settings.register(MODULE_ID, SETTINGS.CUSTOM_STUN_SERVERS, {
+    name: g.i18n.localize('CONNGUARD.Settings.CustomStun.Name'),
+    hint: g.i18n.localize('CONNGUARD.Settings.CustomStun.Hint'),
+    type: String,
+    default: '',
+    scope: 'world',
+    config: true,
+  })
+
+  g.settings.register(MODULE_ID, SETTINGS.TURN_CREDENTIALS, {
+    name: g.i18n.localize('CONNGUARD.Settings.TurnCredentials.Name'),
+    hint: g.i18n.localize('CONNGUARD.Settings.TurnCredentials.Hint'),
+    type: String,
+    default: '',
+    scope: 'world',
+    restricted: true,
+    config: true,
+  })
+
   g.settings.registerMenu(MODULE_ID, SETTINGS.GM_PANEL_MENU, {
     name: g.i18n.localize('CONNGUARD.Menu.GmPanel.Name'),
     label: g.i18n.localize('CONNGUARD.Menu.GmPanel.Label'),
@@ -90,7 +129,7 @@ export function registerSettings() {
 // registerMenu exige uma classe FormApplication/ApplicationV2 com um
 // construtor sem argumentos obrigatórios e um método render(). Usamos
 // classes "launcher" enxutas que só abrem os apps reais, para não
-// acoplar GmPanel/WebRtcAdvisor ao contrato de FormApplication.
+// acoplar GmPanel/WebRtcOptimizer ao contrato de FormApplication.
 class GmPanelMenuLauncher extends FormApplication {
   render() {
     new GmPanel().render(true)
@@ -104,7 +143,7 @@ class GmPanelMenuLauncher extends FormApplication {
 
 class WebRtcAdvisorMenuLauncher extends FormApplication {
   render() {
-    new WebRtcAdvisor().render(true)
+    new WebRtcOptimizer().render(true)
     return this
   }
   async _updateObject() {}
