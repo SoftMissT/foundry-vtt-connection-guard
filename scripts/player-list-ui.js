@@ -8,6 +8,8 @@ const LEVEL = {
 
 export class PlayerListUI {
   #diagnostics
+  #hookIds = []
+  #renderPending = false
 
   constructor(diagnostics) {
     this.#diagnostics = diagnostics
@@ -15,16 +17,28 @@ export class PlayerListUI {
 
   registerHooks() {
     for (const hookName of PLAYERS_RENDER_HOOKS) {
-      Hooks.on(hookName, (_app, html) => this.#onRender(html))
+      const id = Hooks.on(hookName, (_app, html) => this.#onRender(html))
+      this.#hookIds.push({ hookName, id })
     }
+  }
+
+  destroy() {
+    for (const { hookName, id } of this.#hookIds) {
+      Hooks.off(hookName, id)
+    }
+    this.#hookIds = []
   }
 
   /** Chamado a cada amostra local ou recebida por socket. */
   refresh(userId) {
     this.#updateBadge(userId)
-    // Força um re-render leve da UI de players quando disponível, para
-    // refletir o novo valor sem esperar o próximo render nativo.
-    ui.players?.render?.()
+    if (!this.#renderPending) {
+      this.#renderPending = true
+      requestAnimationFrame(() => {
+        this.#renderPending = false
+        ui.players?.render?.()
+      })
+    }
   }
 
   #onRender(html) {
@@ -37,10 +51,7 @@ export class PlayerListUI {
   }
 
   #findRoot() {
-    // ApplicationV2 expõe .element; fallback para o antigo #players.
-    return ui.players?.element instanceof HTMLElement
-      ? ui.players.element
-      : document.getElementById('players')
+    return ui.players?.element instanceof HTMLElement ? ui.players.element : null
   }
 
   #updateBadge(userId, rootOverride = null) {

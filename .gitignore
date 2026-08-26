@@ -5,3 +5,5 @@ dist/
 *.log
 .vscode/*
 !.vscode/extensions.json
+.prettierrc
+DEVELOPMENT.MD  

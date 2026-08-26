@@ -11,8 +11,16 @@ import { MODULE_TITLE, MODULE_ID, PUBLIC_STUN_SERVERS, SETTINGS, JOURNAL_TYPES }
  * Se a API não estiver disponível ou falhar, entrega instrução manual
  * como fallback (Artigo IV da Constitution — honestidade técnica).
  */
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
 export class WebRtcOptimizer {
-  static journal = null
+  #journal
+
+  constructor(journal) {
+    this.#journal = journal
+  }
 
   async render() {
     const results = await this.#benchmarkAll()
@@ -54,7 +62,7 @@ export class WebRtcOptimizer {
         ui.notifications.info(
           game.i18n.format('CONNGUARD.Notif.WebRtcAutoApplied', { url: best.url }),
         )
-        WebRtcOptimizer.journal?.log(JOURNAL_TYPES.WEBRTC, {
+        this.#journal?.log(JOURNAL_TYPES.WEBRTC, {
           url: best.url,
           timeMs: best.timeMs,
           autoApplied: true,
@@ -75,14 +83,17 @@ export class WebRtcOptimizer {
       ? custom
           .split(',')
           .map(s => s.trim())
-          .filter(Boolean)
+          .filter(s => s && /^(stun|turn):.+$/i.test(s))
       : PUBLIC_STUN_SERVERS
 
-    const results = await Promise.all(servers.map(url => this.#benchmarkOne(url)))
+    const results = []
+    for (const url of servers) {
+      results.push(await this.#benchmarkOne(url))
+    }
     const sorted = results.sort((a, b) => (a.timeMs ?? Infinity) - (b.timeMs ?? Infinity))
 
     for (const r of sorted) {
-      WebRtcOptimizer.journal?.log(JOURNAL_TYPES.WEBRTC, r)
+      this.#journal?.log(JOURNAL_TYPES.WEBRTC, r)
     }
 
     return sorted
@@ -101,7 +112,7 @@ export class WebRtcOptimizer {
         pc.onicecandidate = null
         try {
           pc.close()
-        } catch (_err) {
+        } catch {
           /* já fechado, ignora */
         }
         resolve({ url, timeMs })
@@ -120,7 +131,10 @@ export class WebRtcOptimizer {
       pc
         .createOffer()
         .then(offer => pc.setLocalDescription(offer))
-        .catch(() => finish(null))
+        .catch(err => {
+          console.warn(`${MODULE_ID} | STUN benchmark offer failed: ${err?.message ?? err}`)
+          finish(null)
+        })
     })
   }
 
@@ -130,7 +144,7 @@ export class WebRtcOptimizer {
         const status = r.timeMs === null
           ? game.i18n.localize('CONNGUARD.WebRtc.NoResponse')
           : `${r.timeMs}ms`
-        return `<tr><td><code>${r.url}</code></td><td>${status}</td></tr>`
+        return `<tr><td><code>${escapeHtml(r.url)}</code></td><td>${status}</td></tr>`
       })
       .join('')
 
@@ -166,7 +180,7 @@ export class WebRtcOptimizer {
     try {
       await navigator.clipboard.writeText(best.url)
       ui.notifications.info(game.i18n.format('CONNGUARD.WebRtc.Copied', { url: best.url }))
-    } catch (_err) {
+    } catch {
       ui.notifications.warn(game.i18n.localize('CONNGUARD.WebRtc.CopyFailed'))
     }
   }

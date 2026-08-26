@@ -6,10 +6,10 @@ Módulo para Foundry VTT (v13+) que monitora, diagnostica e otimiza a conexão d
 
 - **Latência em tempo real**: mostra o ping (RTT) de cada usuário ao lado do nome na lista de jogadores, incluindo o GM. Modo compacto opcional (`+`/`-`/`!`) para acessibilidade.
 - **Reconexão preditiva**: detecta degradação de RTT *antes* da queda e alerta o usuário. Quando a queda acontece, reconecta mais rápido e com mais insistência que o padrão do Foundry.
-- **Adaptive ping**: mede a latência com mais frequência quando a conexão está ruim e menos quando está estável — economiza recursos sem perder resolução no momento que importa.
+- **Adaptive ping**: mede a latência com mais frequência quando a conexão está ruim e menos quando está estável economiza recursos sem perder resolução no momento que importa.
 - **Auto-otimização WebRTC**: testa servidores STUN públicos a partir do navegador do usuário e **aplica automaticamente** o mais rápido na configuração de Áudio/Vídeo. Se a API não estiver disponível, exibe instrução manual como fallback.
 - **Painel de diagnóstico do GM**: tabela com latência, jitter, perda estimada e status de cada usuário. Histórico de quedas com timestamp e duração. Alertas de degradação preditiva.
-- **Journal de testes**: captura todos os eventos de runtime (lifecycle, latência, conexão, degradação, WebRTC, erros) e exporta como Journal Entry do Foundry em markdown — para validar se o módulo está funcionando corretamente.
+- **Journal de testes**: captura todos os eventos de runtime (lifecycle, latência, conexão, degradação, WebRTC, erros) e exporta como Journal Entry do Foundry em markdown para validar se o módulo está funcionando corretamente.
 - **Servidores STUN/TURN customizados**: o GM pode configurar lista própria. Credenciais TURN ficam em setting `restricted: true`, nunca logadas.
 - **i18n**: português (Brasil) como idioma principal, inglês como fallback.
 
@@ -24,8 +24,8 @@ Módulo para Foundry VTT (v13+) que monitora, diagnostica e otimiza a conexão d
 https://github.com/SoftMissT/foundry-vtt-connection-guard/releases/latest/download/module.json
 ```
 
-3. Clique em **Instalar**.
-4. Ative o módulo em **Configurar Jogo → Gerenciar Módulos**.
+1. Clique em **Instalar**.
+2. Ative o módulo em **Configurar Jogo → Gerenciar Módulos**.
 
 ### Manual
 
@@ -38,7 +38,7 @@ https://github.com/SoftMissT/foundry-vtt-connection-guard/releases/latest/downlo
 As configurações ficam em **Configurar Jogo → Configurações → Connection Guard**.
 
 | Setting | Escopo | Default | Descrição |
-|---------|--------|---------|-----------|
+| --------- | -------- | --------- | ----------- |
 | Intervalo de medição | Mundo | 20s | De quanto em quanto tempo cada cliente mede sua latência |
 | Ocultar latência | Cliente | off | Some com o badge na lista de jogadores |
 | Modo compacto | Cliente | off | `+`/`-`/`!` em vez do valor em ms |
@@ -79,10 +79,10 @@ O badge aparece automaticamente ao lado do nome de cada usuário na lista de jog
 
 ## O que "melhorar a conexão" significa aqui
 
-O Foundry VTT é cliente-servidor: o navegador de cada jogador fala com **um** servidor (o do GM) via WebSocket. Não existe "escolher a melhor rota" entre servidores — só existe um destino possível. Dentro dessa realidade, o módulo faz o que é tecnicamente possível:
+O Foundry VTT é cliente-servidor: o navegador de cada jogador fala com **um** servidor (o do GM) via WebSocket. Não existe "escolher a melhor rota" entre servidores só existe um destino possível. Dentro dessa realidade, o módulo faz o que é tecnicamente possível:
 
 | Problema | O que o módulo faz |
-|----------|-------------------|
+| ---------- | ------------------- |
 | Latência desconhecida | Mede RTT de cada cliente e mostra na lista de jogadores |
 | Quedas silenciosas | Banner visual + reconexão forçada ao detectar rede/aba ativa |
 | Queda iminente | Detecção preditiva: RTT > limiar por N ciclos → alerta antes de cair |
@@ -91,7 +91,7 @@ O Foundry VTT é cliente-servidor: o navegador de cada jogador fala com **um** s
 | Medição fixa | Adaptive interval: mais frequente quando ruim, menos quando estável |
 | Sem diagnóstico | Painel do GM + journal exportável com histórico completo |
 
-**TURN**: servidores TURN públicos e gratuitos praticamente não existem (TURN retransmite toda a mídia — custa banda). Para mesas em redes muito restritas (CGNAT, firewall corporativo), o caminho é hospedar um `coturn` próprio ou contratar um serviço.
+**TURN**: servidores TURN públicos e gratuitos praticamente não existem (TURN retransmite toda a mídia custa banda). Para mesas em redes muito restritas (CGNAT, firewall corporativo), o caminho é hospedar um `coturn` próprio ou contratar um serviço.
 
 ## Estrutura do código
 
@@ -106,7 +106,7 @@ scripts/
   player-list-ui.js      badge de latência na lista de jogadores
   gm-panel.js            painel do GM (DialogV2) + botão Exportar Journal
   journal-logger.js      captura eventos + gera markdown + cria Journal Entry
-  main.js                entry point — orquestra tudo nos hooks init/ready
+  main.js                entry point orquestra tudo nos hooks init/ready
 lang/
   pt-BR.json             tradução principal
   en.json                fallback
@@ -120,12 +120,12 @@ Sem etapa de build: JavaScript ES Module puro, carregado direto pelo Foundry via
 
 Baseado conceitualmente em [`foundry-user-latency`](https://github.com/mawburn/foundry-user-latency) de **mawburn**. Código reescrito do zero em ES Modules para v13+, mantendo a técnica de medição (`game.time.sync()`) e adicionando reconexão preditiva, adaptive ping, auto-otimização WebRTC e journal de testes.
 
-Licenciado sob **GPL-3.0** — veja `LICENSE`.
+Licenciado sob **GPL-3.0** veja `LICENSE`.
 
 ## Compatibilidade
 
 - **Mínimo**: Foundry VTT v13
-- **Verificado**: v13.350
+- **Verificado**: v14.999
 - **Sem `maximum` fixo**: compatível com versões futuras até que uma mudança de API quebre algo (o Foundry avisa o GM antes de ativar se houver incompatibilidade)
 - **Sem dependências**: não requer outros módulos
 - **Sistemas**: funciona com qualquer sistema (não usa dados de Actor/Item)

@@ -7,15 +7,20 @@ import { MODULE_TITLE } from './constants.js'
  * Implementado como DialogV2 (ApplicationV2).
  */
 export class GmPanel {
-  static diagnostics = null
-  static journal = null
+  #diagnostics
+  #journal
+
+  constructor(diagnostics, journal) {
+    this.#diagnostics = diagnostics
+    this.#journal = journal
+  }
 
   async render(_force) {
     const rows = this.#buildRows()
     const drops = this.#buildDrops()
     const degradation = this.#buildDegradation()
-    const journalInfo = GmPanel.journal
-      ? `<p class="connguard-muted">${game.i18n.format('CONNGUARD.Panel.JournalEntries', { count: GmPanel.journal.entryCount })}</p>`
+    const journalInfo = this.#journal
+      ? `<p class="connguard-muted">${game.i18n.format('CONNGUARD.Panel.JournalEntries', { count: this.#journal.entryCount })}</p>`
       : ''
 
     const content = `
@@ -62,7 +67,7 @@ export class GmPanel {
   }
 
   #buildRows() {
-    const diagnostics = GmPanel.diagnostics
+    const diagnostics = this.#diagnostics
     if (!diagnostics) return ''
 
     const rows = []
@@ -88,7 +93,7 @@ export class GmPanel {
   }
 
   #buildDrops() {
-    const diagnostics = GmPanel.diagnostics
+    const diagnostics = this.#diagnostics
     const drops = diagnostics?.getLocalDrops() ?? []
     if (drops.length === 0) {
       return `<p class="connguard-muted">${game.i18n.localize('CONNGUARD.Panel.NoDrops')}</p>`
@@ -108,7 +113,7 @@ export class GmPanel {
   }
 
   #buildDegradation() {
-    const diagnostics = GmPanel.diagnostics
+    const diagnostics = this.#diagnostics
     const alerts = diagnostics?.getDegradationAlerts() ?? []
     if (alerts.length === 0) return ''
 
@@ -118,7 +123,7 @@ export class GmPanel {
       .map(a => {
         const when = new Date(a.timestamp).toLocaleTimeString()
         const user = game.users.get(a.userId)?.name ?? a.userId ?? '?'
-        return `<li>${when} — ${user}: ${a.rtt}ms (${a.cycles} ciclos)</li>`
+        return `<li>${when} — ${user}: ${a.rtt}ms (${game.i18n.format('CONNGUARD.Panel.Cycles', { count: a.cycles })})</li>`
       })
       .join('')
 
@@ -129,7 +134,7 @@ export class GmPanel {
   }
 
   async #exportJournal() {
-    const journal = GmPanel.journal
+    const journal = this.#journal
     if (!journal || journal.entryCount === 0) {
       ui.notifications.warn(game.i18n.localize('CONNGUARD.Panel.JournalEmpty'))
       return

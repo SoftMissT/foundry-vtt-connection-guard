@@ -39,7 +39,7 @@ export class DiagnosticsStore {
   }
 
   getAllUsers() {
-    return this.#users
+    return new Map(this.#users)
   }
 
   recordLocalDisconnect() {

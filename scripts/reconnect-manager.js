@@ -16,6 +16,10 @@ export class ReconnectManager {
   #diagnostics
   #journal
   #bannerEl = null
+  #boundOnDisconnect = null
+  #boundOnConnect = null
+  #boundOnOnline = null
+  #boundOnVisibilityChange = null
 
   constructor(diagnostics, journal = null) {
     this.#diagnostics = diagnostics
@@ -31,13 +35,30 @@ export class ReconnectManager {
       return
     }
 
-    socket.on('disconnect', reason => this.#onDisconnect(reason))
-    socket.on('connect', () => this.#onConnect())
-
-    window.addEventListener('online', () => this.#forceReconnectAttempt())
-    document.addEventListener('visibilitychange', () => {
+    this.#boundOnDisconnect = reason => this.#onDisconnect(reason)
+    this.#boundOnConnect = () => this.#onConnect()
+    this.#boundOnOnline = () => this.#forceReconnectAttempt()
+    this.#boundOnVisibilityChange = () => {
       if (document.visibilityState === 'visible') this.#forceReconnectAttempt()
-    })
+    }
+
+    socket.on('disconnect', this.#boundOnDisconnect)
+    socket.on('connect', this.#boundOnConnect)
+    window.addEventListener('online', this.#boundOnOnline)
+    document.addEventListener('visibilitychange', this.#boundOnVisibilityChange)
+  }
+
+  stop() {
+    const socket = game.socket
+    if (socket) {
+      if (this.#boundOnDisconnect) socket.off('disconnect', this.#boundOnDisconnect)
+      if (this.#boundOnConnect) socket.off('connect', this.#boundOnConnect)
+    }
+    if (this.#boundOnOnline) window.removeEventListener('online', this.#boundOnOnline)
+    if (this.#boundOnVisibilityChange) {
+      document.removeEventListener('visibilitychange', this.#boundOnVisibilityChange)
+    }
+    this.#hideBanner()
   }
 
   #applyBackoffSettings() {
@@ -65,7 +86,7 @@ export class ReconnectManager {
   }
 
   #onConnect() {
-    if (!this.#diagnostics.isCurrentlyDown()) return // primeira conexão, não é reconexão
+    if (!this.#diagnostics.isCurrentlyDown()) return
 
     const entry = this.#diagnostics.recordLocalReconnect()
     this.#hideBanner()

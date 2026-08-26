@@ -14,15 +14,17 @@ import { MODULE_ID, SOCKET_EVENT, SETTINGS, DEFAULTS } from './constants.js'
  */
 export class LatencyMonitor {
   static HISTORY_SIZE = DEFAULTS.HISTORY_SIZE
+  static LOSS_WINDOW_SIZE = 20
 
   #history = []
-  #missed = 0
-  #cycles = 0
+  #recentCycles = [] // true = sucesso, false = perdido (sliding window)
   #running = false
   #intervalMs = DEFAULTS.LATENCY_INTERVAL_SECONDS * 1000
   #consecutiveBadCycles = 0
   #onSample
   #onDegradation
+  #cachedDegThreshold = DEFAULTS.DEGRADATION_THRESHOLD_MS
+  #cachedDegCycles = DEFAULTS.DEGRADATION_CYCLES
 
   /**
    * @param {(sample: object) => void} onSample chamado a cada ciclo local
@@ -36,6 +38,18 @@ export class LatencyMonitor {
   start() {
     if (this.#running) return
     this.#running = true
+    this.#readAllSettings()
+    Hooks.on('updateSetting', (doc) => {
+      if (doc.key === `${MODULE_ID}.${SETTINGS.LATENCY_INTERVAL}`) this.#readIntervalSetting()
+      if (doc.key === `${MODULE_ID}.${SETTINGS.DEGRADATION_THRESHOLD}`) {
+        const v = Number(doc.value)
+        this.#cachedDegThreshold = Number.isFinite(v) ? v : DEFAULTS.DEGRADATION_THRESHOLD_MS
+      }
+      if (doc.key === `${MODULE_ID}.${SETTINGS.DEGRADATION_CYCLES}`) {
+        const v = Number(doc.value)
+        this.#cachedDegCycles = Number.isFinite(v) ? v : DEFAULTS.DEGRADATION_CYCLES
+      }
+    })
     this.#loop()
   }
 
@@ -50,11 +64,18 @@ export class LatencyMonitor {
 
   async #loop() {
     while (this.#running) {
-      this.#readIntervalSetting()
       await this.#sleep(this.#intervalMs)
       if (!this.#running) break
       await this.#measureOnce()
     }
+  }
+
+  #readAllSettings() {
+    this.#readIntervalSetting()
+    const degThreshold = Number(game.settings.get(MODULE_ID, SETTINGS.DEGRADATION_THRESHOLD))
+    this.#cachedDegThreshold = Number.isFinite(degThreshold) ? degThreshold : DEFAULTS.DEGRADATION_THRESHOLD_MS
+    const degCycles = Number(game.settings.get(MODULE_ID, SETTINGS.DEGRADATION_CYCLES))
+    this.#cachedDegCycles = Number.isFinite(degCycles) ? degCycles : DEFAULTS.DEGRADATION_CYCLES
   }
 
   #readIntervalSetting() {
@@ -72,12 +93,12 @@ export class LatencyMonitor {
   #adaptInterval(average) {
     if (average === null) return
 
-    if (average <= 100) {
+    if (average <= DEFAULTS.ADAPTIVE_GOOD_THRESHOLD_MS) {
       this.#intervalMs = Math.min(
         this.#intervalMs * DEFAULTS.ADAPTIVE_GOOD_MULTIPLIER,
         DEFAULTS.ADAPTIVE_MAX_INTERVAL_MS,
       )
-    } else if (average >= 250) {
+    } else if (average >= DEFAULTS.ADAPTIVE_BAD_THRESHOLD_MS) {
       this.#intervalMs = Math.max(
         this.#intervalMs * DEFAULTS.ADAPTIVE_BAD_MULTIPLIER,
         DEFAULTS.ADAPTIVE_MIN_INTERVAL_MS,
@@ -95,18 +116,13 @@ export class LatencyMonitor {
       return
     }
 
-    const threshold = Number(game.settings.get(MODULE_ID, SETTINGS.DEGRADATION_THRESHOLD))
-    const limit = Number.isFinite(threshold) ? threshold : DEFAULTS.DEGRADATION_THRESHOLD_MS
-    const requiredCycles = Number(game.settings.get(MODULE_ID, SETTINGS.DEGRADATION_CYCLES))
-    const cycles = Number.isFinite(requiredCycles) ? requiredCycles : DEFAULTS.DEGRADATION_CYCLES
-
-    if (average > limit) {
+    if (average > this.#cachedDegThreshold) {
       this.#consecutiveBadCycles++
     } else {
       this.#consecutiveBadCycles = 0
     }
 
-    if (this.#consecutiveBadCycles >= cycles) {
+    if (this.#consecutiveBadCycles >= this.#cachedDegCycles) {
       this.#onDegradation?.({
         userId: game.user?.id,
         userName: game.user?.name,
@@ -127,18 +143,22 @@ export class LatencyMonitor {
     const timeoutMs = Math.min(this.#intervalMs * 0.8, 8000)
     const start = performance.now()
 
+    let success = false
     try {
       await this.#withTimeout(game.time.sync(), timeoutMs)
       const rtt = Math.round(performance.now() - start)
       this.#recordSample(rtt)
+      success = true
     } catch (err) {
-      this.#missed += 1
       console.warn(`${MODULE_ID} | ciclo de latência perdido (${err?.message ?? err})`)
     }
 
-    this.#cycles += 1
-    const stats = this.#stats()
+    this.#recentCycles.push(success)
+    if (this.#recentCycles.length > LatencyMonitor.LOSS_WINDOW_SIZE) {
+      this.#recentCycles.shift()
+    }
 
+    const stats = this.#stats()
     this.#adaptInterval(stats.average)
     this.#checkDegradation(stats.average)
     this.#broadcast(stats)
@@ -169,17 +189,22 @@ export class LatencyMonitor {
     const average = Math.round(this.#history.reduce((a, b) => a + b, 0) / n)
     const variance = this.#history.reduce((acc, v) => acc + (v - average) ** 2, 0) / n
     const jitter = Math.round(Math.sqrt(variance))
-    const min = Math.min(...this.#history)
-    const max = Math.max(...this.#history)
-    const totalCycles = this.#cycles || 1
-    const lossPct = Math.round((this.#missed / totalCycles) * 100)
+    let min = this.#history[0]
+    let max = this.#history[0]
+    for (let i = 1; i < n; i++) {
+      if (this.#history[i] < min) min = this.#history[i]
+      if (this.#history[i] > max) max = this.#history[i]
+    }
+    const windowSize = this.#recentCycles.length || 1
+    const missedInWindow = this.#recentCycles.filter(c => !c).length
+    const lossPct = Math.round((missedInWindow / windowSize) * 100)
 
     return { average, jitter, min, max, lossPct }
   }
 
   #broadcast(stats) {
     const payload = {
-      userId: game.user.id,
+      userId: game.user?.id,
       timestamp: Date.now(),
       ...stats,
     }

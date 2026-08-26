@@ -9,6 +9,7 @@ import { MODULE_TITLE, JOURNAL_TYPES } from './constants.js'
 export class JournalLogger {
   #entries = []
   #journalEntryId = null
+  static MAX_ENTRIES = 500
 
   /**
    * Registra um evento no journal.
@@ -21,6 +22,9 @@ export class JournalLogger {
       type,
       ...data,
     })
+    if (this.#entries.length > JournalLogger.MAX_ENTRIES) {
+      this.#entries.shift()
+    }
   }
 
   /** Número de entradas registradas. */
@@ -41,18 +45,19 @@ export class JournalLogger {
   generateMarkdown() {
     const now = new Date()
     const lines = []
+    const i18n = key => game.i18n.localize(key)
 
     lines.push(`# ${MODULE_TITLE} — Journal`)
     lines.push('')
-    lines.push(`**Gerado:** ${now.toLocaleString()}`)
-    lines.push(`**Sessão:** ${now.toISOString().slice(0, 10)}`)
-    lines.push(`**Entradas:** ${this.#entries.length}`)
+    lines.push(`**${i18n('CONNGUARD.Journal.Generated')}:** ${now.toLocaleString()}`)
+    lines.push(`**${i18n('CONNGUARD.Journal.Session')}:** ${now.toISOString().slice(0, 10)}`)
+    lines.push(`**${i18n('CONNGUARD.Journal.Entries')}:** ${this.#entries.length}`)
     lines.push('')
 
     const grouped = this.#groupByType()
 
     if (grouped[JOURNAL_TYPES.LIFECYCLE]?.length) {
-      lines.push('## Lifecycle')
+      lines.push(`## ${i18n('CONNGUARD.Journal.SectionLifecycle')}`)
       lines.push('')
       for (const e of grouped[JOURNAL_TYPES.LIFECYCLE]) {
         lines.push(`- [${this.#fmtTime(e.timestamp)}] ${e.message}`)
@@ -61,9 +66,9 @@ export class JournalLogger {
     }
 
     if (grouped[JOURNAL_TYPES.LATENCY]?.length) {
-      lines.push('## Latência')
+      lines.push(`## ${i18n('CONNGUARD.Journal.SectionLatency')}`)
       lines.push('')
-      lines.push('| Hora | Usuário | RTT (ms) | Jitter (ms) | Perda (%) |')
+      lines.push(`| ${i18n('CONNGUARD.Journal.Hour')} | ${i18n('CONNGUARD.Journal.User')} | ${i18n('CONNGUARD.Journal.Rtt')} | ${i18n('CONNGUARD.Journal.Jitter')} | ${i18n('CONNGUARD.Journal.Loss')} |`)
       lines.push('|------|---------|----------|-------------|-----------|')
       for (const e of grouped[JOURNAL_TYPES.LATENCY]) {
         const user = e.userName ?? e.userId ?? '?'
@@ -75,9 +80,9 @@ export class JournalLogger {
     }
 
     if (grouped[JOURNAL_TYPES.CONNECTION]?.length) {
-      lines.push('## Eventos de Conexão')
+      lines.push(`## ${i18n('CONNGUARD.Journal.SectionConnection')}`)
       lines.push('')
-      lines.push('| Hora | Evento | Detalhes |')
+      lines.push(`| ${i18n('CONNGUARD.Journal.Hour')} | ${i18n('CONNGUARD.Journal.Event')} | ${i18n('CONNGUARD.Journal.Details')} |`)
       lines.push('|------|--------|----------|')
       for (const e of grouped[JOURNAL_TYPES.CONNECTION]) {
         lines.push(`| ${this.#fmtTime(e.timestamp)} | ${e.event} | ${e.details ?? ''} |`)
@@ -86,9 +91,9 @@ export class JournalLogger {
     }
 
     if (grouped[JOURNAL_TYPES.DEGRADATION]?.length) {
-      lines.push('## Alertas de Degradação')
+      lines.push(`## ${i18n('CONNGUARD.Journal.SectionDegradation')}`)
       lines.push('')
-      lines.push('| Hora | Usuário | RTT (ms) | Ciclos |')
+      lines.push(`| ${i18n('CONNGUARD.Journal.Hour')} | ${i18n('CONNGUARD.Journal.User')} | ${i18n('CONNGUARD.Journal.Rtt')} | ${i18n('CONNGUARD.Journal.Cycles')} |`)
       lines.push('|------|---------|----------|--------|')
       for (const e of grouped[JOURNAL_TYPES.DEGRADATION]) {
         const user = e.userName ?? e.userId ?? '?'
@@ -98,9 +103,9 @@ export class JournalLogger {
     }
 
     if (grouped[JOURNAL_TYPES.STALE]?.length) {
-      lines.push('## Usuários Sem Resposta')
+      lines.push(`## ${i18n('CONNGUARD.Journal.SectionStale')}`)
       lines.push('')
-      lines.push('| Hora | Usuário | Última Amostra |')
+      lines.push(`| ${i18n('CONNGUARD.Journal.Hour')} | ${i18n('CONNGUARD.Journal.User')} | ${i18n('CONNGUARD.Journal.LastSeen')} |`)
       lines.push('|------|---------|----------------|')
       for (const e of grouped[JOURNAL_TYPES.STALE]) {
         const user = e.userName ?? e.userId ?? '?'
@@ -110,18 +115,18 @@ export class JournalLogger {
     }
 
     if (grouped[JOURNAL_TYPES.WEBRTC]?.length) {
-      lines.push('## WebRTC — Benchmark de STUN')
+      lines.push(`## ${i18n('CONNGUARD.Journal.SectionWebrtc')}`)
       lines.push('')
-      lines.push('| Servidor | Tempo (ms) |')
+      lines.push(`| ${i18n('CONNGUARD.Journal.Server')} | ${i18n('CONNGUARD.Journal.Time')} |`)
       lines.push('|----------|------------|')
       for (const e of grouped[JOURNAL_TYPES.WEBRTC]) {
-        lines.push(`| ${e.url} | ${e.timeMs ?? 'sem resposta'} |`)
+        lines.push(`| ${e.url} | ${e.timeMs ?? i18n('CONNGUARD.Journal.NoResponse')} |`)
       }
       lines.push('')
     }
 
     if (grouped[JOURNAL_TYPES.ERROR]?.length) {
-      lines.push('## Erros')
+      lines.push(`## ${i18n('CONNGUARD.Journal.SectionErrors')}`)
       lines.push('')
       for (const e of grouped[JOURNAL_TYPES.ERROR]) {
         lines.push(`- [${this.#fmtTime(e.timestamp)}] ${e.message}`)
@@ -130,7 +135,7 @@ export class JournalLogger {
     }
 
     if (this.#entries.length === 0) {
-      lines.push('*Nenhuma entrada registrada nesta sessão.*')
+      lines.push(i18n('CONNGUARD.Journal.NoEntries'))
     }
 
     return lines.join('\n')

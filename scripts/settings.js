@@ -2,6 +2,19 @@ import { MODULE_ID, SETTINGS, DEFAULTS } from './constants.js'
 import { GmPanel } from './gm-panel.js'
 import { WebRtcOptimizer } from './webrtc-optimizer.js'
 
+/** Referências para as instâncias reais, preenchidas por main.js no ready. */
+let _diagnostics = null
+let _journal = null
+
+/**
+ * Registra as dependências que os menu launchers precisam.
+ * Chamado por main.js no hook 'ready', antes de abrir qualquer painel.
+ */
+export function setMenuDependencies(diagnostics, journal) {
+  _diagnostics = diagnostics
+  _journal = journal
+}
+
 export function registerSettings() {
   const g = game
 
@@ -126,28 +139,19 @@ export function registerSettings() {
   })
 }
 
-// registerMenu exige uma classe FormApplication/ApplicationV2 com um
-// construtor sem argumentos obrigatórios e um método render(). Usamos
-// classes "launcher" enxutas que só abrem os apps reais, para não
-// acoplar GmPanel/WebRtcOptimizer ao contrato de FormApplication.
-class GmPanelMenuLauncher extends FormApplication {
+// registerMenu exige uma classe com construtor sem argumentos obrigatórios
+// e um método render(). Usamos referências lazy às dependências que só
+// existem no hook 'ready'.
+class GmPanelMenuLauncher {
   render() {
-    new GmPanel().render(true)
-    return this
-  }
-  async _updateObject() {}
-  get template() {
-    return null
+    if (!_diagnostics || !_journal) return
+    new GmPanel(_diagnostics, _journal).render(true)
   }
 }
 
-class WebRtcAdvisorMenuLauncher extends FormApplication {
+class WebRtcAdvisorMenuLauncher {
   render() {
-    new WebRtcOptimizer().render(true)
-    return this
-  }
-  async _updateObject() {}
-  get template() {
-    return null
+    if (!_journal) return
+    new WebRtcOptimizer(_journal).render(true)
   }
 }
