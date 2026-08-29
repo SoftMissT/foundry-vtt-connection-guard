@@ -1,4 +1,4 @@
-import { MODULE_ID, SOCKET_EVENT, JOURNAL_TYPES } from './constants.js'
+import { MODULE_ID, SOCKET_EVENT, JOURNAL_TYPES, DEFAULTS } from './constants.js'
 import { registerSettings, setMenuDependencies } from './settings.js'
 import { LatencyMonitor } from './latency-monitor.js'
 import { DiagnosticsStore } from './diagnostics.js'
@@ -7,6 +7,27 @@ import { PlayerListUI } from './player-list-ui.js'
 import { JournalLogger } from './journal-logger.js'
 
 const journal = new JournalLogger()
+let lastExportCount = 0
+let lastExportTime = Date.now()
+let exportInProgress = false
+
+async function autoExportJournal() {
+  if (exportInProgress || journal.entryCount === 0) return
+  const countSince = journal.entryCount - lastExportCount
+  const timeSince = Date.now() - lastExportTime
+  if (countSince < DEFAULTS.JOURNAL_AUTO_EXPORT_ENTRIES && timeSince < DEFAULTS.JOURNAL_AUTO_EXPORT_INTERVAL_MS) return
+
+  exportInProgress = true
+  try {
+    await journal.exportToJournalEntry()
+    lastExportCount = journal.entryCount
+    lastExportTime = Date.now()
+  } catch (err) {
+    console.error(`${MODULE_ID} | auto-export journal falhou`, err)
+  } finally {
+    exportInProgress = false
+  }
+}
 
 Hooks.once('init', () => {
   console.log(`${MODULE_ID} | inicializando`)
@@ -64,17 +85,25 @@ Hooks.once('ready', () => {
         journal.log(JOURNAL_TYPES.STALE, { userId, userName, lastSeen: data.lastSeen })
       }
     }
+    autoExportJournal()
   }, 10000)
 
   monitor.start()
 
-  Hooks.once('shutdown', () => {
+  Hooks.once('shutdown', async () => {
     console.log(`${MODULE_ID} | shutdown — limpando recursos`)
     monitor.stop()
     reconnectManager.stop()
     playerListUI.destroy()
     clearInterval(sweepIntervalId)
     game.socket?.off(SOCKET_EVENT, onSocketSample)
+    if (journal.entryCount > 0) {
+      try {
+        await journal.exportToJournalEntry()
+      } catch (err) {
+        console.error(`${MODULE_ID} | export journal no shutdown falhou`, err)
+      }
+    }
     journal.clear()
   })
 })

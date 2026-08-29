@@ -6,4 +6,4 @@ dist/
 .vscode/*
 !.vscode/extensions.json
 .prettierrc
-DEVELOPMENT.MD  
+DEVELOPMENT.MD

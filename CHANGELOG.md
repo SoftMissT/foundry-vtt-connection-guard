@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.3
+
+- **Journal auto-export**: journal agora é exportado automaticamente como Journal Entry do Foundry, sem depender de ação manual do GM. Export periódico (a cada 50 entradas ou 5 minutos) + export no shutdown como fallback.
+
 ## 2.0.0
 
 - **Auto-otimização WebRTC**: benchmark de STUN/TURN agora aplica automaticamente o melhor servidor na configuração WebRTC do Foundry (com fallback manual se a API não estiver disponível).
