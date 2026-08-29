@@ -140,18 +140,36 @@ export function registerSettings() {
 }
 
 // registerMenu exige uma classe com construtor sem argumentos obrigatórios
-// e um método render(). Usamos referências lazy às dependências que só
-// existem no hook 'ready'.
-class GmPanelMenuLauncher {
-  render() {
-    if (!_diagnostics || !_journal) return
+// e que seja subclass de ApplicationV2 ou FormApplication (Foundry v14).
+// Usamos referências lazy às dependências que só existem no hook 'ready'.
+class GmPanelMenuLauncher extends foundry.applications.api.ApplicationV2 {
+  static DEFAULT_OPTIONS = { id: 'connection-guard-gm-panel-launcher' }
+
+  render(_options) {
+    if (!_diagnostics || !_journal) {
+      ui.notifications?.warn(game.i18n.localize('CONNGUARD.Menu.DependenciesNotReady'))
+      return this
+    }
     new GmPanel(_diagnostics, _journal).render(true)
+    return this
   }
+
+  _renderHTML() { return '' }
+  _updateHTML() {}
 }
 
-class WebRtcAdvisorMenuLauncher {
-  render() {
-    if (!_journal) return
+class WebRtcAdvisorMenuLauncher extends foundry.applications.api.ApplicationV2 {
+  static DEFAULT_OPTIONS = { id: 'connection-guard-webrtc-launcher' }
+
+  render(_options) {
+    if (!_journal) {
+      ui.notifications?.warn(game.i18n.localize('CONNGUARD.Menu.DependenciesNotReady'))
+      return this
+    }
     new WebRtcOptimizer(_journal).render(true)
+    return this
   }
+
+  _renderHTML() { return '' }
+  _updateHTML() {}
 }

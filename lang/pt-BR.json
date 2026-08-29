@@ -66,6 +66,7 @@
   "CONNGUARD.WebRtc.Copied": "Copiado: {url}",
   "CONNGUARD.WebRtc.CopyFailed": "Não foi possível copiar automaticamente — copie o valor manualmente da tabela.",
   "CONNGUARD.WebRtc.NoneAvailable": "Nenhum servidor respondeu a tempo. Tente novamente.",
+  "CONNGUARD.Menu.DependenciesNotReady": "Dependências do módulo ainda não inicializadas. Aguarde o carregamento completo.",
   "CONNGUARD.Journal.Generated": "Gerado",
   "CONNGUARD.Journal.Session": "Sessão",
   "CONNGUARD.Journal.Entries": "Entradas",

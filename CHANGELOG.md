@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.4
+
+- **Fix Foundry v14**: `GmPanelMenuLauncher` e `WebRtcAdvisorMenuLauncher` agora são subclasses válidas de `ApplicationV2`, corrigindo o erro "You must provide a menu type that is a FormApplication or ApplicationV2 instance or subclass".
+
 ## 2.0.3
 
 - **Journal auto-export**: journal agora é exportado automaticamente como Journal Entry do Foundry, sem depender de ação manual do GM. Export periódico (a cada 50 entradas ou 5 minutos) + export no shutdown como fallback.
