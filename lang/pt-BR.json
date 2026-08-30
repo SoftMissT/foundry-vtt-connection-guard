@@ -64,7 +64,7 @@
       "WebRtc": {
         "Name": "Assistente de Servidor de Voz/Vídeo",
         "Label": "Testar servidores",
-        "Hint": "Testa servidores STUN e aplica automaticamente o mais rápido na configuração WebRTC."
+        "Hint": "Testa servidores STUN/TURN e copia o melhor servidor para configuração manual."
       },
       "RouteOracle": {
         "Name": "Abyss Link — Route Oracle",
@@ -117,9 +117,9 @@
       "Server": "Servidor",
       "Time": "Tempo até resposta",
       "NoResponse": "sem resposta",
-      "HowTo": "Para usar: Configurar Jogo → Áudio/Vídeo → aba Servidor → cole a URL do servidor mais rápido no campo de servidor STUN/TURN customizado.",
+      "HowTo": "Para usar: Configurar Jogo → Áudio/Vídeo → aba Servidor → cole a URL marcada com ★ no campo de servidor STUN/TURN customizado.",
       "TurnNote": "Isto testa apenas servidores STUN. Servidores TURN públicos e gratuitos praticamente não existem; se sua mesa precisa de um, hospede um coturn próprio ou contrate um serviço de TURN.",
-      "AutoApplied": "Melhor servidor STUN aplicado automaticamente na configuração WebRTC.",
+      "AutoApplied": "Melhor servidor STUN recomendado. Copie e aplique manualmente nas configurações de Áudio/Vídeo.",
       "CopyBest": "Copiar o mais rápido",
       "Copied": "Copiado: {url}",
       "CopyFailed": "Não foi possível copiar automaticamente — copie o valor manualmente da tabela.",

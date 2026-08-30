@@ -64,7 +64,7 @@
       "WebRtc": {
         "Name": "Voice/Video Server Advisor",
         "Label": "Test servers",
-        "Hint": "Benchmarks STUN servers and automatically applies the fastest one to WebRTC config."
+        "Hint": "Benchmarks STUN/TURN servers and copies the best server for manual configuration."
       },
       "RouteOracle": {
         "Name": "Abyss Link — Route Oracle",
@@ -117,9 +117,9 @@
       "Server": "Server",
       "Time": "Time to respond",
       "NoResponse": "no response",
-      "HowTo": "To use: Configure Game → Audio/Video → Server tab → paste the fastest server URL into the custom STUN/TURN server field.",
+      "HowTo": "To use: Configure Game → Audio/Video → Server tab → paste the URL marked with ★ into the custom STUN/TURN server field.",
       "TurnNote": "This only benchmarks STUN servers. Free public TURN servers barely exist; if your table needs one, host your own coturn or pay for a TURN service.",
-      "AutoApplied": "Best STUN server applied automatically to WebRTC configuration.",
+      "AutoApplied": "Best STUN server recommended. Copy and apply it manually in Audio/Video settings.",
       "CopyBest": "Copy fastest",
       "Copied": "Copied: {url}",
       "CopyFailed": "Could not copy automatically — copy the value manually from the table.",
