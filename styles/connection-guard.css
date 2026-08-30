@@ -77,12 +77,12 @@
 }
 
 .connguard-muted {
-  opacity: 0.7;
+  opacity: 0.72;
   font-size: 12px;
 }
 
 .connguard-drop-list {
-  margin: 0;
+  margin: 0 0 12px;
   padding-left: 18px;
   font-size: 12px;
 }
@@ -101,16 +101,21 @@
 }
 
 /* =========================================================
-   ABYSS LINK dark/manhwa UI layer
+   ABYSS LINK — dark/manhwa UI layer
    ========================================================= */
 
 body.connection-guard-abyss-theme {
   --cg-abyss-pink: #e11c4b;
   --cg-abyss-pink-soft: rgba(225, 28, 75, 0.35);
+  --cg-abyss-pink-line: rgba(225, 28, 75, 0.55);
   --cg-abyss-blue: #8fd3ff;
-  --cg-abyss-bg-dark: rgba(8, 10, 18, 0.94);
-  --cg-abyss-bg-wine: rgba(28, 4, 18, 0.9);
+  --cg-abyss-blue-soft: rgba(143, 211, 255, 0.26);
+  --cg-abyss-bg-dark: rgba(8, 10, 18, 0.96);
+  --cg-abyss-bg-wine: rgba(28, 4, 18, 0.94);
+  --cg-abyss-surface: rgba(9, 6, 17, 0.92);
+  --cg-abyss-surface-2: rgba(28, 22, 35, 0.85);
   --cg-abyss-text: #e8edf7;
+  --cg-abyss-text-muted: #b8a9b4;
   --cg-abyss-text-bright: #ffeef4;
 }
 
@@ -146,64 +151,177 @@ body.connection-guard-abyss-theme #connection-guard-banner {
     linear-gradient(90deg, rgba(20, 2, 12, 0.96), rgba(128, 0, 32, 0.96)),
     radial-gradient(circle at center, rgba(255, 55, 90, 0.35), transparent 50%);
   border: 1px solid rgba(255, 80, 120, 0.8);
-  color: var(--cg-abyss-text-bright, #ffeef4);
+  color: #ffeef4;
   box-shadow:
-    0 0 18px var(--cg-abyss-pink-soft, rgba(225, 28, 75, 0.5)),
+    0 0 18px rgba(225, 28, 75, 0.5),
     0 4px 18px rgba(0, 0, 0, 0.55);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
+/* Foundry windows containing Connection Guard panels */
+body.connection-guard-abyss-theme .window-app .connguard-panel,
+body.connection-guard-abyss-theme .application .connguard-panel {
+  color: var(--cg-abyss-text);
+}
+
 .connguard-panel.connguard-abyss {
+  position: relative;
+  overflow: hidden;
+  max-height: 72vh;
+  overflow-y: auto;
   background:
     linear-gradient(145deg, rgba(6, 8, 18, 0.97), rgba(19, 6, 18, 0.96)),
     radial-gradient(circle at top left, rgba(55, 160, 255, 0.16), transparent 30%),
     radial-gradient(circle at bottom right, rgba(225, 28, 75, 0.18), transparent 35%);
-  border: 1px solid rgba(225, 28, 75, 0.45);
+  border: 1px solid rgba(225, 28, 75, 0.55);
   border-radius: 8px;
-  padding: 12px;
-  color: var(--cg-abyss-text, #e8edf7);
-  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.55);
+  padding: 14px;
+  color: var(--cg-abyss-text);
+  box-shadow:
+    inset 0 0 24px rgba(0, 0, 0, 0.55),
+    0 0 18px rgba(225, 28, 75, 0.16);
+}
+
+.connguard-panel.connguard-abyss::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(115deg, transparent 0%, rgba(143, 211, 255, 0.05) 28%, transparent 46%),
+    repeating-linear-gradient(90deg,
+      rgba(255, 255, 255, 0.025) 0,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px,
+      transparent 8px);
+  opacity: 0.4;
+}
+
+.connguard-panel.connguard-abyss>* {
+  position: relative;
+  z-index: 1;
 }
 
 .connguard-panel.connguard-abyss h2,
 .connguard-panel.connguard-abyss h3 {
-  color: var(--cg-abyss-text-bright, #ffeef4);
+  margin: 12px 0 8px;
+  color: var(--cg-abyss-text-bright);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  border-bottom: 1px solid rgba(225, 28, 75, 0.35);
-  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(225, 28, 75, 0.45);
+  padding-bottom: 5px;
+  font-size: 18px;
+  line-height: 1.15;
+  text-shadow: 0 0 10px rgba(225, 28, 75, 0.28);
+}
+
+.connguard-panel.connguard-abyss h2 {
+  font-size: 20px;
+}
+
+.connguard-panel.connguard-abyss h3:first-child,
+.connguard-panel.connguard-abyss h2:first-child {
+  margin-top: 0;
+}
+
+.connguard-panel.connguard-abyss p,
+.connguard-panel.connguard-abyss li,
+.connguard-panel.connguard-abyss td,
+.connguard-panel.connguard-abyss th {
+  color: var(--cg-abyss-text);
+}
+
+.connguard-panel.connguard-abyss .connguard-muted {
+  color: var(--cg-abyss-text-muted);
+  opacity: 1;
+}
+
+.connguard-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 12px;
+  border: 1px solid rgba(143, 211, 255, 0.12);
+  border-radius: 6px;
+}
+
+.connguard-panel.connguard-abyss .connguard-table {
+  min-width: 620px;
+  margin-bottom: 0;
+  background: rgba(0, 0, 0, 0.24);
 }
 
 .connguard-panel.connguard-abyss .connguard-table th {
-  background: rgba(225, 28, 75, 0.16);
-  color: var(--cg-abyss-text-bright, #ffeef4);
+  background:
+    linear-gradient(180deg, rgba(225, 28, 75, 0.32), rgba(82, 18, 42, 0.62)),
+    rgba(0, 0, 0, 0.35);
+  color: var(--cg-abyss-text-bright);
   border-color: rgba(225, 28, 75, 0.35);
+  font-weight: 700;
+  letter-spacing: 0.03em;
 }
 
 .connguard-panel.connguard-abyss .connguard-table td {
   border-color: rgba(122, 139, 170, 0.25);
+  background: rgba(4, 3, 9, 0.42);
 }
 
+.connguard-panel.connguard-abyss .connguard-table tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.connguard-pill {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  border: 1px solid rgba(143, 211, 255, 0.32);
+  color: var(--cg-abyss-blue);
+  font-size: 10px;
+  line-height: 1.4;
+  vertical-align: middle;
+}
+
+.connguard-panel.connguard-abyss hr {
+  border: 0;
+  border-top: 1px solid rgba(225, 28, 75, 0.25);
+  margin: 14px 0;
+}
+
+/* Route Oracle */
 .connguard-route-best {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   justify-content: space-between;
   margin: 8px 0 12px;
   padding: 10px;
   border-radius: 6px;
-  background: rgba(6, 8, 18, 0.74);
+  background:
+    linear-gradient(135deg, rgba(6, 8, 18, 0.82), rgba(35, 7, 24, 0.72)),
+    radial-gradient(circle at left, rgba(143, 211, 255, 0.12), transparent 38%);
+  border: 1px solid rgba(143, 211, 255, 0.28);
+}
+
+.connguard-route-best strong,
+.connguard-route-best span {
+  display: block;
+}
+
+.connguard-route-best-meta {
+  text-align: right;
+  white-space: nowrap;
 }
 
 .connguard-route-best a,
 .connguard-route-table a {
-  color: var(--cg-abyss-blue, #8fd3ff);
+  color: var(--cg-abyss-blue);
   text-decoration: none;
 }
 
 .connguard-route-best a:hover,
 .connguard-route-table a:hover {
+  color: #c7ecff;
   text-shadow: 0 0 8px rgba(143, 211, 255, 0.75);
 }
 
@@ -216,6 +334,7 @@ body.connection-guard-abyss-theme #connection-guard-banner {
   background: rgba(0, 0, 0, 0.45);
   color: #cfe9ff;
   white-space: pre-wrap;
+  font-size: 11px;
 }
 
 .connguard-route-stable {
@@ -227,13 +346,18 @@ body.connection-guard-abyss-theme #connection-guard-banner {
 }
 
 .connguard-route-fractured {
-  color: #ff8a57;
+  color: #ff9a63;
 }
 
 .connguard-route-critical,
 .connguard-route-sealed {
   color: #ff5a7a;
   font-weight: bold;
+}
+
+/* Journal Export ApplicationV2 */
+.connguard-journal-export {
+  min-width: 0;
 }
 
 .connguard-export-actions {
@@ -247,39 +371,93 @@ body.connection-guard-abyss-theme #connection-guard-banner {
   border: 1px solid rgba(143, 211, 255, 0.35);
   border-radius: 5px;
   background:
-    linear-gradient(135deg, var(--cg-abyss-bg-dark), rgba(55, 8, 28, 0.88)),
+    linear-gradient(135deg, rgba(8, 10, 18, 0.92), rgba(55, 8, 28, 0.88)),
     radial-gradient(circle at top, rgba(225, 28, 75, 0.16), transparent 45%);
-  color: var(--cg-abyss-text, #e8edf7);
+  color: var(--cg-abyss-text);
   padding: 5px 9px;
   cursor: pointer;
+  line-height: 1.4;
 }
 
 .connguard-export-actions button:hover {
   border-color: rgba(225, 28, 75, 0.72);
-  box-shadow: 0 0 10px var(--cg-abyss-pink-soft, rgba(225, 28, 75, 0.35));
+  box-shadow: 0 0 10px rgba(225, 28, 75, 0.35);
 }
 
 .connguard-export-textarea {
   width: 100%;
-  min-height: 180px;
+  min-height: 160px;
+  max-height: 280px;
   resize: vertical;
   font-family: var(--font-monospace, monospace);
   font-size: 11px;
+  line-height: 1.45;
   color: #cfe9ff;
   background: rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(143, 211, 255, 0.35);
   border-radius: 6px;
   padding: 8px;
+  box-sizing: border-box;
+}
+
+/* Foundry settings window spacing */
+body.connection-guard-abyss-theme [data-module-id='connection-guard'] .form-group label,
+body.connection-guard-abyss-theme [data-module-id='connection-guard'] .form-group .notes {
+  color: var(--cg-abyss-text);
+}
+
+/* Scrollbars */
+.connguard-panel.connguard-abyss::-webkit-scrollbar,
+.connguard-route-example::-webkit-scrollbar,
+.connguard-export-textarea::-webkit-scrollbar,
+.connguard-table-wrap::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.connguard-panel.connguard-abyss::-webkit-scrollbar-thumb,
+.connguard-route-example::-webkit-scrollbar-thumb,
+.connguard-export-textarea::-webkit-scrollbar-thumb,
+.connguard-table-wrap::-webkit-scrollbar-thumb {
+  background: rgba(225, 28, 75, 0.62);
+  border-radius: 999px;
+}
+
+.connguard-panel.connguard-abyss::-webkit-scrollbar-track,
+.connguard-route-example::-webkit-scrollbar-track,
+.connguard-export-textarea::-webkit-scrollbar-track,
+.connguard-table-wrap::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.22);
 }
 
 @keyframes connguard-abyss-pulse {
 
   0%,
   100% {
-    box-shadow: 0 0 8px var(--cg-abyss-pink-soft, rgba(225, 28, 75, 0.35));
+    box-shadow: 0 0 8px rgba(225, 28, 75, 0.35);
   }
 
   50% {
     box-shadow: 0 0 18px rgba(225, 28, 75, 0.88);
+  }
+}
+
+@media (max-width: 720px) {
+  .connguard-route-best {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .connguard-route-best-meta {
+    text-align: left;
+    white-space: normal;
+  }
+
+  .connguard-panel.connguard-abyss h2 {
+    font-size: 17px;
+  }
+
+  .connguard-panel.connguard-abyss h3 {
+    font-size: 15px;
   }
 }

@@ -26,20 +26,23 @@ export class GmPanel {
       : ''
 
     const content = `
-      <section class="connguard-panel connguard-abyss">
+      <section class="connguard-panel connguard-abyss connguard-gm-panel">
         <h3>${game.i18n.localize('CONNGUARD.Panel.UsersTitle')}</h3>
-        <table class="connguard-table">
-          <thead>
-            <tr>
-              <th>${game.i18n.localize('CONNGUARD.Panel.User')}</th>
-              <th>${game.i18n.localize('CONNGUARD.Panel.Latency')}</th>
-              <th>${game.i18n.localize('CONNGUARD.Panel.Jitter')}</th>
-              <th>${game.i18n.localize('CONNGUARD.Panel.Loss')}</th>
-              <th>${game.i18n.localize('CONNGUARD.Panel.Status')}</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
+
+        <div class="connguard-table-wrap">
+          <table class="connguard-table">
+            <thead>
+              <tr>
+                <th>${game.i18n.localize('CONNGUARD.Panel.User')}</th>
+                <th>${game.i18n.localize('CONNGUARD.Panel.Latency')}</th>
+                <th>${game.i18n.localize('CONNGUARD.Panel.Jitter')}</th>
+                <th>${game.i18n.localize('CONNGUARD.Panel.Loss')}</th>
+                <th>${game.i18n.localize('CONNGUARD.Panel.Status')}</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
 
         ${routeOracle}
 
@@ -56,7 +59,9 @@ export class GmPanel {
     `
 
     return foundry.applications.api.DialogV2.wait({
-      window: { title: `${MODULE_TITLE} — ${game.i18n.localize('CONNGUARD.Panel.WindowTitle')}` },
+      window: {
+        title: `${MODULE_TITLE} — ${game.i18n.localize('CONNGUARD.Panel.WindowTitle')}`,
+      },
       content,
       buttons: [
         {
@@ -70,7 +75,7 @@ export class GmPanel {
           default: true,
         },
       ],
-      position: { width: 760 },
+      position: { width: 820 },
     })
   }
 
@@ -89,7 +94,10 @@ export class GmPanel {
 
       rows.push(`
         <tr>
-          <td>${foundry.utils.escapeHTML(user.name)}${user.isGM ? ` ${game.i18n.localize('CONNGUARD.Panel.GMSuffix')}` : ''}</td>
+          <td>
+            <strong>${foundry.utils.escapeHTML(user.name)}</strong>
+            ${user.isGM ? ` <span class="connguard-pill">${game.i18n.localize('CONNGUARD.Panel.GMSuffix')}</span>` : ''}
+          </td>
           <td>${data ? `${data.average}ms` : '—'}</td>
           <td>${data?.jitter ?? '—'}</td>
           <td>${data ? `${data.lossPct}%` : '—'}</td>
@@ -97,6 +105,7 @@ export class GmPanel {
         </tr>
       `)
     }
+
     return rows.join('')
   }
 
@@ -132,28 +141,42 @@ export class GmPanel {
       rows.push(`
         <tr class="${best?.cssClass ?? 'connguard-route-sealed'}">
           <td>${foundry.utils.escapeHTML(user.name)}</td>
-          <td>${best ? `<a href="${escapeHtml(best.url)}" target="_blank" rel="noreferrer">${escapeHtml(best.label)}</a>` : '—'}</td>
+          <td>
+            ${
+              best
+                ? `<a href="${escapeHtml(best.url)}" target="_blank" rel="noreferrer">${escapeHtml(best.label)}</a>`
+                : '—'
+            }
+          </td>
           <td>${escapeHtml(best?.type ?? '—')}</td>
           <td>${best?.medianMs ?? '—'}${best?.medianMs ? 'ms' : ''}</td>
-          <td>${best ? `${best.score} · ${game.i18n.localize(best.statusKey)}` : game.i18n.localize('CONNGUARD.Route.NoReachable')}</td>
+          <td>
+            ${
+              best
+                ? `${best.score} · ${game.i18n.localize(best.statusKey)}`
+                : game.i18n.localize('CONNGUARD.Route.NoReachable')
+            }
+          </td>
         </tr>
       `)
     }
 
     return `
       <h3>${game.i18n.localize('CONNGUARD.Route.MatrixTitle')}</h3>
-      <table class="connguard-table connguard-route-table">
-        <thead>
-          <tr>
-            <th>${game.i18n.localize('CONNGUARD.Panel.User')}</th>
-            <th>${game.i18n.localize('CONNGUARD.Route.Best')}</th>
-            <th>${game.i18n.localize('CONNGUARD.Route.Type')}</th>
-            <th>${game.i18n.localize('CONNGUARD.Route.Median')}</th>
-            <th>${game.i18n.localize('CONNGUARD.Route.Status')}</th>
-          </tr>
-        </thead>
-        <tbody>${rows.join('')}</tbody>
-      </table>
+      <div class="connguard-table-wrap">
+        <table class="connguard-table connguard-route-table">
+          <thead>
+            <tr>
+              <th>${game.i18n.localize('CONNGUARD.Panel.User')}</th>
+              <th>${game.i18n.localize('CONNGUARD.Route.Best')}</th>
+              <th>${game.i18n.localize('CONNGUARD.Route.Type')}</th>
+              <th>${game.i18n.localize('CONNGUARD.Route.Median')}</th>
+              <th>${game.i18n.localize('CONNGUARD.Route.StatusLabel')}</th>
+            </tr>
+          </thead>
+          <tbody>${rows.join('')}</tbody>
+        </table>
+      </div>
     `
   }
 
@@ -185,10 +208,10 @@ export class GmPanel {
     const items = alerts
       .slice()
       .reverse()
-      .map(a => {
-        const when = new Date(a.timestamp).toLocaleTimeString()
-        const user = game.users.get(a.userId)?.name ?? a.userId ?? '?'
-        return `<li>${when} — ${user}: ${a.rtt}ms (${game.i18n.format('CONNGUARD.Panel.Cycles', { count: a.cycles })})</li>`
+      .map(alert => {
+        const when = new Date(alert.timestamp).toLocaleTimeString()
+        const user = game.users.get(alert.userId)?.name ?? alert.userId ?? '?'
+        return `<li>${when} — ${foundry.utils.escapeHTML(user)}: ${alert.rtt}ms (${game.i18n.format('CONNGUARD.Panel.Cycles', { count: alert.cycles })})</li>`
       })
       .join('')
 
@@ -204,6 +227,7 @@ export class GmPanel {
       ui.notifications.warn(game.i18n.localize('CONNGUARD.Panel.JournalEmpty'))
       return
     }
+
     journal.openExporter()
   }
 }

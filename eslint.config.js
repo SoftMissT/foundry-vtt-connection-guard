@@ -33,6 +33,7 @@ export default [
         fetch: 'readonly',
         AbortController: 'readonly',
         Blob: 'readonly',
+        globalThis: 'readonly',
       },
     },
     rules: {

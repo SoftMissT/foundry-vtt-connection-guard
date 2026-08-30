@@ -43,7 +43,7 @@ export class RouteWizard {
 
   async #showNoProfiles() {
     const content = `
-      <section class="connguard-panel connguard-abyss">
+      <section class="connguard-panel connguard-abyss connguard-route-oracle">
         <h2>${game.i18n.localize('CONNGUARD.Route.WindowTitle')}</h2>
         <p>${game.i18n.localize('CONNGUARD.Route.NoProfilesHelp')}</p>
         <pre class="connguard-route-example">${escapeHtml(routeProfilesExample())}</pre>
@@ -60,7 +60,7 @@ export class RouteWizard {
           default: true,
         },
       ],
-      position: { width: 680 },
+      position: { width: 760 },
     })
   }
 
@@ -71,36 +71,48 @@ export class RouteWizard {
     const bestBlock = best
       ? `
         <div class="connguard-route-best ${best.cssClass}">
-          <strong>${game.i18n.localize('CONNGUARD.Route.Best')}:</strong>
-          ${escapeHtml(best.label)}
-          <span>${best.medianMs}ms · score ${best.score}</span>
-          <a href="${escapeHtml(best.url)}" target="_blank" rel="noreferrer">${game.i18n.localize('CONNGUARD.Route.Open')}</a>
+          <div>
+            <strong>${game.i18n.localize('CONNGUARD.Route.Best')}</strong>
+            <span>${escapeHtml(best.label)}</span>
+          </div>
+          <div class="connguard-route-best-meta">
+            <span>${best.medianMs}ms · score ${best.score}</span>
+            <a href="${escapeHtml(best.url)}" target="_blank" rel="noreferrer">
+              ${game.i18n.localize('CONNGUARD.Route.Open')}
+            </a>
+          </div>
         </div>
       `
       : `<p class="connguard-route-sealed">${game.i18n.localize('CONNGUARD.Route.NoReachable')}</p>`
 
     const content = `
-      <section class="connguard-panel connguard-abyss">
+      <section class="connguard-panel connguard-abyss connguard-route-oracle">
         <h2>${game.i18n.localize('CONNGUARD.Route.WindowTitle')}</h2>
+
         <p class="connguard-muted">${game.i18n.format('CONNGUARD.Route.ReportFor', {
           user: escapeHtml(report.userName ?? report.userId ?? '?'),
           ms: report.durationMs,
         })}</p>
+
         ${bestBlock}
-        <table class="connguard-table connguard-route-table">
-          <thead>
-            <tr>
-              <th>${game.i18n.localize('CONNGUARD.Route.Label')}</th>
-              <th>${game.i18n.localize('CONNGUARD.Route.Type')}</th>
-              <th>${game.i18n.localize('CONNGUARD.Route.Median')}</th>
-              <th>${game.i18n.localize('CONNGUARD.Route.Jitter')}</th>
-              <th>${game.i18n.localize('CONNGUARD.Route.Loss')}</th>
-              <th>${game.i18n.localize('CONNGUARD.Route.Score')}</th>
-              <th>${game.i18n.localize('CONNGUARD.Route.Status')}</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
+
+        <div class="connguard-table-wrap">
+          <table class="connguard-table connguard-route-table">
+            <thead>
+              <tr>
+                <th>${game.i18n.localize('CONNGUARD.Route.Label')}</th>
+                <th>${game.i18n.localize('CONNGUARD.Route.Type')}</th>
+                <th>${game.i18n.localize('CONNGUARD.Route.Median')}</th>
+                <th>${game.i18n.localize('CONNGUARD.Route.Jitter')}</th>
+                <th>${game.i18n.localize('CONNGUARD.Route.Loss')}</th>
+                <th>${game.i18n.localize('CONNGUARD.Route.Score')}</th>
+                <th>${game.i18n.localize('CONNGUARD.Route.StatusLabel')}</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+
         <p class="connguard-muted">${game.i18n.localize('CONNGUARD.Route.LimitNote')}</p>
       </section>
     `
@@ -115,7 +127,7 @@ export class RouteWizard {
           default: true,
         },
       ],
-      position: { width: 780 },
+      position: { width: 860 },
     })
   }
 
@@ -127,7 +139,11 @@ export class RouteWizard {
 
     return `
       <tr class="${result.cssClass}"${hint}>
-        <td><a href="${escapeHtml(result.url)}" target="_blank" rel="noreferrer">${escapeHtml(result.label)}${bestMark}</a></td>
+        <td>
+          <a href="${escapeHtml(result.url)}" target="_blank" rel="noreferrer">
+            ${escapeHtml(result.label)}${bestMark}
+          </a>
+        </td>
         <td>${escapeHtml(result.type)}</td>
         <td>${value(result.medianMs)}</td>
         <td>${value(result.jitterMs)}</td>

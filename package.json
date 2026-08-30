@@ -1,10 +1,10 @@
 {
   "name": "connection-guard",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "private": true,
   "type": "module",
   "description": "Latência, diagnóstico de conexão, reconexão automática, assistente de STUN/TURN e Route Oracle Abyss Link para Foundry VTT.",
-  "author": "Kazuto",
+  "author": "SoftMissT",
   "license": "GPL-3.0",
   "scripts": {
     "lint": "eslint scripts --ext .js",

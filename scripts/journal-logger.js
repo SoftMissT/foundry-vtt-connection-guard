@@ -157,11 +157,8 @@ export class JournalLogger {
       )
       lines.push('|------|----------|------------|')
       for (const e of grouped[JOURNAL_TYPES.WEBRTC]) {
-        lines.push(
-          `| ${this.#fmtTime(e.timestamp)} | ${e.url ?? '—'} | ${
-            e.timeMs === null ? i18n('CONNGUARD.Journal.NoResponse') : e.timeMs
-          } |`,
-        )
+        const time = e.timeMs === null ? i18n('CONNGUARD.Journal.NoResponse') : e.timeMs
+        lines.push(`| ${this.#fmtTime(e.timestamp)} | ${e.url ?? '—'} | ${time} |`)
       }
       lines.push('')
     }
@@ -279,8 +276,6 @@ export class JournalLogger {
     return entry
   }
 
-  // Alias de compatibilidade: código antigo que chamar exportToJournalEntry
-  // ainda funciona, mas agora isso só acontece quando chamado explicitamente.
   async exportToJournalEntry() {
     return this.saveToJournalEntry()
   }
@@ -300,15 +295,26 @@ export class JournalLogger {
   }
 
   #downloadFile(filename, type, content) {
+    const saveFn = globalThis.saveDataToFile ?? foundry.utils?.saveDataToFile
+
+    if (typeof saveFn === 'function') {
+      saveFn(content, type, filename)
+      return
+    }
+
     const blob = new Blob([content], { type })
     const url = URL.createObjectURL(blob)
+
     const a = document.createElement('a')
     a.href = url
     a.download = filename
     a.rel = 'noreferrer'
+    a.style.display = 'none'
+
     document.body.appendChild(a)
     a.click()
     a.remove()
+
     setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
 }

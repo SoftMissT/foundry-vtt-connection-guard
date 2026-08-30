@@ -1,151 +1,202 @@
 {
-  "CONNGUARD.Settings.Interval.Name": "Measurement interval (seconds)",
-  "CONNGUARD.Settings.Interval.Hint": "How often each client measures its own latency against the server.",
-  "CONNGUARD.Settings.Hide.Name": "Hide latency in the player list",
-  "CONNGUARD.Settings.Micro.Name": "Compact mode (+ / - instead of ms value)",
-  "CONNGUARD.Settings.DiagTooltip.Name": "Show jitter and estimated loss in tooltip",
-  "CONNGUARD.Settings.DiagTooltip.Hint": "When disabled, the tooltip only shows the ms value.",
-  "CONNGUARD.Settings.AbyssTheme.Name": "Abyss Link theme (dark manhwa)",
-  "CONNGUARD.Settings.AbyssTheme.Hint": "Enables the dark/neon visual layer for Connection Guard badges, banners and panels.",
-  "CONNGUARD.Settings.AutoReconnect.Name": "More aggressive auto-reconnect",
-  "CONNGUARD.Settings.AutoReconnect.Hint": "Shortens the delay between reconnection attempts and forces a new attempt as soon as the network or tab become active again.",
-  "CONNGUARD.Settings.ReconnectMaxDelay.Name": "Max delay between attempts (seconds)",
-  "CONNGUARD.Settings.ReconnectMaxDelay.Hint": "Ceiling of the exponential reconnection backoff.",
-  "CONNGUARD.Settings.HistorySize.Name": "How many drops to keep in history",
-  "CONNGUARD.Settings.DegradationThreshold.Name": "Degradation threshold (ms)",
-  "CONNGUARD.Settings.DegradationThreshold.Hint": "Average RTT above this value for consecutive cycles triggers a degradation alert.",
-  "CONNGUARD.Settings.DegradationCycles.Name": "Cycles before degradation alert",
-  "CONNGUARD.Settings.DegradationCycles.Hint": "How many consecutive cycles above the threshold before triggering an alert.",
-  "CONNGUARD.Settings.CustomStun.Name": "Custom STUN/TURN servers",
-  "CONNGUARD.Settings.CustomStun.Hint": "Comma-separated list (e.g. stun:host:port,turn:host:port). Empty uses the default list.",
-  "CONNGUARD.Settings.TurnCredentials.Name": "TURN credentials",
-  "CONNGUARD.Settings.TurnCredentials.Hint": "Credentials in user:password format. GM only.",
-  "CONNGUARD.Settings.RouteProfiles.Name": "Abyss Link route profiles (JSON)",
-  "CONNGUARD.Settings.RouteProfiles.Hint": "JSON list of possible routes to the same Foundry server: LAN, Radmin, Cloudflare, playit.gg, direct IP or custom.",
-  "CONNGUARD.Settings.RouteScanTimeout.Name": "Abyss Link timeout per attempt (ms)",
-  "CONNGUARD.Settings.RouteScanTimeout.Hint": "Max time for each route test attempt. Higher values improve tolerance but make scans slower.",
-
-  "CONNGUARD.Menu.GmPanel.Name": "Diagnostics Panel (GM)",
-  "CONNGUARD.Menu.GmPanel.Label": "Open panel",
-  "CONNGUARD.Menu.GmPanel.Hint": "Latency, jitter, estimated loss, drop history, degradation alerts and route matrix.",
-  "CONNGUARD.Menu.WebRtc.Name": "Voice/Video Server Advisor",
-  "CONNGUARD.Menu.WebRtc.Label": "Test servers",
-  "CONNGUARD.Menu.WebRtc.Hint": "Benchmarks STUN servers and automatically applies the fastest one to WebRTC config.",
-  "CONNGUARD.Menu.RouteOracle.Name": "Abyss Link Route Oracle",
-  "CONNGUARD.Menu.RouteOracle.Label": "Scan routes",
-  "CONNGUARD.Menu.RouteOracle.Hint": "Compares GM-configured routes and recommends the best path for each player.",
-  "CONNGUARD.Menu.DependenciesNotReady": "Connection Guard is not ready yet. Try again after the scene finishes loading.",
-
-  "CONNGUARD.Badge.NoResponse": "&#9888;",
-  "CONNGUARD.Badge.NoResponseTitle": "No response for several measurement cycles",
-  "CONNGUARD.Badge.Tooltip": "{average}ms · jitter {jitter}ms · estimated loss {loss}%",
-
-  "CONNGUARD.Banner.Disconnected": "Lost connection to the server ({reason}). Trying to reconnect...",
-  "CONNGUARD.Notif.Reconnected": "Reconnected to the server (was down for {seconds}s).",
-  "CONNGUARD.Notif.Degradation": "Connection degradation detected: {rtt}ms for {cycles} cycles.",
-  "CONNGUARD.Notif.WebRtcAutoApplied": "STUN optimized automatically: {url}",
-  "CONNGUARD.Notif.WebRtcAutoFailed": "Could not apply automatically. Copy the server manually.",
-
-  "CONNGUARD.Panel.WindowTitle": "Connection Diagnostics",
-  "CONNGUARD.Panel.UsersTitle": "Users",
-  "CONNGUARD.Panel.User": "User",
-  "CONNGUARD.Panel.Latency": "Latency",
-  "CONNGUARD.Panel.Jitter": "Jitter",
-  "CONNGUARD.Panel.Loss": "Est. loss",
-  "CONNGUARD.Panel.Status": "Status",
-  "CONNGUARD.Panel.StatusOk": "OK",
-  "CONNGUARD.Panel.StatusNoResponse": "No response",
-  "CONNGUARD.Panel.StatusUnknown": "No data yet",
-  "CONNGUARD.Panel.GMSuffix": "(GM)",
-  "CONNGUARD.Panel.DropsTitle": "Recent drops (you)",
-  "CONNGUARD.Panel.NoDrops": "No drops recorded this session.",
-  "CONNGUARD.Panel.DegradationTitle": "Degradation alerts",
-  "CONNGUARD.Panel.Cycles": "{count} cycles",
-  "CONNGUARD.Panel.Close": "Close",
-  "CONNGUARD.Panel.JournalTitle": "Session Journal",
-  "CONNGUARD.Panel.JournalEntries": "Recorded entries: {count}",
-  "CONNGUARD.Panel.ExportJournal": "Export Journal",
-  "CONNGUARD.Panel.JournalCreated": "Journal created: {name}",
-  "CONNGUARD.Panel.JournalEmpty": "No entries to export.",
-  "CONNGUARD.Panel.JournalError": "Error creating journal. Check the console.",
-
-  "CONNGUARD.WebRtc.WindowTitle": "Voice/Video Server Advisor",
-  "CONNGUARD.WebRtc.Explanation": "Measuring response time of public STUN servers from your browser. Faster servers here tend to help WebRTC voice/video connect faster and with fewer NAT failures.",
-  "CONNGUARD.WebRtc.Server": "Server",
-  "CONNGUARD.WebRtc.Time": "Time to respond",
-  "CONNGUARD.WebRtc.NoResponse": "no response",
-  "CONNGUARD.WebRtc.HowTo": "To use: Configure Game → Audio/Video → Server tab → paste the fastest server URL into the custom STUN/TURN server field.",
-  "CONNGUARD.WebRtc.TurnNote": "This only benchmarks STUN servers. Free public TURN servers barely exist; if your table needs one, host your own coturn or pay for a TURN service.",
-  "CONNGUARD.WebRtc.AutoApplied": "Best STUN server applied automatically to WebRTC configuration.",
-  "CONNGUARD.WebRtc.CopyBest": "Copy fastest",
-  "CONNGUARD.WebRtc.Copied": "Copied: {url}",
-  "CONNGUARD.WebRtc.CopyFailed": "Could not copy automatically copy the value manually from the table.",
-  "CONNGUARD.WebRtc.NoneAvailable": "No server responded in time. Try again.",
-
-  "CONNGUARD.Route.WindowTitle": "Abyss Link Route Oracle",
-  "CONNGUARD.Route.Current": "Current route",
-  "CONNGUARD.Route.NoProfiles": "No routes configured.",
-  "CONNGUARD.Route.NoProfilesHelp": "Configure profiles in Configure Game → Settings → Connection Guard → Abyss Link route profiles. Example:",
-  "CONNGUARD.Route.ScanStarted": "Abyss Link started route scanning.",
-  "CONNGUARD.Route.ReportFor": "Report for {user} completed in {ms}ms.",
-  "CONNGUARD.Route.Best": "Best route",
-  "CONNGUARD.Route.Open": "Open route",
-  "CONNGUARD.Route.NoReachable": "No reachable route.",
-  "CONNGUARD.Route.Label": "Route",
-  "CONNGUARD.Route.Type": "Type",
-  "CONNGUARD.Route.Median": "Median",
-  "CONNGUARD.Route.Jitter": "Jitter",
-  "CONNGUARD.Route.Loss": "Loss",
-  "CONNGUARD.Route.Score": "Score",
-  "CONNGUARD.Route.Status": "State",
-  "CONNGUARD.Route.LimitNote": "Note: the module measures browser reachability and response time. It does not change VPN, firewall, DNS, OS routing, or force players to switch endpoints.",
-  "CONNGUARD.Route.MatrixTitle": "Abyss Link route matrix",
-  "CONNGUARD.Route.MatrixEmpty": "No player has run the Route Oracle this session.",
-  "CONNGUARD.Route.NotScanned": "Not scanned",
-  "CONNGUARD.Route.Status.Stable": "Stable Link",
-  "CONNGUARD.Route.Status.Drift": "Signal Drift",
-  "CONNGUARD.Route.Status.Fractured": "Fractured Link",
-  "CONNGUARD.Route.Status.Critical": "Critical Drop",
-  "CONNGUARD.Route.Status.Sealed": "Sealed Gate",
-  "CONNGUARD.Route.Hint.MixedContent": "The browser may have blocked HTTP from an HTTPS page.",
-  "CONNGUARD.Route.Hint.Timeout": "Timed out. The route may be blocked, offline, or unreachable from this client.",
-  "CONNGUARD.Route.Hint.Unreachable": "Route unreachable from this client.",
-
-  "CONNGUARD.Journal.Generated": "Generated",
-  "CONNGUARD.Journal.Session": "Session",
-  "CONNGUARD.Journal.Entries": "Entries",
-  "CONNGUARD.Journal.SectionLifecycle": "Lifecycle",
-  "CONNGUARD.Journal.SectionLatency": "Latency",
-  "CONNGUARD.Journal.SectionConnection": "Connection Events",
-  "CONNGUARD.Journal.SectionDegradation": "Degradation Alerts",
-  "CONNGUARD.Journal.SectionStale": "Unresponsive Users",
-  "CONNGUARD.Journal.SectionWebrtc": "WebRTC STUN Benchmark",
-  "CONNGUARD.Journal.SectionRoute": "Abyss Link / Route Oracle",
-  "CONNGUARD.Journal.SectionErrors": "Errors",
-  "CONNGUARD.Journal.NoEntries": "*No entries recorded this session.*",
-  "CONNGUARD.Journal.Hour": "Time",
-  "CONNGUARD.Journal.User": "User",
-  "CONNGUARD.Journal.Rtt": "RTT (ms)",
-  "CONNGUARD.Journal.Jitter": "Jitter (ms)",
-  "CONNGUARD.Journal.Loss": "Loss (%)",
-  "CONNGUARD.Journal.Event": "Event",
-  "CONNGUARD.Journal.Details": "Details",
-  "CONNGUARD.Journal.Cycles": "Cycles",
-  "CONNGUARD.Journal.LastSeen": "Last Seen",
-  "CONNGUARD.Journal.Server": "Server",
-  "CONNGUARD.Journal.Time": "Time (ms)",
-  "CONNGUARD.Journal.NoResponse": "no response",
-  "CONNGUARD.Journal.NoData": "—",
-  "CONNGUARD.Journal.ExportWindowTitle": "Journal Exporter",
-  "CONNGUARD.Journal.ExportIntro": "Entries in memory this session: {count}. Nothing is saved automatically; choose Markdown, JSON, or Journal Entry.",
-  "CONNGUARD.Journal.DownloadMarkdown": "Download Markdown",
-  "CONNGUARD.Journal.DownloadJson": "Download JSON",
-  "CONNGUARD.Journal.CopyMarkdown": "Copy Markdown",
-  "CONNGUARD.Journal.SaveJournal": "Save/Update Journal Entry",
-  "CONNGUARD.Journal.MarkdownPreview": "Markdown Preview",
-  "CONNGUARD.Journal.JsonPreview": "JSON Preview",
-  "CONNGUARD.Journal.Downloaded": "File exported.",
-  "CONNGUARD.Journal.CopiedMarkdown": "Markdown copied.",
-  "CONNGUARD.Journal.CopyFailed": "Could not copy Markdown.",
-  "CONNGUARD.Journal.SavedJournal": "Journal Entry saved/updated: {name}"
+  "CONNGUARD": {
+    "Settings": {
+      "Interval": {
+        "Name": "Measurement interval (seconds)",
+        "Hint": "How often each client measures its own latency against the server."
+      },
+      "Hide": {
+        "Name": "Hide latency in the player list"
+      },
+      "Micro": {
+        "Name": "Compact mode (+ / - instead of ms value)"
+      },
+      "DiagTooltip": {
+        "Name": "Show jitter and estimated loss in tooltip",
+        "Hint": "When disabled, the tooltip only shows the ms value."
+      },
+      "AbyssTheme": {
+        "Name": "Abyss Link theme (dark manhwa)",
+        "Hint": "Enables the dark/neon visual layer for Connection Guard badges, banners and panels."
+      },
+      "AutoReconnect": {
+        "Name": "More aggressive auto-reconnect",
+        "Hint": "Shortens the delay between reconnection attempts and forces a new attempt as soon as the network or tab become active again."
+      },
+      "ReconnectMaxDelay": {
+        "Name": "Max delay between attempts (seconds)",
+        "Hint": "Ceiling of the exponential reconnection backoff."
+      },
+      "HistorySize": {
+        "Name": "How many drops to keep in history"
+      },
+      "DegradationThreshold": {
+        "Name": "Degradation threshold (ms)",
+        "Hint": "Average RTT above this value for consecutive cycles triggers a degradation alert."
+      },
+      "DegradationCycles": {
+        "Name": "Cycles before degradation alert",
+        "Hint": "How many consecutive cycles above the threshold before triggering an alert."
+      },
+      "CustomStun": {
+        "Name": "Custom STUN/TURN servers",
+        "Hint": "Comma-separated list (e.g. stun:host:port, turn:host:port). Empty uses the default list."
+      },
+      "TurnCredentials": {
+        "Name": "TURN credentials",
+        "Hint": "Credentials in user:password format. GM only."
+      },
+      "RouteProfiles": {
+        "Name": "Abyss Link — route profiles (JSON)",
+        "Hint": "JSON list of possible routes to the same Foundry server: LAN, Radmin, Cloudflare, playit.gg, direct IP or custom."
+      },
+      "RouteScanTimeout": {
+        "Name": "Abyss Link — timeout per attempt (ms)",
+        "Hint": "Max time for each route test attempt. Higher values improve tolerance but make scans slower."
+      }
+    },
+    "Menu": {
+      "GmPanel": {
+        "Name": "Diagnostics Panel (GM)",
+        "Label": "Open panel",
+        "Hint": "Latency, jitter, estimated loss, drop history, degradation alerts and route matrix."
+      },
+      "WebRtc": {
+        "Name": "Voice/Video Server Advisor",
+        "Label": "Test servers",
+        "Hint": "Benchmarks STUN servers and automatically applies the fastest one to WebRTC config."
+      },
+      "RouteOracle": {
+        "Name": "Abyss Link — Route Oracle",
+        "Label": "Scan routes",
+        "Hint": "Compares GM-configured routes and recommends the best path for each player."
+      },
+      "DependenciesNotReady": "Connection Guard is not ready yet. Try again after the scene finishes loading."
+    },
+    "Badge": {
+      "NoResponse": "⚠",
+      "NoResponseTitle": "No response for several measurement cycles",
+      "Tooltip": "{average}ms · jitter {jitter}ms · estimated loss {loss}%"
+    },
+    "Banner": {
+      "Disconnected": "Lost connection to the server ({reason}). Trying to reconnect..."
+    },
+    "Notif": {
+      "Reconnected": "Reconnected to the server (was down for {seconds}s).",
+      "Degradation": "Connection degradation detected: {rtt}ms for {cycles} cycles.",
+      "WebRtcAutoApplied": "STUN optimized automatically: {url}",
+      "WebRtcAutoFailed": "Could not apply automatically. Copy the server manually."
+    },
+    "Panel": {
+      "WindowTitle": "Connection Diagnostics",
+      "UsersTitle": "Users",
+      "User": "User",
+      "Latency": "Latency",
+      "Jitter": "Jitter",
+      "Loss": "Est. loss",
+      "StatusLabel": "State",
+      "StatusOk": "OK",
+      "StatusNoResponse": "No response",
+      "StatusUnknown": "No data yet",
+      "GMSuffix": "(GM)",
+      "DropsTitle": "Recent drops (you)",
+      "NoDrops": "No drops recorded this session.",
+      "DegradationTitle": "Degradation alerts",
+      "Cycles": "{count} cycles",
+      "Close": "Close",
+      "JournalTitle": "Session Journal",
+      "JournalEntries": "Recorded entries: {count}",
+      "ExportJournal": "Export Journal",
+      "JournalCreated": "Journal created: {name}",
+      "JournalEmpty": "No entries to export.",
+      "JournalError": "Error creating journal. Check the console."
+    },
+    "WebRtc": {
+      "WindowTitle": "Voice/Video Server Advisor",
+      "Explanation": "Measuring response time of public STUN servers from your browser. Faster servers here tend to help WebRTC voice/video connect faster and with fewer NAT failures.",
+      "Server": "Server",
+      "Time": "Time to respond",
+      "NoResponse": "no response",
+      "HowTo": "To use: Configure Game → Audio/Video → Server tab → paste the fastest server URL into the custom STUN/TURN server field.",
+      "TurnNote": "This only benchmarks STUN servers. Free public TURN servers barely exist; if your table needs one, host your own coturn or pay for a TURN service.",
+      "AutoApplied": "Best STUN server applied automatically to WebRTC configuration.",
+      "CopyBest": "Copy fastest",
+      "Copied": "Copied: {url}",
+      "CopyFailed": "Could not copy automatically — copy the value manually from the table.",
+      "NoneAvailable": "No server responded in time. Try again."
+    },
+    "Route": {
+      "WindowTitle": "Abyss Link — Route Oracle",
+      "Current": "Current route",
+      "NoProfiles": "No routes configured.",
+      "NoProfilesHelp": "Configure profiles in Configure Game → Settings → Connection Guard → Abyss Link — route profiles. Example:",
+      "ScanStarted": "Abyss Link started route scanning.",
+      "ReportFor": "Report for {user} completed in {ms}ms.",
+      "Best": "Best route",
+      "Open": "Open route",
+      "NoReachable": "No reachable route.",
+      "Label": "Route",
+      "Type": "Type",
+      "Median": "Median",
+      "Jitter": "Jitter",
+      "Loss": "Loss",
+      "Score": "Score",
+      "Status": {
+        "Stable": "Stable Link",
+        "Drift": "Signal Drift",
+        "Fractured": "Fractured Link",
+        "Critical": "Critical Drop",
+        "Sealed": "Sealed Gate"
+      },
+      "LimitNote": "Note: the module measures browser reachability and response time. It does not change VPN, firewall, DNS, OS routing, or force players to switch endpoints.",
+      "MatrixTitle": "Abyss Link — route matrix",
+      "MatrixEmpty": "No player has run the Route Oracle this session.",
+      "NotScanned": "Not scanned",
+      "Hint": {
+        "MixedContent": "The browser may have blocked HTTP from an HTTPS page.",
+        "Timeout": "Timed out. The route may be blocked, offline, or unreachable from this client.",
+        "Unreachable": "Route unreachable from this client."
+      },
+      "StatusLabel": "State"
+    },
+    "Journal": {
+      "Generated": "Generated",
+      "Session": "Session",
+      "Entries": "Entries",
+      "SectionLifecycle": "Lifecycle",
+      "SectionLatency": "Latency",
+      "SectionConnection": "Connection Events",
+      "SectionDegradation": "Degradation Alerts",
+      "SectionStale": "Unresponsive Users",
+      "SectionWebrtc": "WebRTC — STUN Benchmark",
+      "SectionRoute": "Abyss Link / Route Oracle",
+      "SectionErrors": "Errors",
+      "NoEntries": "*No entries recorded this session.*",
+      "Hour": "Time",
+      "User": "User",
+      "Rtt": "RTT (ms)",
+      "Jitter": "Jitter (ms)",
+      "Loss": "Loss (%)",
+      "Event": "Event",
+      "Details": "Details",
+      "Cycles": "Cycles",
+      "LastSeen": "Last Seen",
+      "Server": "Server",
+      "Time": "Time (ms)",
+      "NoResponse": "no response",
+      "NoData": "—",
+      "ExportWindowTitle": "Journal Exporter",
+      "ExportIntro": "Entries in memory this session: {count}. Nothing is saved automatically; choose Markdown, JSON, or Journal Entry.",
+      "DownloadMarkdown": "Download Markdown",
+      "DownloadJson": "Download JSON",
+      "CopyMarkdown": "Copy Markdown",
+      "SaveJournal": "Save/Update Journal Entry",
+      "MarkdownPreview": "Markdown Preview",
+      "JsonPreview": "JSON Preview",
+      "Downloaded": "File exported.",
+      "CopiedMarkdown": "Markdown copied.",
+      "CopyFailed": "Could not copy Markdown.",
+      "SavedJournal": "Journal Entry saved/updated: {name}"
+    }
+  }
 }

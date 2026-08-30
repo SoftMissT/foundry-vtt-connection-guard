@@ -61,8 +61,9 @@ export function registerSettings() {
     default: true,
     scope: 'client',
     config: true,
-    onChange: enabled =>
-      document.body.classList.toggle('connection-guard-abyss-theme', Boolean(enabled)),
+    onChange: enabled => {
+      document.body.classList.toggle('connection-guard-abyss-theme', Boolean(enabled))
+    },
   })
 
   g.settings.register(MODULE_ID, SETTINGS.AUTO_RECONNECT, {
@@ -182,7 +183,7 @@ export function registerSettings() {
 }
 
 // registerMenu exige uma classe com construtor sem argumentos obrigatórios
-// e que seja subclass de ApplicationV2 ou FormApplication (Foundry v14).
+// e que seja subclass de ApplicationV2 ou FormApplication no Foundry moderno.
 // Usamos referências lazy às dependências que só existem no hook 'ready'.
 class GmPanelMenuLauncher extends foundry.applications.api.ApplicationV2 {
   static DEFAULT_OPTIONS = { id: 'connection-guard-gm-panel-launcher' }
@@ -192,6 +193,7 @@ class GmPanelMenuLauncher extends foundry.applications.api.ApplicationV2 {
       ui.notifications?.warn(game.i18n.localize('CONNGUARD.Menu.DependenciesNotReady'))
       return this
     }
+
     new GmPanel(_diagnostics, _journal).render(true)
     return this
   }
@@ -199,6 +201,7 @@ class GmPanelMenuLauncher extends foundry.applications.api.ApplicationV2 {
   _renderHTML() {
     return ''
   }
+
   _updateHTML() {}
 }
 
@@ -210,6 +213,7 @@ class WebRtcAdvisorMenuLauncher extends foundry.applications.api.ApplicationV2 {
       ui.notifications?.warn(game.i18n.localize('CONNGUARD.Menu.DependenciesNotReady'))
       return this
     }
+
     new WebRtcOptimizer(_journal).render(true)
     return this
   }
@@ -217,6 +221,7 @@ class WebRtcAdvisorMenuLauncher extends foundry.applications.api.ApplicationV2 {
   _renderHTML() {
     return ''
   }
+
   _updateHTML() {}
 }
 
@@ -228,6 +233,7 @@ class RouteOracleMenuLauncher extends foundry.applications.api.ApplicationV2 {
       ui.notifications?.warn(game.i18n.localize('CONNGUARD.Menu.DependenciesNotReady'))
       return this
     }
+
     new RouteWizard(_diagnostics, _journal).render(true)
     return this
   }
@@ -235,5 +241,6 @@ class RouteOracleMenuLauncher extends foundry.applications.api.ApplicationV2 {
   _renderHTML() {
     return ''
   }
+
   _updateHTML() {}
 }
