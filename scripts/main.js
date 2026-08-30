@@ -1,4 +1,4 @@
-import { MODULE_ID, SOCKET_EVENT, JOURNAL_TYPES, DEFAULTS } from './constants.js'
+import { MODULE_ID, SOCKET_EVENT, SOCKET_MESSAGES, JOURNAL_TYPES, SETTINGS } from './constants.js'
 import { registerSettings, setMenuDependencies } from './settings.js'
 import { LatencyMonitor } from './latency-monitor.js'
 import { DiagnosticsStore } from './diagnostics.js'
@@ -7,27 +7,6 @@ import { PlayerListUI } from './player-list-ui.js'
 import { JournalLogger } from './journal-logger.js'
 
 const journal = new JournalLogger()
-let lastExportCount = 0
-let lastExportTime = Date.now()
-let exportInProgress = false
-
-async function autoExportJournal() {
-  if (exportInProgress || journal.entryCount === 0) return
-  const countSince = journal.entryCount - lastExportCount
-  const timeSince = Date.now() - lastExportTime
-  if (countSince < DEFAULTS.JOURNAL_AUTO_EXPORT_ENTRIES && timeSince < DEFAULTS.JOURNAL_AUTO_EXPORT_INTERVAL_MS) return
-
-  exportInProgress = true
-  try {
-    await journal.exportToJournalEntry()
-    lastExportCount = journal.entryCount
-    lastExportTime = Date.now()
-  } catch (err) {
-    console.error(`${MODULE_ID} | auto-export journal falhou`, err)
-  } finally {
-    exportInProgress = false
-  }
-}
 
 Hooks.once('init', () => {
   console.log(`${MODULE_ID} | inicializando`)
@@ -46,6 +25,27 @@ function handleSample(payload, diagnostics, playerListUI, journalRef) {
   journalRef.log(JOURNAL_TYPES.LATENCY, { ...payload, userName })
 }
 
+/** Roteia mensagens futuras sem quebrar o payload legado de latência. */
+function handleSocketMessage(payload, diagnostics, playerListUI, journalRef) {
+  if (!payload) return
+
+  if (payload.type === SOCKET_MESSAGES.ROUTE_SCAN_RESULT) {
+    diagnostics.recordRouteReport(payload.report)
+    journalRef.log(JOURNAL_TYPES.ROUTE, payload.report)
+    return
+  }
+
+  // Compatibilidade com v2: LatencyMonitor ainda transmite o payload puro.
+  if (payload.userId && Object.prototype.hasOwnProperty.call(payload, 'average')) {
+    handleSample(payload, diagnostics, playerListUI, journalRef)
+  }
+}
+
+function applyAbyssTheme() {
+  const enabled = game.settings.get(MODULE_ID, SETTINGS.ABYSS_THEME)
+  document.body.classList.toggle('connection-guard-abyss-theme', Boolean(enabled))
+}
+
 Hooks.once('ready', () => {
   console.log(`${MODULE_ID} | pronto`)
   journal.log(JOURNAL_TYPES.LIFECYCLE, { message: 'Módulo pronto' })
@@ -55,6 +55,7 @@ Hooks.once('ready', () => {
   const reconnectManager = new ReconnectManager(diagnostics, journal)
 
   setMenuDependencies(diagnostics, journal)
+  applyAbyssTheme()
 
   playerListUI.registerHooks()
   reconnectManager.start()
@@ -73,8 +74,9 @@ Hooks.once('ready', () => {
     },
   )
 
-  const onSocketSample = payload => handleSample(payload, diagnostics, playerListUI, journal)
-  game.socket?.on(SOCKET_EVENT, onSocketSample)
+  const onSocketMessage = payload =>
+    handleSocketMessage(payload, diagnostics, playerListUI, journal)
+  game.socket?.on(SOCKET_EVENT, onSocketMessage)
 
   const sweepIntervalId = setInterval(() => {
     diagnostics.sweepStale(monitor.intervalMs ?? 20000)
@@ -85,25 +87,18 @@ Hooks.once('ready', () => {
         journal.log(JOURNAL_TYPES.STALE, { userId, userName, lastSeen: data.lastSeen })
       }
     }
-    autoExportJournal()
   }, 10000)
 
   monitor.start()
 
-  Hooks.once('shutdown', async () => {
+  Hooks.once('shutdown', () => {
     console.log(`${MODULE_ID} | shutdown — limpando recursos`)
     monitor.stop()
     reconnectManager.stop()
     playerListUI.destroy()
     clearInterval(sweepIntervalId)
-    game.socket?.off(SOCKET_EVENT, onSocketSample)
-    if (journal.entryCount > 0) {
-      try {
-        await journal.exportToJournalEntry()
-      } catch (err) {
-        console.error(`${MODULE_ID} | export journal no shutdown falhou`, err)
-      }
-    }
+    game.socket?.off(SOCKET_EVENT, onSocketMessage)
+    document.body.classList.remove('connection-guard-abyss-theme')
     journal.clear()
   })
 })

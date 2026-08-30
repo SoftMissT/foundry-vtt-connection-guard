@@ -16,6 +16,7 @@ export default [
         foundry: 'readonly',
         FormApplication: 'readonly',
         JournalEntry: 'readonly',
+        CONST: 'readonly',
         RTCPeerConnection: 'readonly',
         HTMLElement: 'readonly',
         performance: 'readonly',
@@ -28,6 +29,10 @@ export default [
         setInterval: 'readonly',
         clearInterval: 'readonly',
         requestAnimationFrame: 'readonly',
+        URL: 'readonly',
+        fetch: 'readonly',
+        AbortController: 'readonly',
+        Blob: 'readonly',
       },
     },
     rules: {

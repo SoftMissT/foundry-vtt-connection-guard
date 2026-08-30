@@ -1,6 +1,7 @@
 import { MODULE_ID, SETTINGS, DEFAULTS } from './constants.js'
 import { GmPanel } from './gm-panel.js'
 import { WebRtcOptimizer } from './webrtc-optimizer.js'
+import { RouteWizard } from './route-wizard.js'
 
 /** Referências para as instâncias reais, preenchidas por main.js no ready. */
 let _diagnostics = null
@@ -51,6 +52,17 @@ export function registerSettings() {
     default: true,
     scope: 'client',
     config: true,
+  })
+
+  g.settings.register(MODULE_ID, SETTINGS.ABYSS_THEME, {
+    name: g.i18n.localize('CONNGUARD.Settings.AbyssTheme.Name'),
+    hint: g.i18n.localize('CONNGUARD.Settings.AbyssTheme.Hint'),
+    type: Boolean,
+    default: true,
+    scope: 'client',
+    config: true,
+    onChange: enabled =>
+      document.body.classList.toggle('connection-guard-abyss-theme', Boolean(enabled)),
   })
 
   g.settings.register(MODULE_ID, SETTINGS.AUTO_RECONNECT, {
@@ -120,6 +132,27 @@ export function registerSettings() {
     config: true,
   })
 
+  g.settings.register(MODULE_ID, SETTINGS.ROUTE_PROFILES, {
+    name: g.i18n.localize('CONNGUARD.Settings.RouteProfiles.Name'),
+    hint: g.i18n.localize('CONNGUARD.Settings.RouteProfiles.Hint'),
+    type: String,
+    default: '',
+    scope: 'world',
+    restricted: true,
+    config: true,
+  })
+
+  g.settings.register(MODULE_ID, SETTINGS.ROUTE_SCAN_TIMEOUT, {
+    name: g.i18n.localize('CONNGUARD.Settings.RouteScanTimeout.Name'),
+    hint: g.i18n.localize('CONNGUARD.Settings.RouteScanTimeout.Hint'),
+    type: Number,
+    range: { min: 800, max: 10000, step: 100 },
+    default: DEFAULTS.ROUTE_SCAN_TIMEOUT_MS,
+    scope: 'world',
+    restricted: true,
+    config: true,
+  })
+
   g.settings.registerMenu(MODULE_ID, SETTINGS.GM_PANEL_MENU, {
     name: g.i18n.localize('CONNGUARD.Menu.GmPanel.Name'),
     label: g.i18n.localize('CONNGUARD.Menu.GmPanel.Label'),
@@ -136,6 +169,15 @@ export function registerSettings() {
     icon: 'fa-solid fa-tower-broadcast',
     type: WebRtcAdvisorMenuLauncher,
     restricted: true,
+  })
+
+  g.settings.registerMenu(MODULE_ID, SETTINGS.ROUTE_ORACLE_MENU, {
+    name: g.i18n.localize('CONNGUARD.Menu.RouteOracle.Name'),
+    label: g.i18n.localize('CONNGUARD.Menu.RouteOracle.Label'),
+    hint: g.i18n.localize('CONNGUARD.Menu.RouteOracle.Hint'),
+    icon: 'fa-solid fa-route',
+    type: RouteOracleMenuLauncher,
+    restricted: false,
   })
 }
 
@@ -154,7 +196,9 @@ class GmPanelMenuLauncher extends foundry.applications.api.ApplicationV2 {
     return this
   }
 
-  _renderHTML() { return '' }
+  _renderHTML() {
+    return ''
+  }
   _updateHTML() {}
 }
 
@@ -170,6 +214,26 @@ class WebRtcAdvisorMenuLauncher extends foundry.applications.api.ApplicationV2 {
     return this
   }
 
-  _renderHTML() { return '' }
+  _renderHTML() {
+    return ''
+  }
+  _updateHTML() {}
+}
+
+class RouteOracleMenuLauncher extends foundry.applications.api.ApplicationV2 {
+  static DEFAULT_OPTIONS = { id: 'connection-guard-route-oracle-launcher' }
+
+  render(_options) {
+    if (!_diagnostics || !_journal) {
+      ui.notifications?.warn(game.i18n.localize('CONNGUARD.Menu.DependenciesNotReady'))
+      return this
+    }
+    new RouteWizard(_diagnostics, _journal).render(true)
+    return this
+  }
+
+  _renderHTML() {
+    return ''
+  }
   _updateHTML() {}
 }

@@ -1,10 +1,11 @@
 import { MODULE_TITLE } from './constants.js'
+import { escapeHtml } from './route-profiles.js'
 
 /**
  * Janela somente-leitura para o GM: latência, jitter e perda estimada de
  * cada usuário conectado, histórico de quedas, alertas de degradação,
- * e journal de sessão exportável como Journal Entry.
- * Implementado como DialogV2 (ApplicationV2).
+ * matriz de rotas Abyss Link, e exportador manual de journal.
+ * Implementado como DialogV2, com exportador separado em ApplicationV2.
  */
 export class GmPanel {
   #diagnostics
@@ -17,6 +18,7 @@ export class GmPanel {
 
   async render(_force) {
     const rows = this.#buildRows()
+    const routeOracle = this.#buildRouteOracle()
     const drops = this.#buildDrops()
     const degradation = this.#buildDegradation()
     const journalInfo = this.#journal
@@ -24,7 +26,7 @@ export class GmPanel {
       : ''
 
     const content = `
-      <section class="connguard-panel">
+      <section class="connguard-panel connguard-abyss">
         <h3>${game.i18n.localize('CONNGUARD.Panel.UsersTitle')}</h3>
         <table class="connguard-table">
           <thead>
@@ -38,10 +40,16 @@ export class GmPanel {
           </thead>
           <tbody>${rows}</tbody>
         </table>
+
+        ${routeOracle}
+
         <h3>${game.i18n.localize('CONNGUARD.Panel.DropsTitle')}</h3>
         ${drops}
+
         ${degradation}
+
         <hr>
+
         <h3>${game.i18n.localize('CONNGUARD.Panel.JournalTitle')}</h3>
         ${journalInfo}
       </section>
@@ -52,9 +60,9 @@ export class GmPanel {
       content,
       buttons: [
         {
-          action: 'exportJournal',
+          action: 'openJournalExporter',
           label: game.i18n.localize('CONNGUARD.Panel.ExportJournal'),
-          callback: () => this.#exportJournal(),
+          callback: () => this.#openJournalExporter(),
         },
         {
           action: 'close',
@@ -62,7 +70,7 @@ export class GmPanel {
           default: true,
         },
       ],
-      position: { width: 520 },
+      position: { width: 760 },
     })
   }
 
@@ -90,6 +98,63 @@ export class GmPanel {
       `)
     }
     return rows.join('')
+  }
+
+  #buildRouteOracle() {
+    const diagnostics = this.#diagnostics
+    const reports = diagnostics?.getAllRouteReports?.() ?? new Map()
+
+    if (!reports.size) {
+      return `
+        <h3>${game.i18n.localize('CONNGUARD.Route.MatrixTitle')}</h3>
+        <p class="connguard-muted">${game.i18n.localize('CONNGUARD.Route.MatrixEmpty')}</p>
+      `
+    }
+
+    const rows = []
+    for (const user of game.users) {
+      const report = reports.get(user.id)
+      const best = diagnostics.getBestRouteForUser(user.id)
+
+      if (!report) {
+        rows.push(`
+          <tr>
+            <td>${foundry.utils.escapeHTML(user.name)}</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+            <td>${game.i18n.localize('CONNGUARD.Route.NotScanned')}</td>
+          </tr>
+        `)
+        continue
+      }
+
+      rows.push(`
+        <tr class="${best?.cssClass ?? 'connguard-route-sealed'}">
+          <td>${foundry.utils.escapeHTML(user.name)}</td>
+          <td>${best ? `<a href="${escapeHtml(best.url)}" target="_blank" rel="noreferrer">${escapeHtml(best.label)}</a>` : '—'}</td>
+          <td>${escapeHtml(best?.type ?? '—')}</td>
+          <td>${best?.medianMs ?? '—'}${best?.medianMs ? 'ms' : ''}</td>
+          <td>${best ? `${best.score} · ${game.i18n.localize(best.statusKey)}` : game.i18n.localize('CONNGUARD.Route.NoReachable')}</td>
+        </tr>
+      `)
+    }
+
+    return `
+      <h3>${game.i18n.localize('CONNGUARD.Route.MatrixTitle')}</h3>
+      <table class="connguard-table connguard-route-table">
+        <thead>
+          <tr>
+            <th>${game.i18n.localize('CONNGUARD.Panel.User')}</th>
+            <th>${game.i18n.localize('CONNGUARD.Route.Best')}</th>
+            <th>${game.i18n.localize('CONNGUARD.Route.Type')}</th>
+            <th>${game.i18n.localize('CONNGUARD.Route.Median')}</th>
+            <th>${game.i18n.localize('CONNGUARD.Route.Status')}</th>
+          </tr>
+        </thead>
+        <tbody>${rows.join('')}</tbody>
+      </table>
+    `
   }
 
   #buildDrops() {
@@ -133,21 +198,12 @@ export class GmPanel {
     `
   }
 
-  async #exportJournal() {
+  #openJournalExporter() {
     const journal = this.#journal
     if (!journal || journal.entryCount === 0) {
       ui.notifications.warn(game.i18n.localize('CONNGUARD.Panel.JournalEmpty'))
       return
     }
-    try {
-      const entry = await journal.exportToJournalEntry()
-      if (entry) {
-        ui.notifications.info(game.i18n.format('CONNGUARD.Panel.JournalCreated', { name: entry.name }))
-        entry.show()
-      }
-    } catch (err) {
-      console.error(`${MODULE_TITLE} | erro ao exportar journal`, err)
-      ui.notifications.error(game.i18n.localize('CONNGUARD.Panel.JournalError'))
-    }
+    journal.openExporter()
   }
 }

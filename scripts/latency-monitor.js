@@ -39,7 +39,7 @@ export class LatencyMonitor {
     if (this.#running) return
     this.#running = true
     this.#readAllSettings()
-    Hooks.on('updateSetting', (doc) => {
+    Hooks.on('updateSetting', doc => {
       if (doc.key === `${MODULE_ID}.${SETTINGS.LATENCY_INTERVAL}`) this.#readIntervalSetting()
       if (doc.key === `${MODULE_ID}.${SETTINGS.DEGRADATION_THRESHOLD}`) {
         const v = Number(doc.value)
@@ -73,7 +73,9 @@ export class LatencyMonitor {
   #readAllSettings() {
     this.#readIntervalSetting()
     const degThreshold = Number(game.settings.get(MODULE_ID, SETTINGS.DEGRADATION_THRESHOLD))
-    this.#cachedDegThreshold = Number.isFinite(degThreshold) ? degThreshold : DEFAULTS.DEGRADATION_THRESHOLD_MS
+    this.#cachedDegThreshold = Number.isFinite(degThreshold)
+      ? degThreshold
+      : DEFAULTS.DEGRADATION_THRESHOLD_MS
     const degCycles = Number(game.settings.get(MODULE_ID, SETTINGS.DEGRADATION_CYCLES))
     this.#cachedDegCycles = Number.isFinite(degCycles) ? degCycles : DEFAULTS.DEGRADATION_CYCLES
   }
@@ -167,13 +169,16 @@ export class LatencyMonitor {
   #withTimeout(promise, ms) {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('timeout')), ms)
-      promise.then(v => {
-        clearTimeout(timer)
-        resolve(v)
-      }, err => {
-        clearTimeout(timer)
-        reject(err)
-      })
+      promise.then(
+        v => {
+          clearTimeout(timer)
+          resolve(v)
+        },
+        err => {
+          clearTimeout(timer)
+          reject(err)
+        },
+      )
     })
   }
 

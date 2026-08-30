@@ -4,13 +4,15 @@ import { MODULE_ID, SETTINGS, DEFAULTS } from './constants.js'
  * Guarda em memória (dura enquanto a aba estiver aberta — não persiste
  * entre sessões, de propósito, para não acumular dados sensíveis de rede
  * em um setting do mundo) o estado de conexão de cada usuário, o
- * histórico de quedas do cliente local, e alertas de degradação preditiva.
+ * histórico de quedas do cliente local, alertas de degradação preditiva,
+ * e resultados do Abyss Link / Route Oracle.
  */
 export class DiagnosticsStore {
   #users = new Map() // userId -> { average, jitter, lossPct, lastSeen, missedCycles, stale }
   #localDrops = [] // { start, end, durationMs }
   #dropStart = null
   #degradationAlerts = [] // { timestamp, userId, rtt, cycles }
+  #routeReports = new Map() // userId -> route report
 
   recordSample(payload) {
     const prev = this.#users.get(payload.userId)
@@ -79,5 +81,30 @@ export class DiagnosticsStore {
 
   getDegradationAlerts() {
     return [...this.#degradationAlerts]
+  }
+
+  /** Guarda o relatório mais recente de Route Oracle por usuário. */
+  recordRouteReport(report) {
+    if (!report?.userId) return null
+    this.#routeReports.set(report.userId, {
+      ...report,
+      receivedAt: Date.now(),
+    })
+    return this.#routeReports.get(report.userId)
+  }
+
+  getRouteReport(userId) {
+    return this.#routeReports.get(userId) ?? null
+  }
+
+  getAllRouteReports() {
+    return new Map(this.#routeReports)
+  }
+
+  getBestRouteForUser(userId) {
+    const report = this.getRouteReport(userId)
+    const reachable = report?.results?.filter(r => r.reachable) ?? []
+    if (!reachable.length) return null
+    return reachable.slice().sort((a, b) => a.score - b.score || a.priority - b.priority)[0]
   }
 }

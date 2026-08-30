@@ -1,10 +1,15 @@
 export const MODULE_ID = 'connection-guard'
-export const MODULE_TITLE = 'Connection Guard'
+export const MODULE_TITLE = 'Connection Guard: Abyss Link'
 export const SOCKET_EVENT = `module.${MODULE_ID}`
 
 // Nomes de hook — v13 renomeou PlayerList -> Players, mas mantém o alias
 // "renderPlayerList" por compatibilidade. Escutamos os dois.
 export const PLAYERS_RENDER_HOOKS = ['renderPlayers', 'renderPlayerList']
+
+export const SOCKET_MESSAGES = {
+  LATENCY_SAMPLE: 'latency-sample',
+  ROUTE_SCAN_RESULT: 'route-scan-result',
+}
 
 export const SETTINGS = {
   LATENCY_INTERVAL: 'latencyInterval',
@@ -16,10 +21,23 @@ export const SETTINGS = {
   DIAGNOSTICS_HISTORY_SIZE: 'diagnosticsHistorySize',
   GM_PANEL_MENU: 'gmPanelMenu',
   WEBRTC_ADVISOR_MENU: 'webrtcAdvisorMenu',
+  ROUTE_ORACLE_MENU: 'routeOracleMenu',
   DEGRADATION_THRESHOLD: 'degradationThreshold',
   DEGRADATION_CYCLES: 'degradationCycles',
   CUSTOM_STUN_SERVERS: 'customStunServers',
   TURN_CREDENTIALS: 'turnCredentials',
+  ABYSS_THEME: 'abyssTheme',
+  ROUTE_PROFILES: 'routeProfiles',
+  ROUTE_SCAN_TIMEOUT: 'routeScanTimeout',
+}
+
+export const ROUTE_TYPES = {
+  LOCAL: 'local',
+  RADMIN: 'radmin',
+  CLOUDFLARE: 'cloudflare',
+  PLAYIT: 'playit',
+  DIRECT: 'direct',
+  CUSTOM: 'custom',
 }
 
 export const JOURNAL_TYPES = {
@@ -29,6 +47,7 @@ export const JOURNAL_TYPES = {
   STALE: 'stale',
   WEBRTC: 'webrtc',
   DEGRADATION: 'degradation',
+  ROUTE: 'route',
   ERROR: 'error',
 }
 
@@ -49,6 +68,8 @@ export const DEFAULTS = {
   ADAPTIVE_BAD_THRESHOLD_MS: 250,
   JOURNAL_AUTO_EXPORT_ENTRIES: 50,
   JOURNAL_AUTO_EXPORT_INTERVAL_MS: 300000, // 5 minutes
+  ROUTE_SCAN_TIMEOUT_MS: 2500,
+  ROUTE_SCAN_ATTEMPTS: 3,
 }
 
 // Servidores STUN públicos conhecidos, usados apenas para BENCHMARK local

@@ -14,9 +14,11 @@
 .connguard-badge.connguard-full.connguard-good {
   color: #2ecc71;
 }
+
 .connguard-badge.connguard-full.connguard-low {
   color: #f1c40f;
 }
+
 .connguard-badge.connguard-full.connguard-bad {
   color: #e74c3c;
   font-weight: bold;
@@ -26,12 +28,15 @@
   font-weight: bold;
   font-size: 12px;
 }
+
 .connguard-badge.connguard-micro.connguard-good {
   color: #2ecc71;
 }
+
 .connguard-badge.connguard-micro.connguard-low {
   color: #f1c40f;
 }
+
 .connguard-badge.connguard-micro.connguard-bad {
   color: #e74c3c;
 }
@@ -93,4 +98,179 @@
   padding: 4px 8px;
   text-align: left;
   font-size: 12px;
+}
+
+/* =========================================================
+   ABYSS LINK — dark/manhwa UI layer
+   ========================================================= */
+
+body.connection-guard-abyss-theme .connguard-badge {
+  position: relative;
+  border: 1px solid rgba(225, 28, 75, 0.65);
+  background:
+    linear-gradient(135deg, rgba(8, 10, 18, 0.94), rgba(28, 4, 18, 0.9)),
+    radial-gradient(circle at 10% 20%, rgba(225, 28, 75, 0.25), transparent 35%);
+  box-shadow:
+    0 0 8px rgba(225, 28, 75, 0.35),
+    inset 0 0 10px rgba(95, 190, 255, 0.08);
+  letter-spacing: 0.03em;
+}
+
+body.connection-guard-abyss-theme .connguard-badge.connguard-good {
+  border-color: rgba(44, 204, 113, 0.8);
+  box-shadow: 0 0 8px rgba(44, 204, 113, 0.35);
+}
+
+body.connection-guard-abyss-theme .connguard-badge.connguard-low {
+  border-color: rgba(241, 196, 15, 0.8);
+  box-shadow: 0 0 8px rgba(241, 196, 15, 0.35);
+}
+
+body.connection-guard-abyss-theme .connguard-badge.connguard-bad {
+  border-color: rgba(225, 28, 75, 0.95);
+  animation: connguard-abyss-pulse 1.4s ease-in-out infinite;
+}
+
+body.connection-guard-abyss-theme #connection-guard-banner {
+  background:
+    linear-gradient(90deg, rgba(20, 2, 12, 0.96), rgba(128, 0, 32, 0.96)),
+    radial-gradient(circle at center, rgba(255, 55, 90, 0.35), transparent 50%);
+  border: 1px solid rgba(255, 80, 120, 0.8);
+  color: #ffeef4;
+  box-shadow:
+    0 0 18px rgba(225, 28, 75, 0.5),
+    0 4px 18px rgba(0, 0, 0, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.connguard-panel.connguard-abyss {
+  background:
+    linear-gradient(145deg, rgba(6, 8, 18, 0.97), rgba(19, 6, 18, 0.96)),
+    radial-gradient(circle at top left, rgba(55, 160, 255, 0.16), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(225, 28, 75, 0.18), transparent 35%);
+  border: 1px solid rgba(225, 28, 75, 0.45);
+  border-radius: 8px;
+  padding: 12px;
+  color: #e8edf7;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.55);
+}
+
+.connguard-panel.connguard-abyss h2,
+.connguard-panel.connguard-abyss h3 {
+  color: #ffeef4;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid rgba(225, 28, 75, 0.35);
+  padding-bottom: 4px;
+}
+
+.connguard-panel.connguard-abyss .connguard-table th {
+  background: rgba(225, 28, 75, 0.16);
+  color: #ffeef4;
+  border-color: rgba(225, 28, 75, 0.35);
+}
+
+.connguard-panel.connguard-abyss .connguard-table td {
+  border-color: rgba(122, 139, 170, 0.25);
+}
+
+.connguard-route-best {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  margin: 8px 0 12px;
+  padding: 10px;
+  border-radius: 6px;
+  background: rgba(6, 8, 18, 0.74);
+}
+
+.connguard-route-best a,
+.connguard-route-table a {
+  color: #8fd3ff;
+  text-decoration: none;
+}
+
+.connguard-route-best a:hover,
+.connguard-route-table a:hover {
+  text-shadow: 0 0 8px rgba(143, 211, 255, 0.75);
+}
+
+.connguard-route-example {
+  max-height: 260px;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid rgba(143, 211, 255, 0.35);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #cfe9ff;
+  white-space: pre-wrap;
+}
+
+.connguard-route-stable {
+  color: #83f5a1;
+}
+
+.connguard-route-drift {
+  color: #f8d76b;
+}
+
+.connguard-route-fractured {
+  color: #ff8a57;
+}
+
+.connguard-route-critical,
+.connguard-route-sealed {
+  color: #ff5a7a;
+  font-weight: bold;
+}
+
+@keyframes connguard-abyss-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(225, 28, 75, 0.35);
+  }
+
+  50% {
+    box-shadow: 0 0 18px rgba(225, 28, 75, 0.88);
+
+
+    .connguard-export-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+
+    .connguard-export-actions button {
+      border: 1px solid rgba(143, 211, 255, 0.35);
+      border-radius: 5px;
+      background:
+        linear-gradient(135deg, rgba(8, 10, 18, 0.92), rgba(55, 8, 28, 0.88)),
+        radial-gradient(circle at top, rgba(225, 28, 75, 0.16), transparent 45%);
+      color: #e8edf7;
+      padding: 5px 9px;
+      cursor: pointer;
+    }
+
+    .connguard-export-actions button:hover {
+      border-color: rgba(225, 28, 75, 0.72);
+      box-shadow: 0 0 10px rgba(225, 28, 75, 0.35);
+    }
+
+    .connguard-export-textarea {
+      width: 100%;
+      min-height: 180px;
+      resize: vertical;
+      font-family: var(--font-monospace, monospace);
+      font-size: 11px;
+      color: #cfe9ff;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(143, 211, 255, 0.35);
+      border-radius: 6px;
+      padding: 8px;
+    }
+  }
 }
