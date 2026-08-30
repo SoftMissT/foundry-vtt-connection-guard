@@ -2,7 +2,7 @@
   "id": "connection-guard",
   "title": "Connection Guard: Abyss Link",
   "description": "Monitora latência, detecta degradação preditiva, reconecta automaticamente, otimiza WebRTC, exporta journal e compara rotas LAN/Radmin/Cloudflare/playit.gg/IP direto com o Abyss Link Route Oracle.",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "compatibility": {
     "minimum": "13",
     "verified": "14.999"
@@ -35,7 +35,7 @@
   "socket": true,
   "url": "https://github.com/SoftMissT/foundry-vtt-connection-guard",
   "manifest": "https://github.com/SoftMissT/foundry-vtt-connection-guard/releases/latest/download/module.json",
-  "download": "https://github.com/SoftMissT/foundry-vtt-connection-guard/releases/download/v3.0.5/module.zip",
+  "download": "https://github.com/SoftMissT/foundry-vtt-connection-guard/releases/download/v3.0.6/module.zip",
   "license": "LICENSE",
   "readme": "README.md",
   "changelog": "CHANGELOG.md",

@@ -39,16 +39,16 @@
         "Hint": "How many consecutive cycles above the threshold before triggering an alert."
       },
       "CustomStun": {
-        "Name": "Custom STUN/TURN servers",
-        "Hint": "Comma-separated list (e.g. stun:host:port, turn:host:port). Empty uses the default list."
+        "Name": "Custom STUN/TURN for voice/video",
+        "Hint": "Optional. Use only stun: or turn: URLs. Do not put Foundry/playit links here."
       },
       "TurnCredentials": {
         "Name": "TURN credentials",
         "Hint": "Credentials in user:password format. GM only."
       },
       "RouteProfiles": {
-        "Name": "Abyss Link — route profiles (JSON)",
-        "Hint": "JSON list of possible routes to the same Foundry server: LAN, Radmin, Cloudflare, playit.gg, direct IP or custom."
+        "Name": "Abyss Link — extra routes",
+        "Hint": "Optional. Paste one route per line or comma-separated. Example: softmisst.playit.plus:1051, 192.168.0.10:30000, 26.0.0.10:30000. The module always includes the current route automatically."
       },
       "RouteScanTimeout": {
         "Name": "Abyss Link — timeout per attempt (ms)",
@@ -64,7 +64,7 @@
       "WebRtc": {
         "Name": "Voice/Video Server Advisor",
         "Label": "Test servers",
-        "Hint": "Benchmarks STUN/TURN servers and copies the best server for manual configuration."
+        "Hint": "Benchmarks STUN/TURN servers for voice/video and copies the best server for manual configuration."
       },
       "RouteOracle": {
         "Name": "Abyss Link — Route Oracle",
@@ -118,7 +118,7 @@
       "Time": "Time to respond",
       "NoResponse": "no response",
       "HowTo": "To use: Configure Game → Audio/Video → Server tab → paste the URL marked with ★ into the custom STUN/TURN server field.",
-      "TurnNote": "This only benchmarks STUN servers. Free public TURN servers barely exist; if your table needs one, host your own coturn or pay for a TURN service.",
+      "TurnNote": "STUN/TURN is only for WebRTC voice/video. Foundry, playit.gg, Cloudflare, Radmin or LAN links belong in Abyss Link — extra routes.",
       "AutoApplied": "Best STUN server recommended. Copy and apply it manually in Audio/Video settings.",
       "CopyBest": "Copy fastest",
       "Copied": "Copied: {url}",
@@ -129,7 +129,7 @@
       "WindowTitle": "Abyss Link — Route Oracle",
       "Current": "Current route",
       "NoProfiles": "No routes configured.",
-      "NoProfilesHelp": "Configure profiles in Configure Game → Settings → Connection Guard → Abyss Link — route profiles. Example:",
+      "NoProfilesHelp": "The current route is detected automatically. To compare alternatives, paste simple endpoints, one per line. Example:",
       "ScanStarted": "Abyss Link started route scanning.",
       "ReportFor": "Report for {user} completed in {ms}ms.",
       "Best": "Best route",

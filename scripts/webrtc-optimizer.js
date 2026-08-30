@@ -12,11 +12,11 @@ import {
  * Este módulo mede o tempo até o primeiro candidato ICE "srflx" usando
  * RTCPeerConnection. Isso é uma proxy prática para comparar servidores STUN.
  *
- * Nota técnica:
- * - Não mexe em VPN, DNS, firewall ou rota real do sistema.
- * - Não tenta mais escrever diretamente em game.webrtc.settings, porque essa
- *   API variou/quebrou no runtime testado.
- * - Fluxo seguro: medir → recomendar → copiar o melhor servidor.
+ * v3.0.5:
+ * - Não tenta mais escrever em game.webrtc.settings.
+ * - Não gera spam para STUN host lookup error.
+ * - Trata servidor STUN sem resposta como resultado normal.
+ * - Recomenda/copia o melhor servidor de forma segura.
  */
 function escapeHtml(value) {
   return String(value ?? '')
@@ -49,7 +49,7 @@ export class WebRtcOptimizer {
 
     return foundry.applications.api.DialogV2.wait({
       window: {
-        title: `${MODULE_TITLE} ${game.i18n.localize('CONNGUARD.WebRtc.WindowTitle')}`,
+        title: `${MODULE_TITLE} — ${game.i18n.localize('CONNGUARD.WebRtc.WindowTitle')}`,
       },
       content,
       buttons: [
@@ -90,7 +90,7 @@ export class WebRtcOptimizer {
     if (!custom) return PUBLIC_STUN_SERVERS
 
     const parsed = custom
-      .split(',')
+      .split(/[\n,;]/)
       .map(server => server.trim())
       .filter(server => /^(stun|turn):.+$/i.test(server))
 
@@ -104,7 +104,7 @@ export class WebRtcOptimizer {
       let timer = null
       let pc = null
 
-      const finish = timeMs => {
+      const finish = (timeMs, error = null) => {
         if (settled) return
         settled = true
 
@@ -120,25 +120,27 @@ export class WebRtcOptimizer {
           }
         }
 
-        resolve({ url, timeMs })
+        resolve({ url, timeMs, error })
       }
 
       try {
         pc = new RTCPeerConnection({ iceServers: [{ urls: url }] })
 
-        timer = setTimeout(() => finish(null), timeoutMs)
+        timer = setTimeout(() => finish(null, 'timeout'), timeoutMs)
 
         pc.onicecandidate = event => {
           const candidate = event.candidate?.candidate ?? ''
           if (candidate.includes('typ srflx')) {
-            finish(Math.round(performance.now() - start))
+            finish(Math.round(performance.now() - start), null)
           }
         }
 
         pc.onicecandidateerror = event => {
-          console.warn(
-            `${MODULE_ID} | ICE candidate error em ${url}: ${event?.errorText ?? event?.errorCode ?? 'erro desconhecido'}`,
-          )
+          const error = event?.errorText ?? event?.errorCode ?? 'ice-candidate-error'
+
+          // STUN host lookup error é comum em servidores públicos instáveis/DNS ruim.
+          // Não é bug do módulo e não deve poluir o console.
+          finish(null, String(error))
         }
 
         pc.createDataChannel('connection-guard-probe')
@@ -146,12 +148,10 @@ export class WebRtcOptimizer {
         pc.createOffer()
           .then(offer => pc.setLocalDescription(offer))
           .catch(err => {
-            console.warn(`${MODULE_ID} | STUN benchmark offer failed: ${err?.message ?? err}`)
-            finish(null)
+            finish(null, err?.message ?? 'offer-failed')
           })
       } catch (err) {
-        console.warn(`${MODULE_ID} | STUN benchmark failed: ${err?.message ?? err}`)
-        finish(null)
+        finish(null, err?.message ?? 'benchmark-failed')
       }
     })
   }

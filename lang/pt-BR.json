@@ -39,16 +39,16 @@
         "Hint": "Quantos ciclos consecutivos acima do limiar antes de emitir alerta."
       },
       "CustomStun": {
-        "Name": "Servidores STUN/TURN customizados",
-        "Hint": "Lista separada por vírgula (ex: stun:host:port, turn:host:port). Vazio usa a lista padrão."
+        "Name": "STUN/TURN customizado para voz/vídeo",
+        "Hint": "Opcional. Use apenas URLs stun: ou turn:. Não coloque link do Foundry/playit aqui."
       },
       "TurnCredentials": {
         "Name": "Credenciais TURN",
         "Hint": "Credenciais no formato usuario:senha. Visível apenas ao GM."
       },
       "RouteProfiles": {
-        "Name": "Abyss Link — perfis de rota (JSON)",
-        "Hint": "Lista JSON de rotas possíveis para o mesmo servidor Foundry: LAN, Radmin, Cloudflare, playit.gg, IP direto ou custom."
+        "Name": "Abyss Link — rotas extras",
+        "Hint": "Opcional. Cole uma rota por linha ou separada por vírgula. Ex: softmisst.playit.plus:1051, 192.168.0.10:30000, 26.0.0.10:30000. O módulo sempre inclui automaticamente a rota atual."
       },
       "RouteScanTimeout": {
         "Name": "Abyss Link — timeout por tentativa (ms)",
@@ -64,7 +64,7 @@
       "WebRtc": {
         "Name": "Assistente de Servidor de Voz/Vídeo",
         "Label": "Testar servidores",
-        "Hint": "Testa servidores STUN/TURN e copia o melhor servidor para configuração manual."
+        "Hint": "Testa servidores STUN/TURN para voz/vídeo e copia o melhor servidor para configuração manual."
       },
       "RouteOracle": {
         "Name": "Abyss Link — Route Oracle",
@@ -118,7 +118,7 @@
       "Time": "Tempo até resposta",
       "NoResponse": "sem resposta",
       "HowTo": "Para usar: Configurar Jogo → Áudio/Vídeo → aba Servidor → cole a URL marcada com ★ no campo de servidor STUN/TURN customizado.",
-      "TurnNote": "Isto testa apenas servidores STUN. Servidores TURN públicos e gratuitos praticamente não existem; se sua mesa precisa de um, hospede um coturn próprio ou contrate um serviço de TURN.",
+      "TurnNote": "STUN/TURN é só para voz/vídeo WebRTC. Links do Foundry, playit.gg, Cloudflare, Radmin ou LAN pertencem ao Abyss Link — rotas extras.",
       "AutoApplied": "Melhor servidor STUN recomendado. Copie e aplique manualmente nas configurações de Áudio/Vídeo.",
       "CopyBest": "Copiar o mais rápido",
       "Copied": "Copiado: {url}",
@@ -129,7 +129,7 @@
       "WindowTitle": "Abyss Link — Route Oracle",
       "Current": "Rota atual",
       "NoProfiles": "Nenhuma rota configurada.",
-      "NoProfilesHelp": "Configure os perfis em Configurar Jogo → Configurações → Connection Guard → Abyss Link — perfis de rota. Exemplo:",
+      "NoProfilesHelp": "A rota atual já é detectada automaticamente. Para comparar alternativas, cole endpoints simples, um por linha. Exemplo:",
       "ScanStarted": "Abyss Link iniciou o scanner de rotas.",
       "ReportFor": "Relatório de {user} concluído em {ms}ms.",
       "Best": "Melhor rota",

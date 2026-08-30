@@ -6,6 +6,15 @@ import { MODULE_ID, SETTINGS, ROUTE_TYPES } from './constants.js'
  * O módulo não altera VPN, firewall, DNS, rota do SO, nem o endpoint ativo
  * do Foundry automaticamente. Ele mede URLs configuradas pelo GM e recomenda
  * o melhor caminho possível com base em evidência local de cada cliente.
+ *
+ * v3.0.5:
+ * - Aceita JSON avançado OU lista simples de endpoints.
+ * - Exemplo simples:
+ *   softmisst.playit.plus:1051
+ *   192.168.0.10:30000
+ *   26.0.0.10:30000
+ * - Detecta playit.plus como playit.gg.
+ * - Sempre inclui automaticamente a rota atual aberta no navegador.
  */
 
 const PRIVATE_HOST_PATTERNS = [
@@ -25,15 +34,40 @@ export function escapeHtml(value) {
 }
 
 export function safeParseRouteProfiles(raw) {
-  if (!raw || !String(raw).trim()) return []
+  const text = String(raw ?? '').trim()
+  if (!text) return []
+
+  const jsonProfiles = parseJsonProfiles(text)
+  if (jsonProfiles.length) return jsonProfiles
+
+  return parseSimpleRouteList(text)
+}
+
+function parseJsonProfiles(text) {
   try {
-    const parsed = JSON.parse(String(raw))
+    const parsed = JSON.parse(text)
     if (!Array.isArray(parsed)) return []
     return parsed.map(normalizeRouteProfile).filter(Boolean)
-  } catch (err) {
-    console.warn(`${MODULE_ID} | routeProfiles JSON inválido: ${err?.message ?? err}`)
+  } catch {
     return []
   }
+}
+
+function parseSimpleRouteList(text) {
+  return text
+    .split(/[\n,;]/)
+    .map(line => line.trim())
+    .filter(Boolean)
+    .map((endpoint, index) =>
+      normalizeRouteProfile({
+        id: `auto-${index + 1}`,
+        label: '',
+        url: endpoint,
+        priority: index + 1,
+        notes: 'Rota adicionada por lista simples.',
+      }),
+    )
+    .filter(Boolean)
 }
 
 export function normalizeRouteProfile(profile, index = 0) {
@@ -49,12 +83,14 @@ export function normalizeRouteProfile(profile, index = 0) {
     ? profile.type
     : classifyRouteType(url)
 
+  const label = String(profile.label || labelForType(type, url)).slice(0, 64)
+
   return {
     id: sanitizeId(profile.id || `${type}-${index + 1}`),
-    label: String(profile.label || labelForType(type)).slice(0, 64),
+    label,
     type,
     url,
-    requiresVpn: Boolean(profile.requiresVpn),
+    requiresVpn: Boolean(profile.requiresVpn || type === ROUTE_TYPES.RADMIN),
     priority: Number.isFinite(Number(profile.priority)) ? Number(profile.priority) : 10,
     notes: String(profile.notes ?? '').slice(0, 240),
   }
@@ -62,9 +98,17 @@ export function normalizeRouteProfile(profile, index = 0) {
 
 export function normalizeUrl(rawUrl) {
   try {
-    const withProtocol = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`
+    const trimmed = String(rawUrl ?? '').trim()
+    if (!trimmed) return null
+
+    const hasProtocol = /^[a-z][a-z\d+.-]*:\/\//i.test(trimmed)
+    const protocol = window.location?.protocol === 'https:' ? 'https://' : 'http://'
+    const withProtocol = hasProtocol ? trimmed : `${protocol}${trimmed}`
+
     const url = new URL(withProtocol)
     url.hash = ''
+    url.pathname = ''
+    url.search = ''
     return url.origin
   } catch {
     return null
@@ -74,38 +118,59 @@ export function normalizeUrl(rawUrl) {
 export function classifyRouteType(url) {
   try {
     const { hostname } = new URL(url)
+
     if (PRIVATE_HOST_PATTERNS.some(pattern => pattern.test(hostname))) return ROUTE_TYPES.LOCAL
     if (/radmin/i.test(hostname)) return ROUTE_TYPES.RADMIN
-    if (/trycloudflare\.com$/i.test(hostname) || /cloudflare/i.test(hostname))
+    if (/trycloudflare\.com$/i.test(hostname) || /cloudflare/i.test(hostname)) {
       return ROUTE_TYPES.CLOUDFLARE
-    if (/playit\.gg$/i.test(hostname) || /joinplayit/i.test(hostname)) return ROUTE_TYPES.PLAYIT
+    }
+    if (
+      /playit\.gg$/i.test(hostname) ||
+      /playit\.plus$/i.test(hostname) ||
+      /joinplayit/i.test(hostname)
+    ) {
+      return ROUTE_TYPES.PLAYIT
+    }
     if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) return ROUTE_TYPES.DIRECT
+
     return ROUTE_TYPES.CUSTOM
   } catch {
     return ROUTE_TYPES.CUSTOM
   }
 }
 
-export function labelForType(type) {
+export function labelForType(type, url = '') {
+  const host = hostLabel(url)
+
   switch (type) {
     case ROUTE_TYPES.LOCAL:
-      return 'Local / LAN'
+      return host ? `LAN / Local — ${host}` : 'LAN / Local'
     case ROUTE_TYPES.RADMIN:
-      return 'Radmin VPN'
+      return host ? `Radmin VPN — ${host}` : 'Radmin VPN'
     case ROUTE_TYPES.CLOUDFLARE:
-      return 'Cloudflare Tunnel'
+      return host ? `Cloudflare Tunnel — ${host}` : 'Cloudflare Tunnel'
     case ROUTE_TYPES.PLAYIT:
-      return 'playit.gg'
+      return host ? `playit.gg — ${host}` : 'playit.gg'
     case ROUTE_TYPES.DIRECT:
-      return 'IP direto'
+      return host ? `IP direto — ${host}` : 'IP direto'
     default:
-      return 'Rota custom'
+      return host ? `Rota custom — ${host}` : 'Rota custom'
+  }
+}
+
+function hostLabel(url) {
+  try {
+    const parsed = new URL(url)
+    return parsed.port ? `${parsed.hostname}:${parsed.port}` : parsed.hostname
+  } catch {
+    return ''
   }
 }
 
 export function currentRouteProfile() {
   const url = window.location?.origin ?? ''
   const type = classifyRouteType(url)
+
   return {
     id: 'current',
     label: game.i18n?.localize?.('CONNGUARD.Route.Current') || 'Rota atual',
@@ -122,8 +187,12 @@ export function getConfiguredRouteProfiles() {
   const configured = safeParseRouteProfiles(raw)
   const current = currentRouteProfile()
 
-  const byUrl = new Map([[current.url, current]])
+  const byUrl = new Map()
+
+  if (current.url) byUrl.set(current.url, current)
+
   for (const profile of configured) {
+    if (!profile?.url) continue
     if (!byUrl.has(profile.url)) byUrl.set(profile.url, profile)
   }
 
@@ -133,48 +202,49 @@ export function getConfiguredRouteProfiles() {
 }
 
 export function routeProfilesExample() {
-  return JSON.stringify(
-    [
-      {
-        id: 'lan-gm',
-        label: 'LAN do Mestre',
-        type: ROUTE_TYPES.LOCAL,
-        url: 'http://192.168.0.10:30000',
-        requiresVpn: false,
-        priority: 1,
-        notes: 'Use quando todos estão na mesma rede local.',
-      },
-      {
-        id: 'radmin-vpn',
-        label: 'Radmin VPN',
-        type: ROUTE_TYPES.RADMIN,
-        url: 'http://26.0.0.10:30000',
-        requiresVpn: true,
-        priority: 2,
-        notes: 'Use quando todos estão na mesma rede Radmin.',
-      },
-      {
-        id: 'cloudflare-main',
-        label: 'Cloudflare Tunnel',
-        type: ROUTE_TYPES.CLOUDFLARE,
-        url: 'https://foundry.seudominio.com',
-        requiresVpn: false,
-        priority: 3,
-        notes: 'Rota pública sem port-forward.',
-      },
-      {
-        id: 'playit-main',
-        label: 'playit.gg',
-        type: ROUTE_TYPES.PLAYIT,
-        url: 'https://seu-endpoint.playit.gg',
-        requiresVpn: false,
-        priority: 4,
-        notes: 'Túnel público alternativo.',
-      },
-    ],
-    null,
-    2,
-  )
+  return [
+    'Modo simples recomendado:',
+    '',
+    'softmisst.playit.plus:1051',
+    '192.168.0.10:30000',
+    '26.0.0.10:30000',
+    'foundry.seudominio.com',
+    '',
+    'Ou, para controle avançado, use JSON:',
+    JSON.stringify(
+      [
+        {
+          id: 'playit-main',
+          label: 'playit.gg principal',
+          type: ROUTE_TYPES.PLAYIT,
+          url: 'http://softmisst.playit.plus:1051',
+          requiresVpn: false,
+          priority: 1,
+          notes: 'Endpoint público do playit.gg.',
+        },
+        {
+          id: 'lan-gm',
+          label: 'LAN do Mestre',
+          type: ROUTE_TYPES.LOCAL,
+          url: 'http://192.168.0.10:30000',
+          requiresVpn: false,
+          priority: 2,
+          notes: 'Use quando todos estão na mesma rede local.',
+        },
+        {
+          id: 'radmin-vpn',
+          label: 'Radmin VPN',
+          type: ROUTE_TYPES.RADMIN,
+          url: 'http://26.0.0.10:30000',
+          requiresVpn: true,
+          priority: 3,
+          notes: 'Use quando todos estão na mesma rede Radmin.',
+        },
+      ],
+      null,
+      2,
+    ),
+  ].join('\n')
 }
 
 function sanitizeId(value) {
