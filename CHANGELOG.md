@@ -29,3 +29,11 @@
 - Painel de diagnóstico para o GM (latência/jitter/perda/status de todos + histórico de quedas locais).
 - Assistente de servidor de voz/vídeo: benchmark de servidores STUN públicos com recomendação e cópia rápida.
 - Traduções pt-BR (principal) e en (fallback).
+
+## 3.0.0
+
+- **Abyss Link / Route Oracle**: novo painel para comparar rotas configuradas pelo GM, incluindo LAN, Radmin VPN, Cloudflare Tunnel, playit.gg, IP direto e rotas customizadas.
+- **Matriz de rotas no painel GM**: o GM pode ver a melhor rota reportada por cada jogador após o scanner.
+- **Design manhwa dark**: novo tema Abyss Link com visual escuro/neon para badges, banners e painéis.
+- **Journal Exporter em ApplicationV2**: exportação manual em Markdown, JSON, copiar Markdown ou salvar/atualizar uma única Journal Entry.
+- **Removido auto-export silencioso**: o módulo não cria Journal Entry automaticamente no shutdown ou por contador; exportação agora exige ação explícita do GM.
