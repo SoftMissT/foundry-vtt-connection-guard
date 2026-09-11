@@ -5,6 +5,7 @@ import {
   setActiveRoute,
   routeProfilesExample,
   escapeHtml,
+  routeConnectionState,
 } from './route-profiles.js'
 import { RouteScanner } from './route-scanner.js'
 import { pickBestRoute } from './route-score.js'
@@ -207,12 +208,17 @@ export class RouteWizard {
     const vpnTag = active.requiresVpn
       ? ` · <span class="connguard-service-pill">${game.i18n.localize('CONNGUARD.Service.RequiresVpn')}</span>`
       : ''
+    const state = routeConnectionState(active)
+    const stateMarkup = state.matchesCurrent
+      ? `<span class="connguard-service-pill">${game.i18n.localize('CONNGUARD.Service.Current')}</span>`
+      : `<span class="connguard-service-pill">${game.i18n.localize('CONNGUARD.Service.DifferentRoute')}</span>
+         <small>${game.i18n.localize('CONNGUARD.Service.ReloadHint')}</small>`
 
     return `
       <div id="connguard-active-route-block" class="connguard-active-route-banner">
         <div>
           <strong>${game.i18n.localize('CONNGUARD.Service.ActiveTitle')}</strong>
-          <span>${escapeHtml(active.label)}${vpnTag}</span>
+          <span>${escapeHtml(active.label)}${vpnTag} · ${stateMarkup}</span>
         </div>
         <a href="${escapeHtml(active.url)}" target="_blank" rel="noreferrer">
           ${game.i18n.localize('CONNGUARD.Route.Open')}

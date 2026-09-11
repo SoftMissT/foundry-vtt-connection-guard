@@ -1,9 +1,9 @@
 import { MODULE_ID, SETTINGS, JOURNAL_TYPES } from './constants.js'
-import { getActiveRoute } from './route-profiles.js'
+import { getActiveRoute, routeConnectionState } from './route-profiles.js'
 
 /**
  * Chip fixo no HUD mostrando a rota ativa da mesa para TODOS os clientes
- * (GM e jogadores — mesma informação, mesma aparência).
+ * (GM e jogadores mesma informação, mesma aparência).
  *
  * A rota ativa é um setting world não-restricted: quando o GM grava, o
  * Foundry sincroniza o valor para todos os clientes e o hook updateSetting
@@ -82,12 +82,20 @@ export class ActiveRouteChip {
     const label = this.#el.querySelector('.connguard-active-route-chip-label')
     const link = this.#el.querySelector('.connguard-active-route-chip-link')
     const vpn = this.#el.querySelector('.connguard-active-route-chip-vpn')
+    const state = this.#el.querySelector('.connguard-active-route-chip-state')
 
     if (label) label.textContent = route.label
     if (link) link.href = route.url
     if (vpn) {
       vpn.textContent = route.requiresVpn ? game.i18n.localize('CONNGUARD.Service.RequiresVpn') : ''
       vpn.classList.toggle('connguard-hidden', !route.requiresVpn)
+    }
+    if (state) {
+      const alignment = routeConnectionState(route)
+      state.textContent = alignment.matchesCurrent
+        ? game.i18n.localize('CONNGUARD.Service.Current')
+        : game.i18n.localize('CONNGUARD.Service.ReloadHint')
+      state.classList.toggle('connguard-route-mismatch', !alignment.matchesCurrent)
     }
 
     this.#dismissedForId = null
@@ -104,6 +112,7 @@ export class ActiveRouteChip {
       </span>
       <span class="connguard-active-route-chip-label"></span>
       <span class="connguard-active-route-chip-vpn connguard-hidden"></span>
+      <span class="connguard-active-route-chip-state"></span>
       <a class="connguard-active-route-chip-link" target="_blank" rel="noreferrer">
         ${game.i18n.localize('CONNGUARD.Service.ChipConnect')}
       </a>

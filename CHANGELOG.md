@@ -1,9 +1,15 @@
 # Changelog
 
+## 3.0.8
+
+- **HUD GM/jogador alinhado**: ambos exibem a mesma rota ativa e indicam se o cliente ainda está conectado a outro origin; a troca exige abrir o endpoint e recarregar o Foundry.
+- **Controle de rota reforçado**: somente o GM pode selecionar ou limpar a rota ativa, inclusive quando a função é chamada diretamente.
+- **Diagnóstico de túnel mais seguro**: probes HTTP bloqueados por mixed content são identificados antes de criar timers; a varredura continua não bloqueante e preserva Radmin VPN, playit.gg, ngrok e Cloudflare como rotas orientadas pelo GM.
+
 ## 3.0.7
 
 - **Serviço ativo controlado pelo GM**: o Mestre define qual serviço a mesa usa (Radmin VPN, playit.gg, ngrok, Cloudflare Tunnel, LAN, IP direto ou custom) direto do Route Oracle (★ por linha) ou do Painel GM. A escolha propaga para todos os clientes; jogadores recebem notificação e um chip fixo no HUD com link "conectar".
-- **HUD unificado GM/jogador**: `routeProfiles` deixou de ser `restricted` — jogadores agora veem as mesmas rotas do GM no Route Oracle (antes recebiam lista vazia e só escaneavam a rota atual). Tema Abyss passou a ser `world` (GM decide para a mesa; badges e painéis idênticos para todos).
+- **HUD unificado GM/jogador**: `routeProfiles` deixou de ser `restricted` jogadores agora veem as mesmas rotas do GM no Route Oracle (antes recebiam lista vazia e só escaneavam a rota atual). Tema Abyss passou a ser `world` (GM decide para a mesa; badges e painéis idênticos para todos).
 - **Fim do "travamento" com Radmin VPN free**: o Route Oracle abre imediatamente com estado "escaneando…" por linha e pinta cada resultado na hora; as 3 tentativas de cada rota rodam em paralelo (pior caso por rota = 1× timeout em vez de 3×). Rotas mortas não congelam mais a tela.
 - **Classificação corrigida**: `26.x.x.x` agora é reconhecido como Radmin VPN (antes caía em "IP direto"); hostnames ngrok (`*.ngrok-free.app`, `*.ngrok.app`, `*.ngrok.io`) têm tipo próprio.
 - **Hints de setup por serviço**: quando uma rota falha, a dica explica o que verificar naquele serviço (Radmin conectado no mesmo grupo; túnel do playit ativo; agente ngrok rodando; cloudflared no host; porta liberada no firewall).
@@ -47,11 +53,11 @@
 
 ## 2.0.3
 
-- **Journal auto-export**: journal agora é exportado automaticamente como Journal Entry do Foundry, sem depender de ação manual do GM. Export periódico (a cada 50 entradas ou 5 minutos) + export no shutdown como fallback. *(Removido na v3.0.0 em favor de exportação manual explícita.)*
+- **Journal auto-export**: journal agora é exportado automaticamente como Journal Entry do Foundry, sem depender de ação manual do GM. Export periódico (a cada 50 entradas ou 5 minutos) + export no shutdown como fallback. _(Removido na v3.0.0 em favor de exportação manual explícita.)_
 
 ## 2.0.0
 
-- **Auto-otimização WebRTC**: benchmark de STUN/TURN agora aplica automaticamente o melhor servidor na configuração WebRTC do Foundry (com fallback manual se a API não estiver disponível). *(Auto-apply removido na v3.0.5.)*
+- **Auto-otimização WebRTC**: benchmark de STUN/TURN agora aplica automaticamente o melhor servidor na configuração WebRTC do Foundry (com fallback manual se a API não estiver disponível). _(Auto-apply removido na v3.0.5.)_
 - **Reconexão preditiva**: detecta degradação de RTT antes da queda e emite alerta ao usuário após N ciclos consecutivos acima do limiar.
 - **Adaptive ping interval**: medição fica mais frequente quando a conexão está ruim e menos frequente quando está estável.
 - **Journal de testes**: captura todos os eventos de runtime (lifecycle, latência, conexão, degradação, WebRTC, erros) e exporta como Journal Entry do Foundry em markdown.

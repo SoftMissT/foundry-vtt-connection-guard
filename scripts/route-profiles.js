@@ -104,7 +104,7 @@ export function normalizeUrl(rawUrl) {
     if (!trimmed) return null
 
     const hasProtocol = /^[a-z][a-z\d+.-]*:\/\//i.test(trimmed)
-    const protocol = window.location?.protocol === 'https:' ? 'https://' : 'http://'
+    const protocol = globalThis.location?.protocol === 'https:' ? 'https://' : 'http://'
     const withProtocol = hasProtocol ? trimmed : `${protocol}${trimmed}`
 
     const url = new URL(withProtocol)
@@ -114,6 +114,33 @@ export function normalizeUrl(rawUrl) {
     return url.origin
   } catch {
     return null
+  }
+}
+
+/** Return the browser origin without throwing in tests or during early init. */
+export function currentOrigin() {
+  return globalThis.location?.origin ?? ''
+}
+
+export function isMixedContentRoute(url, origin = currentOrigin()) {
+  try {
+    return new URL(origin).protocol === 'https:' && new URL(url).protocol === 'http:'
+  } catch {
+    return false
+  }
+}
+
+export function routeConnectionState(route, origin = currentOrigin()) {
+  if (!route?.url || !origin) return { matchesCurrent: false, requiresReload: false }
+  try {
+    const matchesCurrent = new URL(route.url).origin === new URL(origin).origin
+    return {
+      matchesCurrent,
+      requiresReload: !matchesCurrent,
+      mixedContent: isMixedContentRoute(route.url, origin),
+    }
+  } catch {
+    return { matchesCurrent: false, requiresReload: false, mixedContent: false }
   }
 }
 
@@ -148,19 +175,19 @@ export function labelForType(type, url = '') {
 
   switch (type) {
     case ROUTE_TYPES.LOCAL:
-      return host ? `LAN / Local — ${host}` : 'LAN / Local'
+      return host ? `LAN / Local ${host}` : 'LAN / Local'
     case ROUTE_TYPES.RADMIN:
-      return host ? `Radmin VPN — ${host}` : 'Radmin VPN'
+      return host ? `Radmin VPN ${host}` : 'Radmin VPN'
     case ROUTE_TYPES.CLOUDFLARE:
-      return host ? `Cloudflare Tunnel — ${host}` : 'Cloudflare Tunnel'
+      return host ? `Cloudflare Tunnel ${host}` : 'Cloudflare Tunnel'
     case ROUTE_TYPES.PLAYIT:
-      return host ? `playit.gg — ${host}` : 'playit.gg'
+      return host ? `playit.gg ${host}` : 'playit.gg'
     case ROUTE_TYPES.NGROK:
-      return host ? `ngrok — ${host}` : 'ngrok'
+      return host ? `ngrok ${host}` : 'ngrok'
     case ROUTE_TYPES.DIRECT:
-      return host ? `IP direto — ${host}` : 'IP direto'
+      return host ? `IP direto ${host}` : 'IP direto'
     default:
-      return host ? `Rota custom — ${host}` : 'Rota custom'
+      return host ? `Rota custom ${host}` : 'Rota custom'
   }
 }
 
@@ -174,7 +201,7 @@ function hostLabel(url) {
 }
 
 export function currentRouteProfile() {
-  const url = window.location?.origin ?? ''
+  const url = currentOrigin()
   const type = classifyRouteType(url)
 
   return {
@@ -275,6 +302,12 @@ export function getActiveRoute() {
 }
 
 export async function setActiveRoute(profile) {
+  if (!game.user?.isGM) {
+    globalThis.ui?.notifications?.warn(
+      game.i18n?.localize?.('CONNGUARD.Service.GmOnly') || 'Only the GM can set the active route.',
+    )
+    return null
+  }
   const normalized = normalizeRouteProfile(profile)
   if (!normalized) return null
 
@@ -283,6 +316,13 @@ export async function setActiveRoute(profile) {
 }
 
 export async function clearActiveRoute() {
+  if (!game.user?.isGM) {
+    globalThis.ui?.notifications?.warn(
+      game.i18n?.localize?.('CONNGUARD.Service.GmOnly') ||
+        'Only the GM can clear the active route.',
+    )
+    return null
+  }
   await game.settings.set(MODULE_ID, SETTINGS.ACTIVE_ROUTE, '')
   return null
 }

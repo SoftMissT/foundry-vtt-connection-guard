@@ -47,11 +47,11 @@
         "Hint": "Credentials in user:password format. GM only."
       },
       "RouteProfiles": {
-        "Name": "Abyss Link — extra routes",
+        "Name": "Abyss Link extra routes",
         "Hint": "Optional. Paste one route per line or comma-separated. Example: softmisst.playit.plus:1051, 192.168.0.10:30000, 26.0.0.10:30000. The module always includes the current route automatically."
       },
       "RouteScanTimeout": {
-        "Name": "Abyss Link — timeout per attempt (ms)",
+        "Name": "Abyss Link timeout per attempt (ms)",
         "Hint": "Max time for each route test attempt. Higher values improve tolerance but make scans slower."
       }
     },
@@ -67,7 +67,7 @@
         "Hint": "Benchmarks STUN/TURN servers for voice/video and copies the best server for manual configuration."
       },
       "RouteOracle": {
-        "Name": "Abyss Link — Route Oracle",
+        "Name": "Abyss Link Route Oracle",
         "Label": "Scan routes",
         "Hint": "Compares GM-configured routes and recommends the best path for each player."
       },
@@ -118,15 +118,15 @@
       "Time": "Time to respond",
       "NoResponse": "no response",
       "HowTo": "To use: Configure Game → Audio/Video → Server tab → paste the URL marked with ★ into the custom STUN/TURN server field.",
-      "TurnNote": "STUN/TURN is only for WebRTC voice/video. Foundry, playit.gg, Cloudflare, Radmin or LAN links belong in Abyss Link — extra routes.",
+      "TurnNote": "STUN/TURN is only for WebRTC voice/video. Foundry, playit.gg, Cloudflare, Radmin or LAN links belong in Abyss Link extra routes.",
       "AutoApplied": "Best STUN server recommended. Copy and apply it manually in Audio/Video settings.",
       "CopyBest": "Copy fastest",
       "Copied": "Copied: {url}",
-      "CopyFailed": "Could not copy automatically — copy the value manually from the table.",
+      "CopyFailed": "Could not copy automatically copy the value manually from the table.",
       "NoneAvailable": "No server responded in time. Try again."
     },
     "Route": {
-      "WindowTitle": "Abyss Link — Route Oracle",
+      "WindowTitle": "Abyss Link Route Oracle",
       "Current": "Current route",
       "NoProfiles": "No routes configured.",
       "NoProfilesHelp": "The current route is detected automatically. To compare alternatives, paste simple endpoints, one per line. Example:",
@@ -150,7 +150,7 @@
         "Sealed": "Sealed Gate"
       },
       "LimitNote": "Note: the module measures browser reachability and response time. It does not change VPN, firewall, DNS, OS routing, or force players to switch endpoints.",
-      "MatrixTitle": "Abyss Link — route matrix",
+      "MatrixTitle": "Abyss Link route matrix",
       "MatrixEmpty": "No player has run the Route Oracle this session.",
       "NotScanned": "Not scanned",
       "Hint": {
@@ -167,17 +167,21 @@
       "ClearActive": "Clear",
       "ActiveSet": "Active route set: {label}",
       "ActiveCleared": "Active route cleared.",
-      "SelectedNotif": "The GM set the table's route: {label} — click the chip on the edge of the screen to connect.",
+      "SelectedNotif": "The GM set the table's route: {label} click the chip on the edge of the screen to connect.",
       "ChipConnect": "connect",
       "ChipDismiss": "Hide until next change",
       "ActiveBadge": "ACTIVE",
+      "Current": "connected on this route",
+      "DifferentRoute": "different route from this session",
+      "ReloadHint": "Open the link and reload Foundry to change route.",
+      "GmOnly": "Only the GM can set the table's active route.",
       "RequiresVpn": "VPN required",
       "Hint": {
         "Local": "Local route: the Foundry host must be reachable on the same LAN.",
         "Radmin": "Radmin VPN: everyone needs Radmin VPN installed, connected, and in the same group. The 26.x.x.x range only answers inside the VPN.",
         "Cloudflare": "Cloudflare Tunnel: cloudflared must be running on the Foundry host with the hostname configured.",
         "Playit": "playit.gg: the tunnel must be active on the host with the port forwarded. Check the playit panel.",
-        "Ngrok": "ngrok: the agent must be running on the host. On the free plan the URL changes on every restart — prefer a static domain.",
+        "Ngrok": "ngrok: the agent must be running on the host. On the free plan the URL changes on every restart prefer a static domain.",
         "Direct": "Direct IP: the public IP must be reachable and the port open on the firewall/router.",
         "Custom": "Custom route: check that the endpoint is up and reachable from your network."
       }
@@ -191,7 +195,7 @@
       "SectionConnection": "Connection Events",
       "SectionDegradation": "Degradation Alerts",
       "SectionStale": "Unresponsive Users",
-      "SectionWebrtc": "WebRTC — STUN Benchmark",
+      "SectionWebrtc": "WebRTC STUN Benchmark",
       "SectionRoute": "Abyss Link / Route Oracle",
       "SectionErrors": "Errors",
       "NoEntries": "*No entries recorded this session.*",

@@ -2,7 +2,7 @@ export const MODULE_ID = 'connection-guard'
 export const MODULE_TITLE = 'Connection Guard: Abyss Link'
 export const SOCKET_EVENT = `module.${MODULE_ID}`
 
-// Nomes de hook — v13 renomeou PlayerList -> Players, mas mantém o alias
+// Nomes de hook v13 renomeou PlayerList -> Players, mas mantém o alias
 // "renderPlayerList" por compatibilidade. Escutamos os dois.
 export const PLAYERS_RENDER_HOOKS = ['renderPlayers', 'renderPlayerList']
 
@@ -111,7 +111,7 @@ export const DEFAULTS = {
 
 // Servidores STUN públicos conhecidos, usados apenas para BENCHMARK local
 // (tempo até o primeiro candidato ICE srflx). Nunca enviam nem recebem
-// mídia — servem só para medir tempo de resposta do servidor de STUN.
+// mídia servem só para medir tempo de resposta do servidor de STUN.
 export const PUBLIC_STUN_SERVERS = [
   'stun:stun.l.google.com:19302',
   'stun:stun1.l.google.com:19302',

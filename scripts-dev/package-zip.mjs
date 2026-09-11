@@ -9,7 +9,15 @@ import zip from 'bestzip'
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
 const dist = path.join(root, 'dist')
 
-const RUNTIME_FILES = ['module.json', 'scripts', 'styles', 'lang', 'LICENSE', 'README.md', 'CHANGELOG.md']
+const RUNTIME_FILES = [
+  'module.json',
+  'scripts',
+  'styles',
+  'lang',
+  'LICENSE',
+  'README.md',
+  'CHANGELOG.md',
+]
 
 // No CI, a tag da release (ex.: refs/tags/v1.2.3, via GITHUB_REF_NAME=v1.2.3)
 // atualiza version/download dentro do module.json empacotado, para o link
@@ -50,7 +58,9 @@ async function main() {
   })
 
   console.log(`Empacotado: ${zipPath}`)
-  console.log(`Manifesto solto (para o asset "module.json" do release): ${path.join(dist, 'module.json')}`)
+  console.log(
+    `Manifesto solto (para o asset "module.json" do release): ${path.join(dist, 'module.json')}`,
+  )
 }
 
 main().catch(err => {

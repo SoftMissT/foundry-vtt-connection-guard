@@ -49,7 +49,7 @@ function applyAbyssTheme() {
 
 /**
  * Tema abyss é world scope (GM decide para a mesa). O hook updateSetting
- * dispara em TODOS os clientes quando o valor muda — mais confiável que
+ * dispara em TODOS os clientes quando o valor muda mais confiável que
  * onChange, que só roda no cliente que gravou.
  */
 const ABYSS_THEME_KEY = `${MODULE_ID}.${SETTINGS.ABYSS_THEME}`
@@ -106,7 +106,7 @@ Hooks.once('ready', () => {
   monitor.start()
 
   Hooks.once('shutdown', () => {
-    console.log(`${MODULE_ID} | shutdown — limpando recursos`)
+    console.log(`${MODULE_ID} | shutdown limpando recursos`)
     monitor.stop()
     reconnectManager.stop()
     playerListUI.destroy()

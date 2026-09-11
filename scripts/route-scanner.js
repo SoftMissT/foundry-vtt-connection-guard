@@ -1,4 +1,5 @@
 import { MODULE_ID, SETTINGS, DEFAULTS, SERVICE_CATALOG } from './constants.js'
+import { isMixedContentRoute } from './route-profiles.js'
 import { scoreRouteResult } from './route-score.js'
 
 /**
@@ -25,7 +26,11 @@ export class RouteScanner {
     const startedAt = performance.now()
     const scans = (profiles ?? []).map(async profile => {
       const result = await this.scanOne(profile)
-      onProgress?.(result)
+      try {
+        onProgress?.(result)
+      } catch {
+        // Uma falha de renderização não pode cancelar as outras sondagens.
+      }
       return result
     })
     const results = await Promise.all(scans)
@@ -89,10 +94,14 @@ export class RouteScanner {
   async #probe(profile) {
     const timeoutMs = Number(game.settings.get(MODULE_ID, SETTINGS.ROUTE_SCAN_TIMEOUT))
     const finalTimeout = Number.isFinite(timeoutMs) ? timeoutMs : DEFAULTS.ROUTE_SCAN_TIMEOUT_MS
-    const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), finalTimeout)
     const url = this.#cacheBust(profile.url)
 
+    if (isMixedContentRoute(url)) {
+      return { ok: false, timeMs: null, reason: 'mixed-content' }
+    }
+
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), finalTimeout)
     const startedAt = performance.now()
     try {
       await fetch(url, {

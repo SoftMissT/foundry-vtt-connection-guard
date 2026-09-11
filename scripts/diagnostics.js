@@ -1,7 +1,7 @@
 import { MODULE_ID, SETTINGS, DEFAULTS } from './constants.js'
 
 /**
- * Guarda em memória (dura enquanto a aba estiver aberta — não persiste
+ * Guarda em memória (dura enquanto a aba estiver aberta não persiste
  * entre sessões, de propósito, para não acumular dados sensíveis de rede
  * em um setting do mundo) o estado de conexão de cada usuário, o
  * histórico de quedas do cliente local, alertas de degradação preditiva,

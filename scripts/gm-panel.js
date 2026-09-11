@@ -5,6 +5,7 @@ import {
   getActiveRoute,
   setActiveRoute,
   clearActiveRoute,
+  routeConnectionState,
 } from './route-profiles.js'
 
 /**
@@ -74,7 +75,7 @@ export class GmPanel {
 
     const dialog = new foundry.applications.api.DialogV2({
       window: {
-        title: `${MODULE_TITLE} — ${game.i18n.localize('CONNGUARD.Panel.WindowTitle')}`,
+        title: `${MODULE_TITLE} ${game.i18n.localize('CONNGUARD.Panel.WindowTitle')}`,
       },
       content,
       buttons: [
@@ -116,6 +117,7 @@ export class GmPanel {
 
   #buildActiveRouteSection() {
     const active = getActiveRoute()
+    const activeState = active ? routeConnectionState(active) : null
     const profiles = getConfiguredRouteProfiles().filter(profile => profile.id !== 'current')
 
     const activeBlock = active
@@ -123,7 +125,8 @@ export class GmPanel {
         <div id="connguard-active-route-block" class="connguard-active-route-banner">
           <div>
             <strong>${game.i18n.localize('CONNGUARD.Service.ActiveTitle')}</strong>
-            <span>${escapeHtml(active.label)}${active.requiresVpn ? ` · ${game.i18n.localize('CONNGUARD.Service.RequiresVpn')}` : ''}</span>
+            <span>${escapeHtml(active.label)}${active.requiresVpn ? ` · ${game.i18n.localize('CONNGUARD.Service.RequiresVpn')}` : ''} · ${activeState?.matchesCurrent ? game.i18n.localize('CONNGUARD.Service.Current') : game.i18n.localize('CONNGUARD.Service.DifferentRoute')}</span>
+            ${activeState?.matchesCurrent ? '' : `<small>${game.i18n.localize('CONNGUARD.Service.ReloadHint')}</small>`}
           </div>
           <div class="connguard-active-route-actions">
             <a href="${escapeHtml(active.url)}" target="_blank" rel="noreferrer">
@@ -331,7 +334,7 @@ export class GmPanel {
       .map(drop => {
         const when = new Date(drop.start).toLocaleTimeString()
         const seconds = (drop.durationMs / 1000).toFixed(1)
-        return `<li>${when} — ${seconds}s</li>`
+        return `<li>${when} ${seconds}s</li>`
       })
       .join('')
 
@@ -349,7 +352,7 @@ export class GmPanel {
       .map(alert => {
         const when = new Date(alert.timestamp).toLocaleTimeString()
         const user = game.users.get(alert.userId)?.name ?? alert.userId ?? '?'
-        return `<li>${when} — ${foundry.utils.escapeHTML(user)}: ${alert.rtt}ms (${game.i18n.format('CONNGUARD.Panel.Cycles', { count: alert.cycles })})</li>`
+        return `<li>${when} ${foundry.utils.escapeHTML(user)}: ${alert.rtt}ms (${game.i18n.format('CONNGUARD.Panel.Cycles', { count: alert.cycles })})</li>`
       })
       .join('')
 

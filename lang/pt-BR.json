@@ -47,11 +47,11 @@
         "Hint": "Credenciais no formato usuario:senha. Visível apenas ao GM."
       },
       "RouteProfiles": {
-        "Name": "Abyss Link — rotas extras",
+        "Name": "Abyss Link rotas extras",
         "Hint": "Opcional. Cole uma rota por linha ou separada por vírgula. Ex: softmisst.playit.plus:1051, 192.168.0.10:30000, 26.0.0.10:30000. O módulo sempre inclui automaticamente a rota atual."
       },
       "RouteScanTimeout": {
-        "Name": "Abyss Link — timeout por tentativa (ms)",
+        "Name": "Abyss Link timeout por tentativa (ms)",
         "Hint": "Tempo máximo para cada tentativa de teste de rota. Valores altos aumentam precisão, mas deixam o scanner mais lento."
       }
     },
@@ -67,7 +67,7 @@
         "Hint": "Testa servidores STUN/TURN para voz/vídeo e copia o melhor servidor para configuração manual."
       },
       "RouteOracle": {
-        "Name": "Abyss Link — Route Oracle",
+        "Name": "Abyss Link Route Oracle",
         "Label": "Escanear rotas",
         "Hint": "Compara as rotas configuradas pelo GM e recomenda o melhor caminho para cada jogador."
       },
@@ -118,15 +118,15 @@
       "Time": "Tempo até resposta",
       "NoResponse": "sem resposta",
       "HowTo": "Para usar: Configurar Jogo → Áudio/Vídeo → aba Servidor → cole a URL marcada com ★ no campo de servidor STUN/TURN customizado.",
-      "TurnNote": "STUN/TURN é só para voz/vídeo WebRTC. Links do Foundry, playit.gg, Cloudflare, Radmin ou LAN pertencem ao Abyss Link — rotas extras.",
+      "TurnNote": "STUN/TURN é só para voz/vídeo WebRTC. Links do Foundry, playit.gg, Cloudflare, Radmin ou LAN pertencem ao Abyss Link rotas extras.",
       "AutoApplied": "Melhor servidor STUN recomendado. Copie e aplique manualmente nas configurações de Áudio/Vídeo.",
       "CopyBest": "Copiar o mais rápido",
       "Copied": "Copiado: {url}",
-      "CopyFailed": "Não foi possível copiar automaticamente — copie o valor manualmente da tabela.",
+      "CopyFailed": "Não foi possível copiar automaticamente copie o valor manualmente da tabela.",
       "NoneAvailable": "Nenhum servidor respondeu a tempo. Tente novamente."
     },
     "Route": {
-      "WindowTitle": "Abyss Link — Route Oracle",
+      "WindowTitle": "Abyss Link Route Oracle",
       "Current": "Rota atual",
       "NoProfiles": "Nenhuma rota configurada.",
       "NoProfilesHelp": "A rota atual já é detectada automaticamente. Para comparar alternativas, cole endpoints simples, um por linha. Exemplo:",
@@ -150,7 +150,7 @@
         "Sealed": "Portão Selado"
       },
       "LimitNote": "Nota: o módulo mede alcançabilidade e tempo de resposta no navegador. Ele não altera VPN, firewall, DNS, rota do sistema operacional nem força jogadores a trocar de endpoint.",
-      "MatrixTitle": "Abyss Link — matriz de rotas",
+      "MatrixTitle": "Abyss Link matriz de rotas",
       "MatrixEmpty": "Nenhum jogador executou o Route Oracle nesta sessão.",
       "NotScanned": "Não escaneado",
       "Hint": {
@@ -167,17 +167,21 @@
       "ClearActive": "Limpar",
       "ActiveSet": "Rota ativa definida: {label}",
       "ActiveCleared": "Rota ativa limpa.",
-      "SelectedNotif": "O Mestre definiu a rota da mesa: {label} — clique no chip no canto da tela para conectar.",
+      "SelectedNotif": "O Mestre definiu a rota da mesa: {label} clique no chip no canto da tela para conectar.",
       "ChipConnect": "conectar",
       "ChipDismiss": "Ocultar até a próxima troca",
       "ActiveBadge": "ATIVA",
+      "Current": "conectado nesta rota",
+      "DifferentRoute": "rota diferente da sessão atual",
+      "ReloadHint": "Abra o link e recarregue o Foundry para trocar de rota.",
+      "GmOnly": "Somente o Mestre pode definir a rota ativa da mesa.",
       "RequiresVpn": "requer VPN",
       "Hint": {
         "Local": "Rota local: o Foundry precisa estar acessível na mesma rede LAN.",
         "Radmin": "Radmin VPN: todos precisam do Radmin VPN instalado, conectado e no mesmo grupo. A faixa 26.x.x.x só responde dentro da VPN.",
         "Cloudflare": "Cloudflare Tunnel: o cloudflared precisa estar rodando no host do Foundry e o hostname configurado.",
         "Playit": "playit.gg: o túnel precisa estar ativo no host e a porta encaminhada. Verifique no painel do playit.",
-        "Ngrok": "ngrok: o agente precisa estar rodando no host. No plano free a URL muda a cada reinício — prefira um domínio estático.",
+        "Ngrok": "ngrok: o agente precisa estar rodando no host. No plano free a URL muda a cada reinício prefira um domínio estático.",
         "Direct": "IP direto: o IP público precisa estar acessível e a porta liberada no firewall/roteador.",
         "Custom": "Rota custom: verifique se o endpoint está no ar e acessível a partir da sua rede."
       }
@@ -191,7 +195,7 @@
       "SectionConnection": "Eventos de Conexão",
       "SectionDegradation": "Alertas de Degradação",
       "SectionStale": "Usuários Sem Resposta",
-      "SectionWebrtc": "WebRTC — Benchmark de STUN",
+      "SectionWebrtc": "WebRTC Benchmark de STUN",
       "SectionRoute": "Abyss Link / Route Oracle",
       "SectionErrors": "Erros",
       "NoEntries": "*Nenhuma entrada registrada nesta sessão.*",

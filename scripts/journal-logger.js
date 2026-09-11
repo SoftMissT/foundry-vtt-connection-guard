@@ -72,7 +72,7 @@ export class JournalLogger {
     const lines = []
     const i18n = key => game.i18n.localize(key)
 
-    lines.push(`# ${MODULE_TITLE} — Journal`)
+    lines.push(`# ${MODULE_TITLE} Journal`)
     lines.push('')
     lines.push(`**${i18n('CONNGUARD.Journal.Generated')}:** ${now.toLocaleString()}`)
     lines.push(`**${i18n('CONNGUARD.Journal.Session')}:** ${now.toISOString().slice(0, 10)}`)
@@ -167,7 +167,7 @@ export class JournalLogger {
       lines.push(`## ${i18n('CONNGUARD.Journal.SectionRoute')}`)
       lines.push('')
       for (const e of grouped[JOURNAL_TYPES.ROUTE]) {
-        lines.push(`### ${this.#fmtTime(e.timestamp)} — ${e.userName ?? e.userId ?? '?'}`)
+        lines.push(`### ${this.#fmtTime(e.timestamp)} ${e.userName ?? e.userId ?? '?'}`)
         lines.push('')
         lines.push('| Rota | Tipo | Mediana | Jitter | Perda | Score | Estado |')
         lines.push('|------|------|---------|--------|-------|-------|--------|')
@@ -241,7 +241,7 @@ export class JournalLogger {
    */
   async saveToJournalEntry() {
     const markdown = this.generateMarkdown()
-    const name = `${MODULE_TITLE} — ${new Date().toISOString().slice(0, 10)}`
+    const name = `${MODULE_TITLE} ${new Date().toISOString().slice(0, 10)}`
     const markdownFormat =
       typeof CONST !== 'undefined' ? CONST.JOURNAL_ENTRY_PAGE_FORMATS.MARKDOWN : 1
 
@@ -326,7 +326,7 @@ export class JournalExportApp extends foundry.applications.api.ApplicationV2 {
     id: 'connection-guard-journal-exporter',
     classes: ['connection-guard', 'connguard-journal-exporter'],
     window: {
-      title: 'Connection Guard — Journal Export',
+      title: 'Connection Guard Journal Export',
       resizable: true,
     },
     position: {
