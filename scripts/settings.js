@@ -59,11 +59,8 @@ export function registerSettings() {
     hint: g.i18n.localize('CONNGUARD.Settings.AbyssTheme.Hint'),
     type: Boolean,
     default: true,
-    scope: 'client',
+    scope: 'world',
     config: true,
-    onChange: enabled => {
-      document.body.classList.toggle('connection-guard-abyss-theme', Boolean(enabled))
-    },
   })
 
   g.settings.register(MODULE_ID, SETTINGS.AUTO_RECONNECT, {
@@ -133,13 +130,23 @@ export function registerSettings() {
     config: true,
   })
 
+  // Rota ativa da mesa: world e NÃO-restricted de propósito. A URL precisa
+  // ser legível por todos os clientes (o jogador conecta por ela); somente
+  // o GM pode gravar (world scope). Sem UI de settings: o GM define pelo
+  // Painel ou pelo Route Oracle.
+  g.settings.register(MODULE_ID, SETTINGS.ACTIVE_ROUTE, {
+    type: String,
+    default: '',
+    scope: 'world',
+    config: false,
+  })
+
   g.settings.register(MODULE_ID, SETTINGS.ROUTE_PROFILES, {
     name: g.i18n.localize('CONNGUARD.Settings.RouteProfiles.Name'),
     hint: g.i18n.localize('CONNGUARD.Settings.RouteProfiles.Hint'),
     type: String,
     default: '',
     scope: 'world',
-    restricted: true,
     config: true,
   })
 

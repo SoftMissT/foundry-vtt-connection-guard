@@ -1,15 +1,27 @@
-import { MODULE_TITLE } from './constants.js'
-import { escapeHtml } from './route-profiles.js'
+import { MODULE_TITLE, SERVICE_CATALOG } from './constants.js'
+import {
+  escapeHtml,
+  getConfiguredRouteProfiles,
+  getActiveRoute,
+  setActiveRoute,
+  clearActiveRoute,
+} from './route-profiles.js'
 
 /**
  * Janela somente-leitura para o GM: latência, jitter e perda estimada de
  * cada usuário conectado, histórico de quedas, alertas de degradação,
- * matriz de rotas Abyss Link, e exportador manual de journal.
- * Implementado como DialogV2, com exportador separado em ApplicationV2.
+ * matriz de rotas Abyss Link, controle da rota ativa da mesa e exportador
+ * manual de journal. Implementado como DialogV2, com exportador separado
+ * em ApplicationV2.
+ *
+ * v3.1.0:
+ * - Seção "Rota ativa da mesa": GM define/limpa a rota que os jogadores
+ *   devem usar; a escolha propaga para todos via setting world.
  */
 export class GmPanel {
   #diagnostics
   #journal
+  #dialog = null
 
   constructor(diagnostics, journal) {
     this.#diagnostics = diagnostics
@@ -44,6 +56,8 @@ export class GmPanel {
           </table>
         </div>
 
+        ${this.#buildActiveRouteSection()}
+
         ${routeOracle}
 
         <h3>${game.i18n.localize('CONNGUARD.Panel.DropsTitle')}</h3>
@@ -58,7 +72,7 @@ export class GmPanel {
       </section>
     `
 
-    return foundry.applications.api.DialogV2.wait({
+    const dialog = new foundry.applications.api.DialogV2({
       window: {
         title: `${MODULE_TITLE} — ${game.i18n.localize('CONNGUARD.Panel.WindowTitle')}`,
       },
@@ -77,6 +91,130 @@ export class GmPanel {
       ],
       position: { width: 820 },
     })
+
+    await dialog.render({ force: true })
+    this.#dialog = dialog
+
+    dialog.element?.addEventListener('click', event => {
+      const setButton = event.target.closest('[data-connguard-set-active]')
+      if (setButton) {
+        const profile = getConfiguredRouteProfiles().find(
+          item => item.id === setButton.dataset.connguardSetActive,
+        )
+        if (profile) this.#selectActiveRoute(profile)
+        return
+      }
+
+      const clearButton = event.target.closest('[data-connguard-clear-active]')
+      if (clearButton) this.#clearActiveRoute()
+    })
+
+    return new Promise(resolve => {
+      dialog.addEventListener('close', () => resolve('close'))
+    })
+  }
+
+  #buildActiveRouteSection() {
+    const active = getActiveRoute()
+    const profiles = getConfiguredRouteProfiles().filter(profile => profile.id !== 'current')
+
+    const activeBlock = active
+      ? `
+        <div id="connguard-active-route-block" class="connguard-active-route-banner">
+          <div>
+            <strong>${game.i18n.localize('CONNGUARD.Service.ActiveTitle')}</strong>
+            <span>${escapeHtml(active.label)}${active.requiresVpn ? ` · ${game.i18n.localize('CONNGUARD.Service.RequiresVpn')}` : ''}</span>
+          </div>
+          <div class="connguard-active-route-actions">
+            <a href="${escapeHtml(active.url)}" target="_blank" rel="noreferrer">
+              ${game.i18n.localize('CONNGUARD.Route.Open')}
+            </a>
+            <button
+              type="button"
+              class="connguard-clear-active"
+              data-connguard-clear-active="1"
+            >${game.i18n.localize('CONNGUARD.Service.ClearActive')}</button>
+          </div>
+        </div>
+      `
+      : `
+        <div id="connguard-active-route-block" class="connguard-muted">
+          ${game.i18n.localize('CONNGUARD.Service.ActiveNone')}
+        </div>
+      `
+
+    const listRows = profiles
+      .map(profile => {
+        const isActive = profile.id === active?.id
+        const service = SERVICE_CATALOG[profile.type]
+        const hint = service?.hintKey ? game.i18n.localize(service.hintKey) : ''
+        const hintAttr = hint ? ` title="${escapeHtml(hint)}"` : ''
+
+        return `
+          <tr id="connguard-route-config-row--${profile.id}" class="${isActive ? 'connguard-route-active-row' : ''}">
+            <td>
+              <a href="${escapeHtml(profile.url)}" target="_blank" rel="noreferrer"${hintAttr}>
+                ${escapeHtml(profile.label)}
+              </a>
+            </td>
+            <td>${escapeHtml(profile.type)}</td>
+            <td>
+              <button
+                type="button"
+                class="connguard-set-active"
+                data-connguard-set-active="${escapeHtml(profile.id)}"
+                ${isActive ? 'disabled' : ''}
+              >${game.i18n.localize('CONNGUARD.Service.SetActive')}</button>
+            </td>
+          </tr>
+        `
+      })
+      .join('')
+
+    if (!profiles.length) {
+      return `<div id="connguard-active-route-section">${activeBlock}</div>`
+    }
+
+    return `
+      <div id="connguard-active-route-section">
+        <h3>${game.i18n.localize('CONNGUARD.Service.ActiveTitle')}</h3>
+        ${activeBlock}
+        <div class="connguard-table-wrap">
+          <table class="connguard-table connguard-route-table">
+            <thead>
+              <tr>
+                <th>${game.i18n.localize('CONNGUARD.Route.Label')}</th>
+                <th>${game.i18n.localize('CONNGUARD.Route.Type')}</th>
+                <th>${game.i18n.localize('CONNGUARD.Service.ActiveTitle')}</th>
+              </tr>
+            </thead>
+            <tbody>${listRows}</tbody>
+          </table>
+        </div>
+      </div>
+    `
+  }
+
+  async #selectActiveRoute(profile) {
+    const route = await setActiveRoute(profile)
+    if (!route) return
+
+    ui.notifications.info(game.i18n.format('CONNGUARD.Service.ActiveSet', { label: route.label }))
+    this.#refreshActiveRouteSection()
+  }
+
+  async #clearActiveRoute() {
+    await clearActiveRoute()
+    ui.notifications.info(game.i18n.localize('CONNGUARD.Service.ActiveCleared'))
+    this.#refreshActiveRouteSection()
+  }
+
+  #refreshActiveRouteSection() {
+    const root = this.#dialog?.element
+    if (!root) return
+
+    const section = root.querySelector('#connguard-active-route-section')
+    if (section) section.outerHTML = this.#buildActiveRouteSection()
   }
 
   #buildRows() {

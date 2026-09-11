@@ -1,4 +1,4 @@
-import { MODULE_ID, SETTINGS, DEFAULTS } from './constants.js'
+import { MODULE_ID, SETTINGS, DEFAULTS, SERVICE_CATALOG } from './constants.js'
 import { scoreRouteResult } from './route-score.js'
 
 /**
@@ -7,15 +7,28 @@ import { scoreRouteResult } from './route-score.js'
  * Usa fetch(mode: "no-cors") para testar alcançabilidade cross-origin sem
  * exigir CORS no servidor Foundry. Isso mede "tempo até o navegador conseguir
  * falar com o endpoint", não substitui um ping ICMP nem altera rotas reais.
+ *
+ * v3.1.0:
+ * - Tentativas de uma mesma rota rodam em PARALELO (Promise.allSettled):
+ *   pior caso por rota = 1× timeout, não mais tentativas × timeout.
+ *   Rotas mortas (ex.: Radmin VPN caído) não travam mais a UI por 3× timeout.
+ * - scanAll aceita onProgress: cada rota resolvida é entregue na hora,
+ *   permitindo render progressivo no wizard em vez de tela congelada.
+ * - Hint de falha específico por serviço (Radmin/playit/ngrok/cloudflare).
  */
 export class RouteScanner {
   constructor(journal = null) {
     this.journal = journal
   }
 
-  async scanAll(profiles) {
+  async scanAll(profiles, onProgress = null) {
     const startedAt = performance.now()
-    const results = await Promise.all((profiles ?? []).map(profile => this.scanOne(profile)))
+    const scans = (profiles ?? []).map(async profile => {
+      const result = await this.scanOne(profile)
+      onProgress?.(result)
+      return result
+    })
+    const results = await Promise.all(scans)
     const finishedAt = performance.now()
 
     return {
@@ -30,11 +43,9 @@ export class RouteScanner {
 
   async scanOne(profile) {
     const attempts = DEFAULTS.ROUTE_SCAN_ATTEMPTS
-    const samples = []
-
-    for (let i = 0; i < attempts; i++) {
-      samples.push(await this.#probe(profile))
-    }
+    const samples = await Promise.allSettled(
+      Array.from({ length: attempts }, () => this.#probe(profile)),
+    ).then(settled => settled.map(entry => entry.value).filter(Boolean))
 
     const success = samples.filter(s => s.ok)
     const lossPct = Math.round(((attempts - success.length) / attempts) * 100)
@@ -47,7 +58,7 @@ export class RouteScanner {
         medianMs: null,
         jitterMs: null,
         lossPct,
-        hintKey: this.#hintKeyForFailure(samples),
+        hintKey: this.#hintKeyForFailure(samples, profile),
       }
       return { ...failed, ...scoreRouteResult(failed) }
     }
@@ -113,9 +124,13 @@ export class RouteScanner {
     return parsed.toString()
   }
 
-  #hintKeyForFailure(samples) {
+  #hintKeyForFailure(samples, profile) {
     const reasons = samples.map(s => s.reason || '').join(' ')
     if (/mixed|https/i.test(reasons)) return 'CONNGUARD.Route.Hint.MixedContent'
+
+    const serviceHint = SERVICE_CATALOG[profile?.type]?.hintKey
+    if (serviceHint) return serviceHint
+
     if (/timeout|abort/i.test(reasons)) return 'CONNGUARD.Route.Hint.Timeout'
     return 'CONNGUARD.Route.Hint.Unreachable'
   }

@@ -131,6 +131,7 @@
       "NoProfiles": "No routes configured.",
       "NoProfilesHelp": "The current route is detected automatically. To compare alternatives, paste simple endpoints, one per line. Example:",
       "ScanStarted": "Abyss Link started route scanning.",
+      "Scanning": "scanning…",
       "ReportFor": "Report for {user} completed in {ms}ms.",
       "Best": "Best route",
       "Open": "Open route",
@@ -158,6 +159,28 @@
         "Unreachable": "Route unreachable from this client."
       },
       "StatusLabel": "State"
+    },
+    "Service": {
+      "ActiveTitle": "Table's active route",
+      "ActiveNone": "No active route set. Scan the routes and choose which service the table should use.",
+      "SetActive": "Set as active",
+      "ClearActive": "Clear",
+      "ActiveSet": "Active route set: {label}",
+      "ActiveCleared": "Active route cleared.",
+      "SelectedNotif": "The GM set the table's route: {label} — click the chip on the edge of the screen to connect.",
+      "ChipConnect": "connect",
+      "ChipDismiss": "Hide until next change",
+      "ActiveBadge": "ACTIVE",
+      "RequiresVpn": "VPN required",
+      "Hint": {
+        "Local": "Local route: the Foundry host must be reachable on the same LAN.",
+        "Radmin": "Radmin VPN: everyone needs Radmin VPN installed, connected, and in the same group. The 26.x.x.x range only answers inside the VPN.",
+        "Cloudflare": "Cloudflare Tunnel: cloudflared must be running on the Foundry host with the hostname configured.",
+        "Playit": "playit.gg: the tunnel must be active on the host with the port forwarded. Check the playit panel.",
+        "Ngrok": "ngrok: the agent must be running on the host. On the free plan the URL changes on every restart — prefer a static domain.",
+        "Direct": "Direct IP: the public IP must be reachable and the port open on the firewall/router.",
+        "Custom": "Custom route: check that the endpoint is up and reachable from your network."
+      }
     },
     "Journal": {
       "Generated": "Generated",

@@ -22,6 +22,7 @@ export const SETTINGS = {
   GM_PANEL_MENU: 'gmPanelMenu',
   WEBRTC_ADVISOR_MENU: 'webrtcAdvisorMenu',
   ROUTE_ORACLE_MENU: 'routeOracleMenu',
+  ACTIVE_ROUTE: 'activeRoute',
   DEGRADATION_THRESHOLD: 'degradationThreshold',
   DEGRADATION_CYCLES: 'degradationCycles',
   CUSTOM_STUN_SERVERS: 'customStunServers',
@@ -36,8 +37,44 @@ export const ROUTE_TYPES = {
   RADMIN: 'radmin',
   CLOUDFLARE: 'cloudflare',
   PLAYIT: 'playit',
+  NGROK: 'ngrok',
   DIRECT: 'direct',
   CUSTOM: 'custom',
+}
+
+/**
+ * Metadados por serviço de rota: exige VPN? qual hint de setup mostrar
+ * quando a rota falha ou é selecionada como ativa.
+ */
+export const SERVICE_CATALOG = {
+  [ROUTE_TYPES.LOCAL]: {
+    requiresVpn: false,
+    hintKey: 'CONNGUARD.Service.Hint.Local',
+  },
+  [ROUTE_TYPES.RADMIN]: {
+    requiresVpn: true,
+    hintKey: 'CONNGUARD.Service.Hint.Radmin',
+  },
+  [ROUTE_TYPES.CLOUDFLARE]: {
+    requiresVpn: false,
+    hintKey: 'CONNGUARD.Service.Hint.Cloudflare',
+  },
+  [ROUTE_TYPES.PLAYIT]: {
+    requiresVpn: false,
+    hintKey: 'CONNGUARD.Service.Hint.Playit',
+  },
+  [ROUTE_TYPES.NGROK]: {
+    requiresVpn: false,
+    hintKey: 'CONNGUARD.Service.Hint.Ngrok',
+  },
+  [ROUTE_TYPES.DIRECT]: {
+    requiresVpn: false,
+    hintKey: 'CONNGUARD.Service.Hint.Direct',
+  },
+  [ROUTE_TYPES.CUSTOM]: {
+    requiresVpn: false,
+    hintKey: 'CONNGUARD.Service.Hint.Custom',
+  },
 }
 
 export const JOURNAL_TYPES = {

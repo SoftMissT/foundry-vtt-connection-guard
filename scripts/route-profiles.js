@@ -1,4 +1,4 @@
-import { MODULE_ID, SETTINGS, ROUTE_TYPES } from './constants.js'
+import { MODULE_ID, SETTINGS, ROUTE_TYPES, SERVICE_CATALOG } from './constants.js'
 
 /**
  * Perfis de rota do Abyss Link.
@@ -9,12 +9,14 @@ import { MODULE_ID, SETTINGS, ROUTE_TYPES } from './constants.js'
  *
  * v3.0.5:
  * - Aceita JSON avançado OU lista simples de endpoints.
- * - Exemplo simples:
- *   softmisst.playit.plus:1051
- *   192.168.0.10:30000
- *   26.0.0.10:30000
  * - Detecta playit.plus como playit.gg.
  * - Sempre inclui automaticamente a rota atual aberta no navegador.
+ *
+ * v3.1.0:
+ * - 26.x.x.x (faixa usada pelo Radmin VPN) é classificado como radmin.
+ * - Hostnames ngrok (*.ngrok-free.app, *.ngrok.app, *.ngrok.io) têm tipo próprio.
+ * - SERVICE_CATALOG centraliza metadados por serviço (requiresVpn, hint de setup).
+ * - Rota ativa da mesa: lida/gravada pelo GM em setting world legível por todos.
  */
 
 const PRIVATE_HOST_PATTERNS = [
@@ -90,7 +92,7 @@ export function normalizeRouteProfile(profile, index = 0) {
     label,
     type,
     url,
-    requiresVpn: Boolean(profile.requiresVpn || type === ROUTE_TYPES.RADMIN),
+    requiresVpn: Boolean(profile.requiresVpn ?? SERVICE_CATALOG[type]?.requiresVpn ?? false),
     priority: Number.isFinite(Number(profile.priority)) ? Number(profile.priority) : 10,
     notes: String(profile.notes ?? '').slice(0, 240),
   }
@@ -120,6 +122,7 @@ export function classifyRouteType(url) {
     const { hostname } = new URL(url)
 
     if (PRIVATE_HOST_PATTERNS.some(pattern => pattern.test(hostname))) return ROUTE_TYPES.LOCAL
+    if (/^26\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) return ROUTE_TYPES.RADMIN
     if (/radmin/i.test(hostname)) return ROUTE_TYPES.RADMIN
     if (/trycloudflare\.com$/i.test(hostname) || /cloudflare/i.test(hostname)) {
       return ROUTE_TYPES.CLOUDFLARE
@@ -131,6 +134,7 @@ export function classifyRouteType(url) {
     ) {
       return ROUTE_TYPES.PLAYIT
     }
+    if (/ngrok/i.test(hostname)) return ROUTE_TYPES.NGROK
     if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) return ROUTE_TYPES.DIRECT
 
     return ROUTE_TYPES.CUSTOM
@@ -151,6 +155,8 @@ export function labelForType(type, url = '') {
       return host ? `Cloudflare Tunnel — ${host}` : 'Cloudflare Tunnel'
     case ROUTE_TYPES.PLAYIT:
       return host ? `playit.gg — ${host}` : 'playit.gg'
+    case ROUTE_TYPES.NGROK:
+      return host ? `ngrok — ${host}` : 'ngrok'
     case ROUTE_TYPES.DIRECT:
       return host ? `IP direto — ${host}` : 'IP direto'
     default:
@@ -203,12 +209,16 @@ export function getConfiguredRouteProfiles() {
 
 export function routeProfilesExample() {
   return [
-    'Modo simples recomendado:',
+    'Modo simples recomendado (um endpoint por linha):',
     '',
     'softmisst.playit.plus:1051',
     '192.168.0.10:30000',
     '26.0.0.10:30000',
     'foundry.seudominio.com',
+    'exemplo.ngrok-free.app',
+    '',
+    'Tipos detectados automaticamente: LAN, Radmin VPN (26.x),',
+    'Cloudflare Tunnel, playit.gg, ngrok, IP direto e custom.',
     '',
     'Ou, para controle avançado, use JSON:',
     JSON.stringify(
@@ -245,6 +255,36 @@ export function routeProfilesExample() {
       2,
     ),
   ].join('\n')
+}
+
+/**
+ * Rota ativa da mesa, escolhida pelo GM. Setting world NÃO-restricted:
+ * a URL precisa ser legível por todos os clientes para que o jogador
+ * possa conectar; somente GM pode gravar (world scope garante isso).
+ */
+export function getActiveRoute() {
+  const raw = game.settings.get(MODULE_ID, SETTINGS.ACTIVE_ROUTE)
+  if (!raw) return null
+
+  try {
+    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
+    return normalizeRouteProfile(parsed)
+  } catch {
+    return null
+  }
+}
+
+export async function setActiveRoute(profile) {
+  const normalized = normalizeRouteProfile(profile)
+  if (!normalized) return null
+
+  await game.settings.set(MODULE_ID, SETTINGS.ACTIVE_ROUTE, JSON.stringify(normalized))
+  return normalized
+}
+
+export async function clearActiveRoute() {
+  await game.settings.set(MODULE_ID, SETTINGS.ACTIVE_ROUTE, '')
+  return null
 }
 
 function sanitizeId(value) {

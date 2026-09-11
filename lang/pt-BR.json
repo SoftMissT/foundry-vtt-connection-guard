@@ -17,7 +17,7 @@
       },
       "AbyssTheme": {
         "Name": "Tema Abyss Link (manhwa dark)",
-        "Hint": "Ativa visual escuro/neon para badges, banners e painéis do Connection Guard."
+        "Hint": "Ativa visual escuro/neon para badges, banners e painéis do Connection Guard. Aplica para toda a mesa (definido pelo GM)."
       },
       "AutoReconnect": {
         "Name": "Reconexão automática mais agressiva",
@@ -131,6 +131,7 @@
       "NoProfiles": "Nenhuma rota configurada.",
       "NoProfilesHelp": "A rota atual já é detectada automaticamente. Para comparar alternativas, cole endpoints simples, um por linha. Exemplo:",
       "ScanStarted": "Abyss Link iniciou o scanner de rotas.",
+      "Scanning": "escaneando…",
       "ReportFor": "Relatório de {user} concluído em {ms}ms.",
       "Best": "Melhor rota",
       "Open": "Abrir rota",
@@ -158,6 +159,28 @@
         "Unreachable": "Rota inacessível deste cliente."
       },
       "StatusLabel": "Estado"
+    },
+    "Service": {
+      "ActiveTitle": "Rota ativa da mesa",
+      "ActiveNone": "Nenhuma rota definida como ativa. Escaneie as rotas e defina qual serviço a mesa deve usar.",
+      "SetActive": "Definir como ativa",
+      "ClearActive": "Limpar",
+      "ActiveSet": "Rota ativa definida: {label}",
+      "ActiveCleared": "Rota ativa limpa.",
+      "SelectedNotif": "O Mestre definiu a rota da mesa: {label} — clique no chip no canto da tela para conectar.",
+      "ChipConnect": "conectar",
+      "ChipDismiss": "Ocultar até a próxima troca",
+      "ActiveBadge": "ATIVA",
+      "RequiresVpn": "requer VPN",
+      "Hint": {
+        "Local": "Rota local: o Foundry precisa estar acessível na mesma rede LAN.",
+        "Radmin": "Radmin VPN: todos precisam do Radmin VPN instalado, conectado e no mesmo grupo. A faixa 26.x.x.x só responde dentro da VPN.",
+        "Cloudflare": "Cloudflare Tunnel: o cloudflared precisa estar rodando no host do Foundry e o hostname configurado.",
+        "Playit": "playit.gg: o túnel precisa estar ativo no host e a porta encaminhada. Verifique no painel do playit.",
+        "Ngrok": "ngrok: o agente precisa estar rodando no host. No plano free a URL muda a cada reinício — prefira um domínio estático.",
+        "Direct": "IP direto: o IP público precisa estar acessível e a porta liberada no firewall/roteador.",
+        "Custom": "Rota custom: verifique se o endpoint está no ar e acessível a partir da sua rede."
+      }
     },
     "Journal": {
       "Generated": "Gerado",

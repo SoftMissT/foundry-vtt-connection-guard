@@ -5,6 +5,7 @@ import { DiagnosticsStore } from './diagnostics.js'
 import { ReconnectManager } from './reconnect-manager.js'
 import { PlayerListUI } from './player-list-ui.js'
 import { JournalLogger } from './journal-logger.js'
+import { ActiveRouteChip } from './active-route-chip.js'
 
 const journal = new JournalLogger()
 
@@ -46,6 +47,16 @@ function applyAbyssTheme() {
   document.body.classList.toggle('connection-guard-abyss-theme', Boolean(enabled))
 }
 
+/**
+ * Tema abyss é world scope (GM decide para a mesa). O hook updateSetting
+ * dispara em TODOS os clientes quando o valor muda — mais confiável que
+ * onChange, que só roda no cliente que gravou.
+ */
+const ABYSS_THEME_KEY = `${MODULE_ID}.${SETTINGS.ABYSS_THEME}`
+const onThemeSettingUpdate = doc => {
+  if (doc.key === ABYSS_THEME_KEY) applyAbyssTheme()
+}
+
 Hooks.once('ready', () => {
   console.log(`${MODULE_ID} | pronto`)
   journal.log(JOURNAL_TYPES.LIFECYCLE, { message: 'Módulo pronto' })
@@ -53,12 +64,15 @@ Hooks.once('ready', () => {
   const diagnostics = new DiagnosticsStore()
   const playerListUI = new PlayerListUI(diagnostics)
   const reconnectManager = new ReconnectManager(diagnostics, journal)
+  const activeRouteChip = new ActiveRouteChip(journal)
 
   setMenuDependencies(diagnostics, journal)
   applyAbyssTheme()
+  Hooks.on('updateSetting', onThemeSettingUpdate)
 
   playerListUI.registerHooks()
   reconnectManager.start()
+  activeRouteChip.start()
 
   const monitor = new LatencyMonitor(
     payload => handleSample(payload, diagnostics, playerListUI, journal),
@@ -96,6 +110,8 @@ Hooks.once('ready', () => {
     monitor.stop()
     reconnectManager.stop()
     playerListUI.destroy()
+    activeRouteChip.stop()
+    Hooks.off('updateSetting', onThemeSettingUpdate)
     clearInterval(sweepIntervalId)
     game.socket?.off(SOCKET_EVENT, onSocketMessage)
     document.body.classList.remove('connection-guard-abyss-theme')
