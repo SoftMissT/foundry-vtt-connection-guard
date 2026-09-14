@@ -1,16 +1,21 @@
 import { MODULE_ID, SETTINGS, ROUTE_TYPES, SERVICE_CATALOG } from './constants.js'
-import { normalizeRouteProfile, safeParseRouteProfiles, setActiveRoute } from './route-profiles.js'
+import {
+  getActiveRoute,
+  normalizeRouteProfile,
+  safeParseRouteProfiles,
+  setActiveRoute,
+} from './route-profiles.js'
 
 const RADMIN_HOST = /^26\.(?:\d{1,3}\.){2}\d{1,3}$/
 
 const SERVICES = [
-  { type: ROUTE_TYPES.RADMIN, id: 'radmin-vpn', labelKey: 'CONNGUARD.Service.Name.Radmin' },
-  { type: ROUTE_TYPES.PLAYIT, id: 'playit', labelKey: 'CONNGUARD.Service.Name.Playit' },
-  { type: ROUTE_TYPES.NGROK, id: 'ngrok', labelKey: 'CONNGUARD.Service.Name.Ngrok' },
-  { type: ROUTE_TYPES.CLOUDFLARE, id: 'cloudflare', labelKey: 'CONNGUARD.Service.Name.Cloudflare' },
-  { type: ROUTE_TYPES.LOCAL, id: 'local', labelKey: 'CONNGUARD.Service.Name.Local' },
-  { type: ROUTE_TYPES.DIRECT, id: 'direct', labelKey: 'CONNGUARD.Service.Name.Direct' },
-  { type: ROUTE_TYPES.CUSTOM, id: 'custom', labelKey: 'CONNGUARD.Service.Name.Custom' },
+  { type: ROUTE_TYPES.RADMIN, id: 'radmin-vpn', labelKey: 'CONNGUARD.Service.Name.radmin' },
+  { type: ROUTE_TYPES.PLAYIT, id: 'playit', labelKey: 'CONNGUARD.Service.Name.playit' },
+  { type: ROUTE_TYPES.NGROK, id: 'ngrok', labelKey: 'CONNGUARD.Service.Name.ngrok' },
+  { type: ROUTE_TYPES.CLOUDFLARE, id: 'cloudflare', labelKey: 'CONNGUARD.Service.Name.cloudflare' },
+  { type: ROUTE_TYPES.LOCAL, id: 'local', labelKey: 'CONNGUARD.Service.Name.local' },
+  { type: ROUTE_TYPES.DIRECT, id: 'direct', labelKey: 'CONNGUARD.Service.Name.direct' },
+  { type: ROUTE_TYPES.CUSTOM, id: 'custom', labelKey: 'CONNGUARD.Service.Name.custom' },
 ]
 
 function escapeHtml(value) {
@@ -79,7 +84,7 @@ export async function openServiceWizard() {
 }
 
 function getActiveService(profiles) {
-  const active = profiles.find(profile => profile.id === 'radmin-vpn') || profiles[0]
+  const active = getActiveRoute() || profiles[0]
   return active?.type || ROUTE_TYPES.RADMIN
 }
 

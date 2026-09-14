@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.1
+
+- Corrige os nomes localizados dos serviços no primeiro dialog.
+- O serviço previamente ativo agora aparece selecionado corretamente ao reabrir o assistente.
+
 ## 3.1.0
 
 - **Escolha explícita do GM:** o primeiro dialog pergunta qual serviço está sendo usado: Radmin VPN Free, playit.gg, ngrok, Cloudflare Tunnel, LAN, IP direto ou customizado.
