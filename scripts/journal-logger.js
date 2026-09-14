@@ -149,20 +149,6 @@ export class JournalLogger {
       lines.push('')
     }
 
-    if (grouped[JOURNAL_TYPES.WEBRTC]?.length) {
-      lines.push(`## ${i18n('CONNGUARD.Journal.SectionWebrtc')}`)
-      lines.push('')
-      lines.push(
-        `| ${i18n('CONNGUARD.Journal.Hour')} | ${i18n('CONNGUARD.Journal.Server')} | ${i18n('CONNGUARD.Journal.Time')} |`,
-      )
-      lines.push('|------|----------|------------|')
-      for (const e of grouped[JOURNAL_TYPES.WEBRTC]) {
-        const time = e.timeMs === null ? i18n('CONNGUARD.Journal.NoResponse') : e.timeMs
-        lines.push(`| ${this.#fmtTime(e.timestamp)} | ${e.url ?? '—'} | ${time} |`)
-      }
-      lines.push('')
-    }
-
     if (grouped[JOURNAL_TYPES.ROUTE]?.length) {
       lines.push(`## ${i18n('CONNGUARD.Journal.SectionRoute')}`)
       lines.push('')

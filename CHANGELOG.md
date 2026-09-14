@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.0
+
+- **Escolha explícita do GM:** o primeiro dialog pergunta qual serviço está sendo usado: Radmin VPN Free, playit.gg, ngrok, Cloudflare Tunnel, LAN, IP direto ou customizado.
+- **Configuração sem JSON:** o segundo dialog mostra apenas os campos necessários para o serviço escolhido; o perfil é salvo e ativado automaticamente.
+- **Scanner corrigido:** o Route Oracle testa somente a rota ativa escolhida pelo GM, sem sondar serviços que a mesa não utiliza.
+- **STUN/TURN removido:** o módulo não configura nem testa voz/vídeo WebRTC. Mesas que usam Discord não precisam dessas opções.
+
 ## 3.0.9
 
 - **Assistente Radmin VPN Free:** o GM pode cadastrar nome, IP virtual `26.x.x.x` e porta do Foundry em um dialog box, sem editar JSON.

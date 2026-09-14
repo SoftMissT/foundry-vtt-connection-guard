@@ -1,8 +1,7 @@
 import { MODULE_ID, SETTINGS, DEFAULTS } from './constants.js'
 import { GmPanel } from './gm-panel.js'
-import { WebRtcOptimizer } from './webrtc-optimizer.js'
 import { RouteWizard } from './route-wizard.js'
-import { openRadminWizard } from './radmin-wizard.js'
+import { openServiceWizard } from './service-wizard.js'
 
 /** Referências para as instâncias reais, preenchidas por main.js no ready. */
 let _diagnostics = null
@@ -112,25 +111,6 @@ export function registerSettings() {
     config: true,
   })
 
-  g.settings.register(MODULE_ID, SETTINGS.CUSTOM_STUN_SERVERS, {
-    name: g.i18n.localize('CONNGUARD.Settings.CustomStun.Name'),
-    hint: g.i18n.localize('CONNGUARD.Settings.CustomStun.Hint'),
-    type: String,
-    default: '',
-    scope: 'world',
-    config: true,
-  })
-
-  g.settings.register(MODULE_ID, SETTINGS.TURN_CREDENTIALS, {
-    name: g.i18n.localize('CONNGUARD.Settings.TurnCredentials.Name'),
-    hint: g.i18n.localize('CONNGUARD.Settings.TurnCredentials.Hint'),
-    type: String,
-    default: '',
-    scope: 'world',
-    restricted: true,
-    config: true,
-  })
-
   // Rota ativa da mesa: world e NÃO-restricted de propósito. A URL precisa
   // ser legível por todos os clientes (o jogador conecta por ela); somente
   // o GM pode gravar (world scope). Sem UI de settings: o GM define pelo
@@ -143,12 +123,10 @@ export function registerSettings() {
   })
 
   g.settings.register(MODULE_ID, SETTINGS.ROUTE_PROFILES, {
-    name: g.i18n.localize('CONNGUARD.Settings.RouteProfiles.Name'),
-    hint: g.i18n.localize('CONNGUARD.Settings.RouteProfiles.Hint'),
     type: String,
     default: '',
     scope: 'world',
-    config: true,
+    config: false,
   })
 
   g.settings.register(MODULE_ID, SETTINGS.ROUTE_SCAN_TIMEOUT, {
@@ -171,15 +149,6 @@ export function registerSettings() {
     restricted: true,
   })
 
-  g.settings.registerMenu(MODULE_ID, SETTINGS.WEBRTC_ADVISOR_MENU, {
-    name: g.i18n.localize('CONNGUARD.Menu.WebRtc.Name'),
-    label: g.i18n.localize('CONNGUARD.Menu.WebRtc.Label'),
-    hint: g.i18n.localize('CONNGUARD.Menu.WebRtc.Hint'),
-    icon: 'fa-solid fa-tower-broadcast',
-    type: WebRtcAdvisorMenuLauncher,
-    restricted: true,
-  })
-
   g.settings.registerMenu(MODULE_ID, SETTINGS.ROUTE_ORACLE_MENU, {
     name: g.i18n.localize('CONNGUARD.Menu.RouteOracle.Name'),
     label: g.i18n.localize('CONNGUARD.Menu.RouteOracle.Label'),
@@ -189,12 +158,12 @@ export function registerSettings() {
     restricted: false,
   })
 
-  g.settings.registerMenu(MODULE_ID, SETTINGS.RADMIN_WIZARD_MENU, {
-    name: g.i18n.localize('CONNGUARD.Menu.RadminWizard.Name'),
-    label: g.i18n.localize('CONNGUARD.Menu.RadminWizard.Label'),
-    hint: g.i18n.localize('CONNGUARD.Menu.RadminWizard.Hint'),
+  g.settings.registerMenu(MODULE_ID, SETTINGS.SERVICE_WIZARD_MENU, {
+    name: g.i18n.localize('CONNGUARD.Menu.ServiceWizard.Name'),
+    label: g.i18n.localize('CONNGUARD.Menu.ServiceWizard.Label'),
+    hint: g.i18n.localize('CONNGUARD.Menu.ServiceWizard.Hint'),
     icon: 'fa-solid fa-network-wired',
-    type: RadminWizardMenuLauncher,
+    type: ServiceWizardMenuLauncher,
     restricted: true,
   })
 }
@@ -212,26 +181,6 @@ class GmPanelMenuLauncher extends foundry.applications.api.ApplicationV2 {
     }
 
     new GmPanel(_diagnostics, _journal).render(true)
-    return this
-  }
-
-  _renderHTML() {
-    return ''
-  }
-
-  _updateHTML() {}
-}
-
-class WebRtcAdvisorMenuLauncher extends foundry.applications.api.ApplicationV2 {
-  static DEFAULT_OPTIONS = { id: 'connection-guard-webrtc-launcher' }
-
-  render(_options) {
-    if (!_journal) {
-      ui.notifications?.warn(game.i18n.localize('CONNGUARD.Menu.DependenciesNotReady'))
-      return this
-    }
-
-    new WebRtcOptimizer(_journal).render(true)
     return this
   }
 
@@ -262,11 +211,11 @@ class RouteOracleMenuLauncher extends foundry.applications.api.ApplicationV2 {
   _updateHTML() {}
 }
 
-class RadminWizardMenuLauncher extends foundry.applications.api.ApplicationV2 {
-  static DEFAULT_OPTIONS = { id: 'connection-guard-radmin-wizard-launcher' }
+class ServiceWizardMenuLauncher extends foundry.applications.api.ApplicationV2 {
+  static DEFAULT_OPTIONS = { id: 'connection-guard-service-wizard-launcher' }
 
   render(_options) {
-    openRadminWizard()
+    openServiceWizard()
     return this
   }
 

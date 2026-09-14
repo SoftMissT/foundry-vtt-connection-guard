@@ -38,14 +38,6 @@
         "Name": "Ciclos para alerta de degradação",
         "Hint": "Quantos ciclos consecutivos acima do limiar antes de emitir alerta."
       },
-      "CustomStun": {
-        "Name": "STUN/TURN customizado para voz/vídeo",
-        "Hint": "Opcional. Use apenas URLs stun: ou turn:. Não coloque link do Foundry/playit aqui."
-      },
-      "TurnCredentials": {
-        "Name": "Credenciais TURN",
-        "Hint": "Credenciais no formato usuario:senha. Visível apenas ao GM."
-      },
       "RouteProfiles": {
         "Name": "Abyss Link rotas extras",
         "Hint": "Opcional. Cole uma rota por linha ou separada por vírgula. Ex: softmisst.playit.plus:1051, 192.168.0.10:30000, 26.0.0.10:30000. O módulo sempre inclui automaticamente a rota atual."
@@ -61,35 +53,45 @@
         "Label": "Abrir painel",
         "Hint": "Latência, jitter, perda estimada, histórico de quedas, alertas de degradação e matriz de rotas."
       },
-      "WebRtc": {
-        "Name": "Assistente de Servidor de Voz/Vídeo",
-        "Label": "Testar servidores",
-        "Hint": "Testa servidores STUN/TURN para voz/vídeo e copia o melhor servidor para configuração manual."
-      },
       "RouteOracle": {
         "Name": "Abyss Link Route Oracle",
         "Label": "Escanear rotas",
         "Hint": "Compara as rotas configuradas pelo GM e recomenda o melhor caminho para cada jogador."
       },
-      "RadminWizard": {
-        "Name": "Assistente Radmin VPN Free",
-        "Label": "Configurar Radmin",
-        "Hint": "Cadastre o IP virtual 26.x.x.x do Mestre e defina o Radmin como rota ativa sem editar JSON."
+      "ServiceWizard": {
+        "Name": "Assistente de conexão",
+        "Label": "Configurar serviço",
+        "Hint": "Escolha o serviço usado pelo Mestre e configure somente a rota selecionada."
       },
       "DependenciesNotReady": "Connection Guard ainda não está pronto. Tente novamente após o carregamento da cena."
     },
-    "RadminWizard": {
-      "Title": "Configurar Radmin VPN Free",
-      "Intro": "Informe os dados do Foundry dentro da rede Radmin. O módulo salvará a rota e avisará todos os jogadores.",
-      "Security": "Não informe senha nem credenciais. O Radmin precisa estar instalado e conectado em todos os computadores.",
+    "ServiceWizard": {
+      "Title": "Escolher serviço de conexão",
+      "DetailsTitle": "Configurar serviço escolhido",
+      "Intro": "Primeiro escolha o serviço que o Mestre está usando para hospedar o Foundry.",
+      "NoWebRtc": "Este módulo configura somente a rota do Foundry. Voz no Discord não precisa de STUN/TURN.",
+      "Service": "Serviço usado pelo Mestre",
       "DisplayName": "Nome exibido",
       "Host": "IP virtual Radmin do Mestre",
       "Port": "Porta do Foundry",
-      "Requirements": "Todos devem entrar no mesmo grupo Radmin, usar o IP 26.x.x.x do Mestre e liberar esta porta no firewall.",
+      "Endpoint": "Endereço público do Foundry",
+      "Continue": "Continuar",
       "Save": "Salvar e ativar rota",
-      "Invalid": "Informe um IP Radmin no formato 26.x.x.x e uma porta válida entre 1 e 65535.",
-      "Note": "Radmin VPN Free: todos os jogadores precisam estar no mesmo grupo Radmin e com o Foundry liberado no firewall.",
-      "Saved": "Rota Radmin salva e definida como ativa: {url}"
+      "Invalid": "Confira o serviço, endereço e porta informados.",
+      "Saved": "Serviço ativo: {service}",
+      "Requirements": {
+        "radmin": "Todos devem estar no mesmo grupo Radmin e liberar a porta do Foundry no firewall.",
+        "playit": "O agente playit.gg precisa estar ativo no computador do Mestre.",
+        "ngrok": "O agente ngrok precisa estar ativo; no plano gratuito o endereço pode mudar.",
+        "cloudflare": "O cloudflared precisa estar ativo no computador do Mestre.",
+        "local": "Todos precisam estar na mesma rede local do Mestre.",
+        "direct": "A porta precisa estar liberada no roteador e firewall do Mestre.",
+        "custom": "Confirme que o endereço customizado está acessível aos jogadores."
+      },
+      "Note": {
+        "Radmin": "Radmin VPN Free: cada jogador precisa instalar o Radmin e entrar no mesmo grupo do Mestre.",
+        "Custom": "Rota configurada pelo Mestre."
+      }
     },
     "Badge": {
       "NoResponse": "⚠",
@@ -101,9 +103,7 @@
     },
     "Notif": {
       "Reconnected": "Reconectado ao servidor (ficou {seconds}s fora do ar).",
-      "Degradation": "Degradação de conexão detectada: {rtt}ms há {cycles} ciclos.",
-      "WebRtcAutoApplied": "STUN otimizado automaticamente: {url}",
-      "WebRtcAutoFailed": "Não foi possível aplicar automaticamente. Copie o servidor manualmente."
+      "Degradation": "Degradação de conexão detectada: {rtt}ms há {cycles} ciclos."
     },
     "Panel": {
       "WindowTitle": "Diagnóstico de Conexão",
@@ -129,26 +129,14 @@
       "JournalEmpty": "Nenhuma entrada para exportar.",
       "JournalError": "Erro ao criar journal. Verifique o console."
     },
-    "WebRtc": {
-      "WindowTitle": "Assistente de Servidor de Voz/Vídeo",
-      "Explanation": "Medindo o tempo de resposta de servidores STUN públicos a partir do seu navegador. Servidores mais rápidos aqui tendem a ajudar o WebRTC (voz/vídeo) a conectar mais rápido e com menos falhas de NAT.",
-      "Server": "Servidor",
-      "Time": "Tempo até resposta",
-      "NoResponse": "sem resposta",
-      "HowTo": "Para usar: Configurar Jogo → Áudio/Vídeo → aba Servidor → cole a URL marcada com ★ no campo de servidor STUN/TURN customizado.",
-      "TurnNote": "STUN/TURN é só para voz/vídeo WebRTC. Links do Foundry, playit.gg, Cloudflare, Radmin ou LAN pertencem ao Abyss Link rotas extras.",
-      "AutoApplied": "Melhor servidor STUN recomendado. Copie e aplique manualmente nas configurações de Áudio/Vídeo.",
-      "CopyBest": "Copiar o mais rápido",
-      "Copied": "Copiado: {url}",
-      "CopyFailed": "Não foi possível copiar automaticamente copie o valor manualmente da tabela.",
-      "NoneAvailable": "Nenhum servidor respondeu a tempo. Tente novamente."
-    },
     "Route": {
       "WindowTitle": "Abyss Link Route Oracle",
       "Current": "Rota atual",
       "NoProfiles": "Nenhuma rota configurada.",
-      "NoProfilesHelp": "A rota atual já é detectada automaticamente. Para comparar alternativas, cole endpoints simples, um por linha. Exemplo:",
+      "SelectServiceFirst": "Escolha primeiro o serviço usado pelo Mestre no Assistente de conexão.",
+      "NoProfilesHelp": "O GM ainda não escolheu um serviço. Abra Configurar serviço e salve a rota ativa.",
       "ScanStarted": "Abyss Link iniciou o scanner de rotas.",
+      "ScanActiveStarted": "Testando somente a rota ativa escolhida pelo GM.",
       "Scanning": "escaneando…",
       "ReportFor": "Relatório de {user} concluído em {ms}ms.",
       "Best": "Melhor rota",
@@ -167,7 +155,7 @@
         "Critical": "Queda Iminente",
         "Sealed": "Portão Selado"
       },
-      "LimitNote": "Nota: o módulo mede alcançabilidade e tempo de resposta no navegador. Ele não altera VPN, firewall, DNS, rota do sistema operacional nem força jogadores a trocar de endpoint.",
+      "LimitNote": "Nota: o módulo testa somente a rota escolhida pelo GM. Ele não altera VPN, firewall, DNS ou a rota do sistema operacional.",
       "MatrixTitle": "Abyss Link matriz de rotas",
       "MatrixEmpty": "Nenhum jogador executou o Route Oracle nesta sessão.",
       "NotScanned": "Não escaneado",
@@ -179,6 +167,15 @@
       "StatusLabel": "Estado"
     },
     "Service": {
+      "Name": {
+        "radmin": "Radmin VPN Free",
+        "playit": "playit.gg",
+        "ngrok": "ngrok",
+        "cloudflare": "Cloudflare Tunnel",
+        "local": "LAN / rede local",
+        "direct": "IP direto",
+        "custom": "Endpoint customizado"
+      },
       "ActiveTitle": "Rota ativa da mesa",
       "ActiveNone": "Nenhuma rota definida como ativa. Escaneie as rotas e defina qual serviço a mesa deve usar.",
       "SetActive": "Definir como ativa",
@@ -213,7 +210,6 @@
       "SectionConnection": "Eventos de Conexão",
       "SectionDegradation": "Alertas de Degradação",
       "SectionStale": "Usuários Sem Resposta",
-      "SectionWebrtc": "WebRTC Benchmark de STUN",
       "SectionRoute": "Abyss Link / Route Oracle",
       "SectionErrors": "Erros",
       "NoEntries": "*Nenhuma entrada registrada nesta sessão.*",
@@ -226,9 +222,6 @@
       "Details": "Detalhes",
       "Cycles": "Ciclos",
       "LastSeen": "Última Amostra",
-      "Server": "Servidor",
-      "Time": "Tempo (ms)",
-      "NoResponse": "sem resposta",
       "NoData": "—",
       "ExportWindowTitle": "Exportador de Journal",
       "ExportIntro": "Entradas em memória nesta sessão: {count}. Nada é salvo automaticamente; escolha Markdown, JSON ou Journal Entry.",

@@ -20,14 +20,11 @@ export const SETTINGS = {
   RECONNECT_MAX_DELAY: 'reconnectMaxDelay',
   DIAGNOSTICS_HISTORY_SIZE: 'diagnosticsHistorySize',
   GM_PANEL_MENU: 'gmPanelMenu',
-  WEBRTC_ADVISOR_MENU: 'webrtcAdvisorMenu',
+  SERVICE_WIZARD_MENU: 'serviceWizardMenu',
   ROUTE_ORACLE_MENU: 'routeOracleMenu',
-  RADMIN_WIZARD_MENU: 'radminWizardMenu',
   ACTIVE_ROUTE: 'activeRoute',
   DEGRADATION_THRESHOLD: 'degradationThreshold',
   DEGRADATION_CYCLES: 'degradationCycles',
-  CUSTOM_STUN_SERVERS: 'customStunServers',
-  TURN_CREDENTIALS: 'turnCredentials',
   ABYSS_THEME: 'abyssTheme',
   ROUTE_PROFILES: 'routeProfiles',
   ROUTE_SCAN_TIMEOUT: 'routeScanTimeout',
@@ -83,7 +80,6 @@ export const JOURNAL_TYPES = {
   LATENCY: 'latency',
   CONNECTION: 'connection',
   STALE: 'stale',
-  WEBRTC: 'webrtc',
   DEGRADATION: 'degradation',
   ROUTE: 'route',
   ERROR: 'error',
@@ -109,15 +105,3 @@ export const DEFAULTS = {
   ROUTE_SCAN_TIMEOUT_MS: 2500,
   ROUTE_SCAN_ATTEMPTS: 3,
 }
-
-// Servidores STUN públicos conhecidos, usados apenas para BENCHMARK local
-// (tempo até o primeiro candidato ICE srflx). Nunca enviam nem recebem
-// mídia servem só para medir tempo de resposta do servidor de STUN.
-export const PUBLIC_STUN_SERVERS = [
-  'stun:stun.l.google.com:19302',
-  'stun:stun1.l.google.com:19302',
-  'stun:stun.cloudflare.com:3478',
-  'stun:stun.nextcloud.com:443',
-  'stun:stun.stunprotocol.org:3478',
-  'stun:stun.sipgate.net:3478',
-]

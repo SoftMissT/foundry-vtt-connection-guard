@@ -1,9 +1,7 @@
 import { SOCKET_EVENT, SOCKET_MESSAGES, JOURNAL_TYPES } from './constants.js'
 import {
-  getConfiguredRouteProfiles,
   getActiveRoute,
   setActiveRoute,
-  routeProfilesExample,
   escapeHtml,
   routeConnectionState,
 } from './route-profiles.js'
@@ -37,14 +35,15 @@ export class RouteWizard {
   }
 
   async render(_force) {
-    const profiles = getConfiguredRouteProfiles()
+    const active = getActiveRoute()
+    const profiles = active ? [active] : []
 
     if (!profiles.length) {
-      ui.notifications.warn(game.i18n.localize('CONNGUARD.Route.NoProfiles'))
+      ui.notifications.warn(game.i18n.localize('CONNGUARD.Route.SelectServiceFirst'))
       return this.#showNoProfiles()
     }
 
-    ui.notifications.info(game.i18n.localize('CONNGUARD.Route.ScanStarted'))
+    ui.notifications.info(game.i18n.localize('CONNGUARD.Route.ScanActiveStarted'))
 
     const dialogPromise = this.#showScanningDialog(profiles)
 
@@ -65,7 +64,6 @@ export class RouteWizard {
       <section class="connguard-panel connguard-abyss connguard-route-oracle">
         <h2>${game.i18n.localize('CONNGUARD.Route.WindowTitle')}</h2>
         <p>${game.i18n.localize('CONNGUARD.Route.NoProfilesHelp')}</p>
-        <pre class="connguard-route-example">${escapeHtml(routeProfilesExample())}</pre>
       </section>
     `
 

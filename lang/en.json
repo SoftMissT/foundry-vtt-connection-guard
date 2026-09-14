@@ -38,14 +38,6 @@
         "Name": "Cycles before degradation alert",
         "Hint": "How many consecutive cycles above the threshold before triggering an alert."
       },
-      "CustomStun": {
-        "Name": "Custom STUN/TURN for voice/video",
-        "Hint": "Optional. Use only stun: or turn: URLs. Do not put Foundry/playit links here."
-      },
-      "TurnCredentials": {
-        "Name": "TURN credentials",
-        "Hint": "Credentials in user:password format. GM only."
-      },
       "RouteProfiles": {
         "Name": "Abyss Link extra routes",
         "Hint": "Optional. Paste one route per line or comma-separated. Example: softmisst.playit.plus:1051, 192.168.0.10:30000, 26.0.0.10:30000. The module always includes the current route automatically."
@@ -61,35 +53,45 @@
         "Label": "Open panel",
         "Hint": "Latency, jitter, estimated loss, drop history, degradation alerts and route matrix."
       },
-      "WebRtc": {
-        "Name": "Voice/Video Server Advisor",
-        "Label": "Test servers",
-        "Hint": "Benchmarks STUN/TURN servers for voice/video and copies the best server for manual configuration."
-      },
       "RouteOracle": {
         "Name": "Abyss Link Route Oracle",
         "Label": "Scan routes",
         "Hint": "Compares GM-configured routes and recommends the best path for each player."
       },
-      "RadminWizard": {
-        "Name": "Radmin VPN Free Assistant",
-        "Label": "Configure Radmin",
-        "Hint": "Register the GM's 26.x.x.x virtual IP and make Radmin the active route without editing JSON."
+      "ServiceWizard": {
+        "Name": "Connection assistant",
+        "Label": "Configure service",
+        "Hint": "Choose the service used by the GM and configure only the selected route."
       },
       "DependenciesNotReady": "Connection Guard is not ready yet. Try again after the scene finishes loading."
     },
-    "RadminWizard": {
-      "Title": "Configure Radmin VPN Free",
-      "Intro": "Enter the Foundry details inside the Radmin network. The module will save the route and notify players.",
-      "Security": "Do not enter passwords or credentials. Radmin must be installed and connected on every computer.",
+    "ServiceWizard": {
+      "Title": "Choose connection service",
+      "DetailsTitle": "Configure selected service",
+      "Intro": "First choose the service the GM is using to host Foundry.",
+      "NoWebRtc": "This module configures only the Foundry route. Discord voice does not need STUN/TURN.",
+      "Service": "Service used by the GM",
       "DisplayName": "Display name",
       "Host": "GM's Radmin virtual IP",
       "Port": "Foundry port",
-      "Requirements": "Everyone must join the same Radmin network, use the GM's 26.x.x.x IP, and allow this port through the firewall.",
+      "Endpoint": "Public Foundry address",
+      "Continue": "Continue",
       "Save": "Save and activate route",
-      "Invalid": "Enter a Radmin IP in the 26.x.x.x format and a valid port from 1 to 65535.",
-      "Note": "Radmin VPN Free: all players must be in the same Radmin network with Foundry allowed through the firewall.",
-      "Saved": "Radmin route saved and activated: {url}"
+      "Invalid": "Check the selected service, address, and port.",
+      "Saved": "Active service: {service}",
+      "Requirements": {
+        "radmin": "Everyone must join the same Radmin network and allow the Foundry port through the firewall.",
+        "playit": "The playit.gg agent must be running on the GM's computer.",
+        "ngrok": "The ngrok agent must be running; the free plan address may change.",
+        "cloudflare": "cloudflared must be running on the GM's computer.",
+        "local": "Everyone must be on the same local network as the GM.",
+        "direct": "The port must be forwarded and allowed through the GM's firewall.",
+        "custom": "Confirm the custom address is reachable by the players."
+      },
+      "Note": {
+        "Radmin": "Radmin VPN Free: every player must install Radmin and join the GM's network.",
+        "Custom": "Route configured by the GM."
+      }
     },
     "Badge": {
       "NoResponse": "⚠",
@@ -101,9 +103,7 @@
     },
     "Notif": {
       "Reconnected": "Reconnected to the server (was down for {seconds}s).",
-      "Degradation": "Connection degradation detected: {rtt}ms for {cycles} cycles.",
-      "WebRtcAutoApplied": "STUN optimized automatically: {url}",
-      "WebRtcAutoFailed": "Could not apply automatically. Copy the server manually."
+      "Degradation": "Connection degradation detected: {rtt}ms for {cycles} cycles."
     },
     "Panel": {
       "WindowTitle": "Connection Diagnostics",
@@ -129,26 +129,14 @@
       "JournalEmpty": "No entries to export.",
       "JournalError": "Error creating journal. Check the console."
     },
-    "WebRtc": {
-      "WindowTitle": "Voice/Video Server Advisor",
-      "Explanation": "Measuring response time of public STUN servers from your browser. Faster servers here tend to help WebRTC voice/video connect faster and with fewer NAT failures.",
-      "Server": "Server",
-      "Time": "Time to respond",
-      "NoResponse": "no response",
-      "HowTo": "To use: Configure Game → Audio/Video → Server tab → paste the URL marked with ★ into the custom STUN/TURN server field.",
-      "TurnNote": "STUN/TURN is only for WebRTC voice/video. Foundry, playit.gg, Cloudflare, Radmin or LAN links belong in Abyss Link extra routes.",
-      "AutoApplied": "Best STUN server recommended. Copy and apply it manually in Audio/Video settings.",
-      "CopyBest": "Copy fastest",
-      "Copied": "Copied: {url}",
-      "CopyFailed": "Could not copy automatically copy the value manually from the table.",
-      "NoneAvailable": "No server responded in time. Try again."
-    },
     "Route": {
       "WindowTitle": "Abyss Link Route Oracle",
       "Current": "Current route",
-      "NoProfiles": "No routes configured.",
-      "NoProfilesHelp": "The current route is detected automatically. To compare alternatives, paste simple endpoints, one per line. Example:",
+      "NoProfiles": "No route configured.",
+      "SelectServiceFirst": "First choose the service used by the GM in the Connection assistant.",
+      "NoProfilesHelp": "The GM has not selected a service yet. Open Configure service and save the active route.",
       "ScanStarted": "Abyss Link started route scanning.",
+      "ScanActiveStarted": "Testing only the active route selected by the GM.",
       "Scanning": "scanning…",
       "ReportFor": "Report for {user} completed in {ms}ms.",
       "Best": "Best route",
@@ -167,7 +155,7 @@
         "Critical": "Critical Drop",
         "Sealed": "Sealed Gate"
       },
-      "LimitNote": "Note: the module measures browser reachability and response time. It does not change VPN, firewall, DNS, OS routing, or force players to switch endpoints.",
+      "LimitNote": "Note: the module tests only the route selected by the GM. It does not change VPN, firewall, DNS or OS routing.",
       "MatrixTitle": "Abyss Link route matrix",
       "MatrixEmpty": "No player has run the Route Oracle this session.",
       "NotScanned": "Not scanned",
@@ -179,6 +167,15 @@
       "StatusLabel": "State"
     },
     "Service": {
+      "Name": {
+        "radmin": "Radmin VPN Free",
+        "playit": "playit.gg",
+        "ngrok": "ngrok",
+        "cloudflare": "Cloudflare Tunnel",
+        "local": "LAN / local network",
+        "direct": "Direct IP",
+        "custom": "Custom endpoint"
+      },
       "ActiveTitle": "Table's active route",
       "ActiveNone": "No active route set. Scan the routes and choose which service the table should use.",
       "SetActive": "Set as active",
@@ -213,7 +210,6 @@
       "SectionConnection": "Connection Events",
       "SectionDegradation": "Degradation Alerts",
       "SectionStale": "Unresponsive Users",
-      "SectionWebrtc": "WebRTC STUN Benchmark",
       "SectionRoute": "Abyss Link / Route Oracle",
       "SectionErrors": "Errors",
       "NoEntries": "*No entries recorded this session.*",
@@ -226,9 +222,6 @@
       "Details": "Details",
       "Cycles": "Cycles",
       "LastSeen": "Last Seen",
-      "Server": "Server",
-      "Time": "Time (ms)",
-      "NoResponse": "no response",
       "NoData": "—",
       "ExportWindowTitle": "Journal Exporter",
       "ExportIntro": "Entries in memory this session: {count}. Nothing is saved automatically; choose Markdown, JSON, or Journal Entry.",
