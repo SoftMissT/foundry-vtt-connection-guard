@@ -71,7 +71,25 @@
         "Label": "Escanear rotas",
         "Hint": "Compara as rotas configuradas pelo GM e recomenda o melhor caminho para cada jogador."
       },
+      "RadminWizard": {
+        "Name": "Assistente Radmin VPN Free",
+        "Label": "Configurar Radmin",
+        "Hint": "Cadastre o IP virtual 26.x.x.x do Mestre e defina o Radmin como rota ativa sem editar JSON."
+      },
       "DependenciesNotReady": "Connection Guard ainda não está pronto. Tente novamente após o carregamento da cena."
+    },
+    "RadminWizard": {
+      "Title": "Configurar Radmin VPN Free",
+      "Intro": "Informe os dados do Foundry dentro da rede Radmin. O módulo salvará a rota e avisará todos os jogadores.",
+      "Security": "Não informe senha nem credenciais. O Radmin precisa estar instalado e conectado em todos os computadores.",
+      "DisplayName": "Nome exibido",
+      "Host": "IP virtual Radmin do Mestre",
+      "Port": "Porta do Foundry",
+      "Requirements": "Todos devem entrar no mesmo grupo Radmin, usar o IP 26.x.x.x do Mestre e liberar esta porta no firewall.",
+      "Save": "Salvar e ativar rota",
+      "Invalid": "Informe um IP Radmin no formato 26.x.x.x e uma porta válida entre 1 e 65535.",
+      "Note": "Radmin VPN Free: todos os jogadores precisam estar no mesmo grupo Radmin e com o Foundry liberado no firewall.",
+      "Saved": "Rota Radmin salva e definida como ativa: {url}"
     },
     "Badge": {
       "NoResponse": "⚠",

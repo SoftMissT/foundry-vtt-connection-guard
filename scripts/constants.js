@@ -22,6 +22,7 @@ export const SETTINGS = {
   GM_PANEL_MENU: 'gmPanelMenu',
   WEBRTC_ADVISOR_MENU: 'webrtcAdvisorMenu',
   ROUTE_ORACLE_MENU: 'routeOracleMenu',
+  RADMIN_WIZARD_MENU: 'radminWizardMenu',
   ACTIVE_ROUTE: 'activeRoute',
   DEGRADATION_THRESHOLD: 'degradationThreshold',
   DEGRADATION_CYCLES: 'degradationCycles',

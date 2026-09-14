@@ -9,6 +9,7 @@ Módulo para Foundry VTT (v13+) que monitora, diagnostica e otimiza a conexão d
 - **Adaptive ping**: mede a latência com mais frequência quando a conexão está ruim e menos quando está estável economiza recursos sem perder resolução no momento que importa.
 - **Auto-otimização WebRTC**: testa servidores STUN públicos a partir do navegador do usuário e **aplica automaticamente** o mais rápido na configuração de Áudio/Vídeo. Se a API não estiver disponível, exibe instrução manual como fallback.
 - **Painel de diagnóstico do GM**: tabela com latência, jitter, perda estimada e status de cada usuário. Histórico de quedas com timestamp e duração. Alertas de degradação preditiva.
+- **Assistente Radmin VPN Free**: o GM configura o IP virtual `26.x.x.x`, a porta do Foundry e o nome da rota em um dialog box, sem editar JSON. A rota é salva e ativada para a mesa.
 - **Journal de testes**: captura todos os eventos de runtime (lifecycle, latência, conexão, degradação, WebRTC, erros) e exporta como Journal Entry do Foundry em markdown para validar se o módulo está funcionando corretamente.
 - **Servidores STUN/TURN customizados**: o GM pode configurar lista própria. Credenciais TURN ficam em setting `restricted: true`, nunca logadas.
 - **i18n**: português (Brasil) como idioma principal, inglês como fallback.
@@ -50,6 +51,17 @@ As configurações ficam em **Configurar Jogo → Configurações → Connection
 | Ciclos para alerta             | Mundo   | 3       | Ciclos consecutivos acima do limiar antes de emitir alerta  |
 | Servidores STUN/TURN custom    | Mundo   | vazio   | Lista separada por vírgula. Vazio usa a lista padrão        |
 | Credenciais TURN               | Mundo   | vazio   | `usuario:senha`. Visível apenas ao GM                       |
+
+### Configurar Radmin VPN Free
+
+O assistente do Radmin fica disponível apenas para o GM em **Configurar Jogo → Configurações → Configurações de Módulos → Connection Guard → Configurar Radmin**.
+
+1. Informe um nome para a rota (por exemplo, `Radmin VPN Free`).
+2. Informe o IP virtual `26.x.x.x` do computador do GM.
+3. Confirme a porta do Foundry, normalmente `30000`.
+4. Clique em **Salvar e ativar rota**.
+
+O módulo preserva as outras rotas, cria ou atualiza o perfil Radmin e informa os jogadores sobre a rota ativa. No plano gratuito, cada jogador ainda precisa instalar o Radmin VPN, entrar no mesmo grupo do GM e liberar a porta do Foundry no firewall. O módulo não instala o aplicativo nem altera o firewall do sistema operacional.
 
 ## Como usar
 
@@ -105,6 +117,7 @@ scripts/
   webrtc-optimizer.js    benchmark STUN/TURN + auto-aplicação
   player-list-ui.js      badge de latência na lista de jogadores
   gm-panel.js            painel do GM (DialogV2) + botão Exportar Journal
+  radmin-wizard.js       assistente DialogV2 para configurar Radmin VPN Free
   journal-logger.js      captura eventos + gera markdown + cria Journal Entry
   main.js                entry point orquestra tudo nos hooks init/ready
 lang/

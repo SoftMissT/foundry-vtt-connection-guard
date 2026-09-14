@@ -2,6 +2,7 @@ import { MODULE_ID, SETTINGS, DEFAULTS } from './constants.js'
 import { GmPanel } from './gm-panel.js'
 import { WebRtcOptimizer } from './webrtc-optimizer.js'
 import { RouteWizard } from './route-wizard.js'
+import { openRadminWizard } from './radmin-wizard.js'
 
 /** Referências para as instâncias reais, preenchidas por main.js no ready. */
 let _diagnostics = null
@@ -187,6 +188,15 @@ export function registerSettings() {
     type: RouteOracleMenuLauncher,
     restricted: false,
   })
+
+  g.settings.registerMenu(MODULE_ID, SETTINGS.RADMIN_WIZARD_MENU, {
+    name: g.i18n.localize('CONNGUARD.Menu.RadminWizard.Name'),
+    label: g.i18n.localize('CONNGUARD.Menu.RadminWizard.Label'),
+    hint: g.i18n.localize('CONNGUARD.Menu.RadminWizard.Hint'),
+    icon: 'fa-solid fa-network-wired',
+    type: RadminWizardMenuLauncher,
+    restricted: true,
+  })
 }
 
 // registerMenu exige uma classe com construtor sem argumentos obrigatórios
@@ -242,6 +252,21 @@ class RouteOracleMenuLauncher extends foundry.applications.api.ApplicationV2 {
     }
 
     new RouteWizard(_diagnostics, _journal).render(true)
+    return this
+  }
+
+  _renderHTML() {
+    return ''
+  }
+
+  _updateHTML() {}
+}
+
+class RadminWizardMenuLauncher extends foundry.applications.api.ApplicationV2 {
+  static DEFAULT_OPTIONS = { id: 'connection-guard-radmin-wizard-launcher' }
+
+  render(_options) {
+    openRadminWizard()
     return this
   }
 

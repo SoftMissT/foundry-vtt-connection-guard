@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.9
+
+- **Assistente Radmin VPN Free:** o GM pode cadastrar nome, IP virtual `26.x.x.x` e porta do Foundry em um dialog box, sem editar JSON.
+- **Ativação guiada:** a rota `radmin-vpn` é criada/atualizada, preserva as demais rotas e vira a rota ativa da mesa após o salvamento.
+- **Validação e segurança:** o assistente rejeita IP/porta inválidos e não solicita senhas ou credenciais do Radmin.
+
 ## 3.0.8
 
 - **HUD GM/jogador alinhado**: ambos exibem a mesma rota ativa e indicam se o cliente ainda está conectado a outro origin; a troca exige abrir o endpoint e recarregar o Foundry.

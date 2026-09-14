@@ -71,7 +71,25 @@
         "Label": "Scan routes",
         "Hint": "Compares GM-configured routes and recommends the best path for each player."
       },
+      "RadminWizard": {
+        "Name": "Radmin VPN Free Assistant",
+        "Label": "Configure Radmin",
+        "Hint": "Register the GM's 26.x.x.x virtual IP and make Radmin the active route without editing JSON."
+      },
       "DependenciesNotReady": "Connection Guard is not ready yet. Try again after the scene finishes loading."
+    },
+    "RadminWizard": {
+      "Title": "Configure Radmin VPN Free",
+      "Intro": "Enter the Foundry details inside the Radmin network. The module will save the route and notify players.",
+      "Security": "Do not enter passwords or credentials. Radmin must be installed and connected on every computer.",
+      "DisplayName": "Display name",
+      "Host": "GM's Radmin virtual IP",
+      "Port": "Foundry port",
+      "Requirements": "Everyone must join the same Radmin network, use the GM's 26.x.x.x IP, and allow this port through the firewall.",
+      "Save": "Save and activate route",
+      "Invalid": "Enter a Radmin IP in the 26.x.x.x format and a valid port from 1 to 65535.",
+      "Note": "Radmin VPN Free: all players must be in the same Radmin network with Foundry allowed through the firewall.",
+      "Saved": "Radmin route saved and activated: {url}"
     },
     "Badge": {
       "NoResponse": "⚠",
