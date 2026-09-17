@@ -190,15 +190,17 @@ body.connection-guard-abyss-theme .application .connguard-panel {
   inset: 0;
   background:
     linear-gradient(115deg, transparent 0%, rgba(143, 211, 255, 0.05) 28%, transparent 46%),
-    repeating-linear-gradient(90deg,
+    repeating-linear-gradient(
+      90deg,
       rgba(255, 255, 255, 0.025) 0,
       rgba(255, 255, 255, 0.025) 1px,
       transparent 1px,
-      transparent 8px);
+      transparent 8px
+    );
   opacity: 0.4;
 }
 
-.connguard-panel.connguard-abyss>* {
+.connguard-panel.connguard-abyss > * {
   position: relative;
   z-index: 1;
 }
@@ -253,8 +255,7 @@ body.connection-guard-abyss-theme .application .connguard-panel {
 
 .connguard-panel.connguard-abyss .connguard-table th {
   background:
-    linear-gradient(180deg, rgba(225, 28, 75, 0.32), rgba(82, 18, 42, 0.62)),
-    rgba(0, 0, 0, 0.35);
+    linear-gradient(180deg, rgba(225, 28, 75, 0.32), rgba(82, 18, 42, 0.62)), rgba(0, 0, 0, 0.35);
   color: var(--cg-abyss-text-bright);
   border-color: rgba(225, 28, 75, 0.35);
   font-weight: 700;
@@ -643,7 +644,6 @@ body.connection-guard-abyss-theme [data-module-id='connection-guard'] .form-grou
 }
 
 @keyframes connguard-abyss-pulse {
-
   0%,
   100% {
     box-shadow: 0 0 8px rgba(225, 28, 75, 0.35);
@@ -672,4 +672,46 @@ body.connection-guard-abyss-theme [data-module-id='connection-guard'] .form-grou
   .connguard-panel.connguard-abyss h3 {
     font-size: 15px;
   }
+}
+/* ==== Radmin Fallback Readiness (Service Wizard) ==== */
+.connguard-readiness-status {
+  font-weight: 600;
+  margin: 6px 0;
+}
+.connguard-readiness-status.connguard-warn {
+  color: #d29a00;
+}
+.connguard-readiness-checklist {
+  list-style: none;
+  margin: 6px 0 10px;
+  padding-left: 4px;
+}
+.connguard-readiness-checklist li {
+  margin: 3px 0;
+}
+.connguard-readiness-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+.connguard-readiness-actions button,
+.connguard-readiness-actions a {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+  display: inline-block;
+}
+.connguard-readiness-command {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 4px;
+  padding: 8px;
+  margin: 6px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12px;
 }

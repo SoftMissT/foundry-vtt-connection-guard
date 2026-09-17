@@ -179,6 +179,42 @@ Quando uma rota falha, o módulo mostra dicas específicas pro serviço em uso "
 
 ---
 
+## Radmin Fallback Readiness (guia genérico)
+
+O fallback de emergência funciona assim:
+
+```text
+PRIMARY   →  Cloudflare OU ngrok OU playit.gg
+FALLBACK  →  Radmin VPN (rota configurada pelo GM)
+```
+
+Para depender do fallback numa sessão, cada cliente precisa alcançar o host
+Radmin VPN configurado. O Connection Guard **não instala Radmin, não altera o
+firewall do sistema nem pede privilégio administrativo** — ele apenas orienta
+e gera o comando copiável.
+
+Pré-requisitos do Radmin:
+
+1. **Radmin VPN instalado no host** do Foundry.
+2. **Host conectado à rede Radmin** (mesmo grupo de todos).
+3. **Jogadores conectados à mesma rede Radmin**.
+4. **Porta do Foundry liberada no firewall** — use o botão "Copy Host Firewall
+   Command" no Assistente de conexão para gerar a regra `New-NetFirewallRule`
+   com a porta já configurada e cole no PowerShell do host (como administrador).
+5. **Rota Radmin testada por pelo menos um cliente** — use "Open Radmin Test"
+   para abrir a rota numa aba nova e confirmar manualmente que o Foundry
+   responde pelo Radmin.
+
+O assistente mostra um checklist "Radmin Fallback Readiness" com esses passos.
+Enquanto o fallback não for validado, o status é **Radmin Fallback — Not
+Verified** (aviso, não bloqueio). Use "Mark as Verified" após confirmar a rota.
+
+> O fallback automático exige que cada cliente tenha acesso de rede ao host
+> Radmin VPN configurado. O Connection Guard não pode configurar o Radmin VPN
+> nem as regras de firewall do sistema operacional automaticamente.
+
+---
+
 ## FAQ
 
 **O módulo funciona com qualquer sistema?**

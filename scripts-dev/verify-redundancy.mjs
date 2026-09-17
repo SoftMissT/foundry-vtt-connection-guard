@@ -15,6 +15,17 @@ import {
 } from '../scripts/route-redundancy-manager.js'
 import { JOURNAL_TYPES } from '../scripts/constants.js'
 import { resolveChipView } from '../scripts/active-route-chip.js'
+import {
+  buildHostFirewallCommand,
+  extractRadminPort,
+  renderReadinessHtml,
+  safeParseRedundancy as safeParseReadiness,
+} from '../scripts/radmin-readiness.js'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const SCRIPTS_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'scripts')
 
 let checks = 0
 let failures = 0
@@ -1247,6 +1258,115 @@ const CLOUDFLARE_ROUTE = {
   )
   check('T5 failover kind', vFailover.kind, 'failover')
   check('T5 failover stateKey', vFailover.stateKey, 'CONNGUARD.Chip.Switching')
+}
+
+// =====================================================================
+// Tarefa 6 — Radmin Fallback Readiness
+// =====================================================================
+
+// T6-01 porta 30000 → comando usa 30000
+{
+  const cmd = buildHostFirewallCommand(30000)
+  check('T6-01 New-NetFirewallRule', cmd.includes('New-NetFirewallRule'), true)
+  check('T6-01 LocalPort 30000', cmd.includes('-LocalPort 30000'), true)
+  check('T6-01 DisplayName 30000', cmd.includes('"Foundry VTT - Radmin TCP 30000"'), true)
+}
+
+// T6-02 outra porta → comando usa a outra porta
+{
+  const cmd = buildHostFirewallCommand('8080')
+  check('T6-02 LocalPort 8080', cmd.includes('-LocalPort 8080'), true)
+  check('T6-02 DisplayName 8080', cmd.includes('"Foundry VTT - Radmin TCP 8080"'), true)
+  check('T6-02 inválido → null', buildHostFirewallCommand(99999), null)
+}
+
+// T6-03 nenhum IP específico aparece no comando
+{
+  const cmd = buildHostFirewallCommand(30000)
+  check('T6-03 sem IPv4', /\d{1,3}(\.\d{1,3}){3}/.test(cmd), false)
+  check('T6-03 sem prefixo 26.', cmd.includes('26.'), false)
+}
+
+// T6-04 Open Radmin Test usa a radminUrl configurada
+{
+  const html = renderReadinessHtml({ enabled: true, radminUrl: 'http://26.10.20.30:30000' })
+  check('T6-04 href = radminUrl', html.includes('href="http://26.10.20.30:30000"'), true)
+  check('T6-04 mostra host', html.includes('http://26.10.20.30:30000'), true)
+  check('T6-04 mostra porta', html.includes('30000'), true)
+}
+
+// T6-05 fallback disabled → readiness não apresentado como ativo
+{
+  check('T6-05 sem url → vazio', renderReadinessHtml({ enabled: false, radminUrl: '' }), '')
+  check(
+    'T6-05 com url mas disabled → vazio',
+    renderReadinessHtml({ enabled: false, radminUrl: 'http://26.10.20.30:30000' }),
+    '',
+  )
+}
+
+// T6-06 fallback enabled → Not Verified antes da validação
+{
+  const html = renderReadinessHtml({
+    enabled: true,
+    radminUrl: 'http://26.10.20.30:30000',
+    validated: false,
+  })
+  check('T6-06 Not Verified', html.includes('CONNGUARD.ServiceWizard.RadminNotVerified'), true)
+  check('T6-06 não Verified', html.includes('CONNGUARD.ServiceWizard.RadminVerified'), false)
+
+  const verified = renderReadinessHtml({
+    enabled: true,
+    radminUrl: 'http://26.10.20.30:30000',
+    validated: true,
+  })
+  check(
+    'T6-06 Verified após validar',
+    verified.includes('CONNGUARD.ServiceWizard.RadminVerified'),
+    true,
+  )
+}
+
+// T6-07 nenhum código executa PowerShell automaticamente (scan estático)
+{
+  const files = ['radmin-readiness.js', 'service-wizard.js', 'route-redundancy-manager.js']
+  const forbidden = [
+    'child_process',
+    '.spawn(',
+    'execSync',
+    'execFile',
+    'powershell.exe',
+    'Start-Process',
+  ]
+  for (const file of files) {
+    const src = readFileSync(path.join(SCRIPTS_DIR, file), 'utf8')
+    for (const pattern of forbidden) {
+      check(`T6-07 ${file} sem ${pattern}`, src.includes(pattern), false)
+    }
+  }
+}
+
+// T6-08 nenhum IP/nome do ambiente do desenvolvedor hardcoded
+{
+  const readinessSrc = readFileSync(path.join(SCRIPTS_DIR, 'radmin-readiness.js'), 'utf8')
+  const wizardSrc = readFileSync(path.join(SCRIPTS_DIR, 'service-wizard.js'), 'utf8')
+  check('T6-08 sem IP dev (readiness)', readinessSrc.includes('26.10.20.30'), false)
+  check('T6-08 sem nome dev (readiness)', readinessSrc.includes('softmisst'), false)
+  check('T6-08 sem IP dev (wizard)', wizardSrc.includes('26.10.20.30'), false)
+  const cmd = buildHostFirewallCommand(30000)
+  check('T6-08 comando sem IPv4', /\d{1,3}(\.\d{1,3}){3}/.test(cmd), false)
+}
+
+// Extras: extractRadminPort + safeParse (validated)
+{
+  check('T6 extract port 30000', extractRadminPort('http://26.10.20.30:30000'), '30000')
+  check('T6 extract port default http', extractRadminPort('http://26.10.20.30'), '80')
+  check('T6 extract port inválido', extractRadminPort('not-a-url'), null)
+  const parsed = safeParseReadiness(
+    '{"enabled":true,"radminUrl":"http://26.10.20.30:30000","validated":true}',
+  )
+  check('T6 safeParse validated', parsed.validated, true)
+  check('T6 safeParse corrupt', safeParseReadiness('{corrupt').validated, false)
 }
 
 console.log(report.join('\n'))

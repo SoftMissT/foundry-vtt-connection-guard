@@ -11,6 +11,11 @@ import {
   safeParseRouteProfiles,
   setActiveRoute,
 } from './route-profiles.js'
+import {
+  renderReadinessHtml,
+  ensureReadinessListeners,
+  safeParseRedundancy,
+} from './radmin-readiness.js'
 
 function isValidRadminHost(host) {
   const parts = String(host).split('.')
@@ -23,21 +28,6 @@ function isValidRadminHost(host) {
         Number.isInteger(value) && value >= 0 && value <= 255 && String(value) === parts[index],
     ) && octets[0] === 26
   )
-}
-
-function safeParseRedundancy(raw) {
-  try {
-    const parsed = JSON.parse(raw || '{}')
-    return {
-      enabled: parsed.enabled === true,
-      radminUrl: typeof parsed.radminUrl === 'string' ? parsed.radminUrl : '',
-    }
-  } catch {
-    return {
-      enabled: false,
-      radminUrl: '',
-    }
-  }
 }
 
 function safeUrl(value) {
@@ -81,6 +71,8 @@ export async function openServiceWizard() {
     return null
   }
 
+  ensureReadinessListeners()
+
   const rawProfiles = game.settings.get(MODULE_ID, SETTINGS.ROUTE_PROFILES)
   const profiles = safeParseRouteProfiles(rawProfiles)
   const defaultService = getActiveService(profiles)
@@ -115,12 +107,19 @@ export async function openServiceWizard() {
     return null
   }
 
-  let nextRedundancy = { enabled: false, radminUrl: '' }
+  let nextRedundancy = { enabled: false, radminUrl: '', validated: false }
   if (REDUNDANCY_PRIMARY_TYPES.includes(service.type) && result.redundancyEnable) {
     const rHost = String(result.redundancyHost || '').trim()
     const rPort = Number(result.redundancyPort)
     if (isValidRadminHost(rHost) && Number.isInteger(rPort) && rPort >= 1 && rPort <= 65535) {
-      nextRedundancy = { enabled: true, radminUrl: `http://${rHost}:${rPort}` }
+      const nextRadminUrl = `http://${rHost}:${rPort}`
+      const keepValidated =
+        redundancy.enabled && redundancy.radminUrl === nextRadminUrl && redundancy.validated
+      nextRedundancy = {
+        enabled: true,
+        radminUrl: nextRadminUrl,
+        validated: keepValidated === true,
+      }
     } else {
       notify(
         'error',
@@ -204,6 +203,7 @@ function renderContent(selectedType, profiles, redundancy) {
     `
         : ''
     }
+    ${renderReadinessHtml(redundancy, key => game.i18n.localize(key))}
   `
 }
 
