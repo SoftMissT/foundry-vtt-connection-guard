@@ -6,6 +6,7 @@ import { ReconnectManager } from './reconnect-manager.js'
 import { PlayerListUI } from './player-list-ui.js'
 import { JournalLogger } from './journal-logger.js'
 import { ActiveRouteChip } from './active-route-chip.js'
+import { RouteRedundancyManager } from './route-redundancy-manager.js'
 
 const journal = new JournalLogger()
 
@@ -64,7 +65,11 @@ Hooks.once('ready', () => {
   const diagnostics = new DiagnosticsStore()
   const playerListUI = new PlayerListUI(diagnostics)
   const reconnectManager = new ReconnectManager(diagnostics, journal)
-  const activeRouteChip = new ActiveRouteChip(journal)
+  const redundancyManager = new RouteRedundancyManager(journal)
+  redundancyManager.initialize()
+  redundancyManager.start()
+
+  const activeRouteChip = new ActiveRouteChip(journal, redundancyManager)
 
   setMenuDependencies(diagnostics, journal)
   applyAbyssTheme()
@@ -111,6 +116,7 @@ Hooks.once('ready', () => {
     reconnectManager.stop()
     playerListUI.destroy()
     activeRouteChip.stop()
+    redundancyManager.stop()
     Hooks.off('updateSetting', onThemeSettingUpdate)
     clearInterval(sweepIntervalId)
     game.socket?.off(SOCKET_EVENT, onSocketMessage)

@@ -7,3 +7,5 @@ dist/
 !.vscode/extensions.json
 .prettierrc
 DEVELOPMENT.MD
+/.kilo
+/SDD

@@ -1,136 +1,242 @@
-# Connection Guard
+<p align="center">
+  <img src="https://img.shields.io/badge/Foundry_VTT-v13%2B-ff6400?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xMiAyTDIgMTloMjBMMTIgMnptMCAzLjVMMTguNSAxOEg1LjVMMTIgNS41eiIvPjwvc3ZnPg==&logoColor=white" alt="Foundry VTT v13+" />
+  <img src="https://img.shields.io/github/v/release/SoftMissT/foundry-vtt-connection-guard?style=for-the-badge&color=e11c4b&label=Release" alt="Latest Release" />
+  <img src="https://img.shields.io/github/license/SoftMissT/foundry-vtt-connection-guard?style=for-the-badge&color=8fd3ff&label=License" alt="GPL-3.0" />
+  <img src="https://img.shields.io/github/actions/workflow/status/SoftMissT/foundry-vtt-connection-guard/release.yml?style=for-the-badge&label=CI&logo=github" alt="CI Status" />
+  <img src="https://img.shields.io/badge/i18n-pt--BR_%7C_en-53f5a1?style=for-the-badge" alt="Languages" />
+</p>
 
-Módulo para Foundry VTT (v13+) que monitora, diagnostica e otimiza a conexão de todos os usuários na mesa.
+# 🛡️ Connection Guard: Abyss Link
+
+Módulo para Foundry VTT que mostra a latência de cada jogador na mesa, avisa antes de uma queda de conexão e ajuda o GM a configurar a rota de acesso (VPN, tunnel, LAN etc.) sem precisar editar JSON.
+
+[Instalação](#instalação) · [Recursos](#recursos) · [Como usar](#como-usar) · [Configurações](#configurações) · [Arquitetura](#arquitetura) · [FAQ](#faq)
+
+<p align="center">
+  <img src="assets/connection_guard_pet.webp" alt="Mascote do Connection Guard: Abyss Link" width="600" />
+</p>
+
+---
+
+## Por que esse módulo existe
+
+O Foundry é cliente-servidor: cada jogador fala com o servidor por WebSocket, e ponto. Não existe P2P, não existe "otimizar a internet de todo mundo" isso está fora do alcance de qualquer módulo. O que dá pra fazer, dentro dessa arquitetura, é:
+
+| Problema                                           | O que o módulo faz                                                                    |
+| :------------------------------------------------- | :------------------------------------------------------------------------------------ |
+| Ninguém sabe a latência de ninguém                 | Mede RTT por cliente e mostra na lista de jogadores                                   |
+| A queda pega todo mundo de surpresa                | Detecta RTT alto por N ciclos seguidos e avisa antes da queda acontecer               |
+| Reconexão lenta do Foundry                         | Backoff do Socket.IO ajustado pra tentar de novo mais rápido                          |
+| Medição de latência é sempre no mesmo intervalo    | Intervalo adaptativo: mede mais quando a conexão está ruim, menos quando está estável |
+| GM não tem visibilidade do que aconteceu na sessão | Painel de diagnóstico + journal exportável com o histórico completo                   |
+
+É só isso que dá pra prometer dentro da arquitetura do Foundry o resto seria vender fumaça.
+
+---
 
 ## Recursos
 
-- **Latência em tempo real**: mostra o ping (RTT) de cada usuário ao lado do nome na lista de jogadores, incluindo o GM. Modo compacto opcional (`+`/`-`/`!`) para acessibilidade.
-- **Reconexão preditiva**: detecta degradação de RTT _antes_ da queda e alerta o usuário. Quando a queda acontece, reconecta mais rápido e com mais insistência que o padrão do Foundry.
-- **Adaptive ping**: mede a latência com mais frequência quando a conexão está ruim e menos quando está estável economiza recursos sem perder resolução no momento que importa.
-- **Assistente de serviço do GM**: pergunta qual serviço a mesa usa (Radmin VPN Free, playit.gg, ngrok, Cloudflare Tunnel, LAN, IP direto ou customizado) e mostra somente os campos necessários.
-- **Painel de diagnóstico do GM**: tabela com latência, jitter, perda estimada e status de cada usuário. Histórico de quedas com timestamp e duração. Alertas de degradação preditiva.
-- **Assistente Radmin VPN Free**: o GM configura o IP virtual `26.x.x.x`, a porta do Foundry e o nome da rota em um dialog box, sem editar JSON. A rota é salva e ativada para a mesa.
-- **Journal de testes**: captura eventos de runtime (lifecycle, latência, conexão, degradação, rotas e erros) e exporta como Journal Entry do Foundry em markdown para validar se o módulo está funcionando corretamente.
-- **i18n**: português (Brasil) como idioma principal, inglês como fallback.
+**Latência em tempo real** badge ao lado de cada jogador (e do GM), com verde/amarelo/vermelho por faixa de RTT. Modo compacto (`+`/`-`/`!`) pra quem não quer números na tela. Tooltip com jitter e perda estimada.
+
+**Reconexão preditiva** o módulo não espera a queda acontecer. Se o RTT sobe acima do limiar por N ciclos consecutivos, ele avisa antes, e reconecta mais rápido que o padrão do Foundry quando a queda vem mesmo.
+
+**Ping adaptativo** mede com mais frequência quando a conexão está degradando, e relaxa quando está estável. Menos overhead no dia a dia, mais resolução no momento em que importa.
+
+**Assistente de rota (GM)** um wizard guiado pra escolher e configurar o serviço de conexão da mesa: Radmin VPN, playit.gg, ngrok, Cloudflare Tunnel, LAN, IP direto ou algo customizado. Sem editar `module.json`, sem abrir console.
+
+**Painel de diagnóstico (GM)** tabela com latência, jitter, perda e status por jogador, mais o histórico de quedas com timestamp e duração.
+
+**Journal de testes** captura eventos de runtime (lifecycle, conexão, degradação, rotas, erros) e exporta tudo como uma Journal Entry em Markdown, pra quem quiser auditar se o módulo está fazendo o que devia.
+
+**Tema Abyss Link** visual dark/neon com gradientes e pulse, aplicado nos badges, banners e painéis quando o GM ativa pra mesa toda.
+
+---
 
 ## Instalação
 
-### Via URL de manifesto (recomendado)
+**Via manifesto (recomendado)**
 
-1. No Foundry VTT, vá em **Configurar Jogo → Gerenciar Módulos → Instalar Módulo**.
-2. Cole a URL do manifesto:
+1. Em **Configurar Jogo → Gerenciar Módulos → Instalar Módulo**, cole:
+   ```
+   https://github.com/SoftMissT/foundry-vtt-connection-guard/releases/latest/download/module.json
+   ```
+2. Instalar → ativar em **Gerenciar Módulos**.
 
-```text
-https://github.com/SoftMissT/foundry-vtt-connection-guard/releases/latest/download/module.json
-```
+**Manual**
 
-1. Clique em **Instalar**.
-2. Ative o módulo em **Configurar Jogo → Gerenciar Módulos**.
-
-### Manual
-
-1. Baixe o `.zip` da [última release](https://github.com/SoftMissT/foundry-vtt-connection-guard/releases).
+1. Baixe o `.zip` da [última release](https://github.com/SoftMissT/foundry-vtt-connection-guard/releases/latest).
 2. Extraia para `<seu dataPath>/Data/modules/connection-guard/`.
-3. Ative o módulo em **Configurar Jogo → Gerenciar Módulos**.
+3. Ative em **Gerenciar Módulos**.
 
-## Configurações
-
-As configurações ficam em **Configurar Jogo → Configurações → Connection Guard**.
-
-| Setting                        | Escopo  | Default | Descrição                                                   |
-| ------------------------------ | ------- | ------- | ----------------------------------------------------------- |
-| Intervalo de medição           | Mundo   | 20s     | De quanto em quanto tempo cada cliente mede sua latência    |
-| Ocultar latência               | Cliente | off     | Some com o badge na lista de jogadores                      |
-| Modo compacto                  | Cliente | off     | `+`/`-`/`!` em vez do valor em ms                           |
-| Tooltip de diagnóstico         | Cliente | on      | Mostra jitter e perda no hover do badge                     |
-| Reconexão agressiva            | Cliente | on      | Backoff mais curto + reconexão forçada ao voltar rede/aba   |
-| Atraso máximo entre tentativas | Cliente | 15s     | Teto do backoff exponencial de reconexão                    |
-| Histórico de quedas            | Mundo   | 30      | Quantas quedas guardar no painel do GM                      |
-| Limiar de degradação           | Mundo   | 300ms   | RTT médio acima deste valor dispara monitoramento preditivo |
-| Ciclos para alerta             | Mundo   | 3       | Ciclos consecutivos acima do limiar antes de emitir alerta  |
-
-### Escolher e configurar o serviço de conexão
-
-O assistente fica disponível apenas para o GM em **Configurar Jogo → Configurações → Configurações de Módulos → Connection Guard → Configurar serviço**.
-
-1. Escolha o serviço que o GM realmente está usando: Radmin VPN Free, playit.gg, ngrok, Cloudflare Tunnel, LAN, IP direto ou customizado.
-2. Informe os dados solicitados para esse serviço.
-3. Clique em **Salvar e ativar rota**.
-
-O módulo salva somente o serviço escolhido, define-o como rota ativa e informa os jogadores. O **Abyss Link Route Oracle** testa exclusivamente essa rota ativa; ele não testa Radmin, ngrok, playit ou Cloudflare que não foram escolhidos.
-
-Para Radmin VPN Free, cada jogador precisa instalar o Radmin VPN, entrar no mesmo grupo do GM e liberar a porta do Foundry no firewall. O módulo não instala aplicativos nem altera o firewall do sistema operacional.
-
-### Voz no Discord
-
-STUN/TURN foi removido do Connection Guard. Essas tecnologias pertencem ao WebRTC de voz/vídeo interno do Foundry. Se a mesa usa Discord, o Discord já fornece sua própria infraestrutura de voz e o GM não precisa configurar STUN ou TURN neste módulo.
+---
 
 ## Como usar
 
-### Ver latência
+### Latência
 
-O badge aparece automaticamente ao lado do nome de cada usuário na lista de jogadores. Cores:
+O badge aparece automaticamente ao lado do nome de cada usuário na lista de jogadores.
 
-- 🟢 Verde: bom (≤100ms)
-- 🟡 Amarelo: regular (100-250ms)
-- 🔴 Vermelho: ruim (≥250ms)
-- ⚠ Vermelho: sem resposta há vários ciclos
+| Indicador |    RTT     | Significado  |
+| :-------: | :--------: | :----------- |
+|    🟢     |  ≤ 100 ms  | Bom          |
+|    🟡     | 100–250 ms | Regular      |
+|    🔴     |  ≥ 250 ms  | Ruim         |
+|    ⚠️     |            | Sem resposta |
 
-### Exportar journal de testes
+### Configurar a rota da mesa
 
-1. Abra **Configurar Jogo → Configurações → Connection Guard → Painel de Diagnóstico (GM)**.
-2. Veja o contador de entradas registradas.
-3. Clique em **Exportar Journal**.
-4. Uma Journal Entry é criada (ou atualizada) com o histórico completo em markdown.
-5. A Journal Entry abre automaticamente para revisão.
+_Apenas GM_ **Configurar Jogo → Configurações → Connection Guard → Configurar Serviço**
 
-## O que "melhorar a conexão" significa aqui
+1. Escolha o serviço: Radmin VPN Free, playit.gg, ngrok, Cloudflare Tunnel, LAN, IP direto ou customizado.
+2. Preencha os dados pedidos.
+3. Salvar e ativar rota.
 
-O Foundry VTT é cliente-servidor: o navegador de cada jogador fala com **um** servidor (o do GM) via WebSocket. Não existe "escolher a melhor rota" entre servidores só existe um destino possível. Dentro dessa realidade, o módulo faz o que é tecnicamente possível:
+O módulo grava o serviço escolhido como rota ativa e avisa os jogadores com um chip central na tela.
 
-| Problema              | O que o módulo faz                                                   |
-| --------------------- | -------------------------------------------------------------------- |
-| Latência desconhecida | Mede RTT de cada cliente e mostra na lista de jogadores              |
-| Quedas silenciosas    | Banner visual + reconexão forçada ao detectar rede/aba ativa         |
-| Queda iminente        | Detecção preditiva: RTT > limiar por N ciclos → alerta antes de cair |
-| Reconexão lenta       | Backoff do Socket.IO ajustado para tentar mais rápido e não desistir |
-| Medição fixa          | Adaptive interval: mais frequente quando ruim, menos quando estável  |
-| Sem diagnóstico       | Painel do GM + journal exportável com histórico completo             |
+### Exportar o journal de testes
 
-## Estrutura do código
+**Configurações → Connection Guard → Painel de Diagnóstico (GM) → Exportar Journal**
 
-```text
-scripts/
-  constants.js           IDs, nomes de evento, defaults, tipos de journal e serviços de rota
-  settings.js            registro de settings e menus
-  latency-monitor.js     mede RTT, jitter, perda + adaptive interval + detecção preditiva
-  diagnostics.js         store em memória: estado por usuário, quedas, alertas de degradação
-  reconnect-manager.js   backoff Socket.IO + reconexão forçada + banner
-  service-wizard.js      seleção do serviço e configuração guiada pelo GM
-  player-list-ui.js      badge de latência na lista de jogadores
-  gm-panel.js            painel do GM (DialogV2) + botão Exportar Journal
-  service-wizard.js      assistente DialogV2 para escolher e configurar o serviço
-  journal-logger.js      captura eventos + gera markdown + cria Journal Entry
-  main.js                entry point orquestra tudo nos hooks init/ready
-lang/
-  pt-BR.json             tradução principal
-  en.json                fallback
-styles/
-  connection-guard.css   badges, banner, painel, journal
+Isso cria (ou atualiza) uma Journal Entry com o histórico completo em Markdown, e já abre pra revisão.
+
+---
+
+## Configurações
+
+Tudo em **Configurar Jogo → Configurações → Connection Guard**.
+
+| Setting                        | Escopo  | Padrão  | O que faz                                      |
+| :----------------------------- | :-----: | :-----: | :--------------------------------------------- |
+| Intervalo de medição           |  Mundo  |  `20s`  | Frequência da medição de latência por cliente  |
+| Ocultar latência               | Cliente |  `off`  | Esconde o badge na lista de jogadores          |
+| Modo compacto                  | Cliente |  `off`  | `+`/`-`/`!` no lugar do valor em ms            |
+| Tooltip de diagnóstico         | Cliente |  `on`   | Jitter e perda no hover do badge               |
+| Reconexão agressiva            | Cliente |  `on`   | Backoff mais curto + reconexão forçada         |
+| Atraso máximo entre tentativas | Cliente |  `15s`  | Teto do backoff exponencial                    |
+| Histórico de quedas            |  Mundo  |  `30`   | Quantas quedas o painel do GM guarda           |
+| Limiar de degradação           |  Mundo  | `300ms` | RTT acima disso liga o monitoramento preditivo |
+| Ciclos para alerta             |  Mundo  |   `3`   | Ciclos consecutivos antes de disparar o alerta |
+
+---
+
+## Arquitetura
+
+```
+connection-guard/
+├── scripts/
+│   ├── main.js                 # Entry point, hooks init/ready
+│   ├── constants.js            # IDs, eventos, defaults, tipos e serviços
+│   ├── settings.js             # Registro de settings e menus
+│   ├── latency-monitor.js      # RTT, jitter, perda, adaptive + preditiva
+│   ├── diagnostics.js          # Estado em memória: por usuário + quedas
+│   ├── reconnect-manager.js    # Backoff Socket.IO + reconexão forçada + banner
+│   ├── active-route-chip.js    # Chip de rota ativa (auto-dismiss 15s)
+│   ├── player-list-ui.js       # Badge de latência na lista de jogadores
+│   ├── gm-panel.js             # Painel do GM (DialogV2) + exportar journal
+│   ├── service-wizard.js       # Wizard de escolha/configuração de serviço
+│   ├── route-wizard.js         # Scanner de rotas (Route Oracle)
+│   ├── route-profiles.js       # CRUD de perfis de rota + rota ativa
+│   ├── route-scanner.js        # Scanner HTTP de disponibilidade
+│   ├── route-score.js          # Scoring de qualidade de rota
+│   └── journal-logger.js       # Captura de eventos → Markdown → Journal Entry
+├── styles/connection-guard.css # Badges, banner, painel, tema Abyss Link
+├── lang/
+│   ├── pt-BR.json
+│   └── en.json
+├── module.json
+└── CHANGELOG.md
 ```
 
-Sem etapa de build: JavaScript ES Module puro, carregado direto pelo Foundry via `esmodules` no `module.json`.
+Sem etapa de build: ES Modules puro, carregado direto pelo Foundry via `esmodules`.
 
-## Origem e créditos
+### Fluxo de dados
 
-Baseado conceitualmente em [`foundry-user-latency`](https://github.com/mawburn/foundry-user-latency) de **mawburn**. Código reescrito do zero em ES Modules para v13+, mantendo a técnica de medição (`game.time.sync()`) e adicionando reconexão preditiva, adaptive ping, configuração guiada de rotas e journal de testes.
+```
+Cliente ──game.time.sync()──► LatencyMonitor (RTT/jitter)
+   ▲                                 │
+   └──────Socket.IO emit─────────────┤
+                                      ├──► PlayerListUI (badge)
+                                      ├──► DiagnosticsStore (estado + quedas)
+                                      ├──► ReconnectManager (backoff/reconexão)
+                                      └──► JournalLogger (export Markdown)
+```
 
-Licenciado sob **GPL-3.0** veja `LICENSE`.
+---
+
+## Serviços suportados
+
+| Serviço           |     Tipo     | Requer VPN |
+| :---------------- | :----------: | :--------: |
+| Radmin VPN Free   |   `radmin`   |    Sim     |
+| playit.gg         |   `playit`   |    Não     |
+| ngrok             |   `ngrok`    |    Não     |
+| Cloudflare Tunnel | `cloudflare` |    Não     |
+| LAN               |   `local`    |    Não     |
+| IP direto         |   `direct`   |    Não     |
+| Customizado       |   `custom`   |    Não     |
+
+Quando uma rota falha, o módulo mostra dicas específicas pro serviço em uso "Radmin conectado no mesmo grupo?", "túnel do playit ativo?".
+
+---
+
+## FAQ
+
+**O módulo funciona com qualquer sistema?**
+Sim. Ele opera na camada de rede do Foundry e não toca em dados de Actor, Item ou sistema. D&D 5e, Pathfinder 2e, Call of Cthulhu, homebrew tanto faz.
+
+**Precisa de outro módulo como dependência?**
+Não, é standalone.
+
+**Ele configura voz/vídeo?**
+Não. STUN/TURN foi removido a partir da v3.1.0 se a mesa usa Discord pra voz, o Discord já resolve isso melhor do que qualquer módulo de VTT conseguiria.
+
+**Os jogadores veem o mesmo que o GM?**
+Os badges, o chip de rota e o tema são sincronizados pra todos via settings de mundo. O que só o GM vê é o painel de diagnóstico, o wizard de serviço e o controle da rota ativa.
+
+**O chip de rota atrapalha a rolagem de dados?**
+Não deveria ele aparece centralizado, some em 15s com uma animação suave, e também pode ser fechado no ×.
+
+---
+
+## Contribuindo
+
+1. Fork
+2. `git checkout -b feature/nome-da-feature`
+3. `npm install`
+4. Altere e rode `npm run lint`
+5. `git commit -m "feat: descrição"`
+6. `git push origin feature/nome-da-feature`
+7. Abra o PR
+
+```bash
+npm run lint        # ESLint
+npm run lint:fix    # ESLint com auto-fix
+npm run format      # Prettier (scripts, lang, docs)
+npm run package     # Monta dist/ e module.zip
+npm run release     # lint + package (usado no CI)
+```
+
+---
 
 ## Compatibilidade
 
-- **Mínimo**: Foundry VTT v13
-- **Verificado**: v14.999
-- **Sem `maximum` fixo**: compatível com versões futuras até que uma mudança de API quebre algo (o Foundry avisa o GM antes de ativar se houver incompatibilidade)
-- **Sem dependências**: não requer outros módulos
-- **Sistemas**: funciona com qualquer sistema (não usa dados de Actor/Item)
+|              |                                                          |
+| :----------- | :------------------------------------------------------- |
+| Mínimo       | Foundry VTT v13                                          |
+| Verificado   | v14.999                                                  |
+| Máximo       | Nenhum fixado sem garantia além disso até mudança de API |
+| Dependências | Nenhuma                                                  |
+| Sistemas     | Todos                                                    |
+
+---
+
+## Créditos e licença
+
+A ideia parte do [`foundry-user-latency`](https://github.com/mawburn/foundry-user-latency), de **mawburn** a técnica de medição via `game.time.sync()` vem de lá. O código em si foi reescrito do zero em ES Modules pra v13+, com reconexão preditiva, ping adaptativo, configuração guiada de rotas e journal de testes adicionados por cima.
+
+Criado por [**SoftMissT**](https://github.com/SoftMissT). Licenciado sob **GPL-3.0** use, modifique e distribua livremente.
+
+---
+
+<sub>Feito para a comunidade Foundry VTT brasileira.</sub>
+[🐛 Reportar Bug](https://github.com/SoftMissT/foundry-vtt-connection-guard/issues) · [💡 Sugerir Feature](https://github.com/SoftMissT/foundry-vtt-connection-guard/issues) · [📦 Releases](https://github.com/SoftMissT/foundry-vtt-connection-guard/releases)

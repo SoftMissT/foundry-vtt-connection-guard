@@ -140,6 +140,23 @@ export function registerSettings() {
     config: true,
   })
 
+  g.settings.register(MODULE_ID, SETTINGS.REDUNDANCY_CONFIG, {
+    type: String,
+    default: '{"enabled":false,"radminUrl":""}',
+    scope: 'world',
+    config: false,
+  })
+
+  g.settings.register(MODULE_ID, SETTINGS.FAILOVER_TIMEOUT, {
+    name: g.i18n.localize('CONNGUARD.Settings.FailoverTimeout.Name'),
+    hint: g.i18n.localize('CONNGUARD.Settings.FailoverTimeout.Hint'),
+    type: Number,
+    range: { min: 10, max: 120, step: 5 },
+    default: DEFAULTS.FAILOVER_TIMEOUT_SECONDS,
+    scope: 'world',
+    config: true,
+  })
+
   g.settings.registerMenu(MODULE_ID, SETTINGS.GM_PANEL_MENU, {
     name: g.i18n.localize('CONNGUARD.Menu.GmPanel.Name'),
     label: g.i18n.localize('CONNGUARD.Menu.GmPanel.Label'),

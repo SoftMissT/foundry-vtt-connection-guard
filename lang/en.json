@@ -45,6 +45,10 @@
       "RouteScanTimeout": {
         "Name": "Abyss Link timeout per attempt (ms)",
         "Hint": "Max time for each route test attempt. Higher values improve tolerance but make scans slower."
+      },
+      "FailoverTimeout": {
+        "Name": "Failover timeout (seconds)",
+        "Hint": "Wait time after a connection drop before redirecting to the emergency Radmin route."
       }
     },
     "Menu": {
@@ -79,6 +83,12 @@
       "Save": "Save and activate route",
       "Invalid": "Check the selected service, address, and port.",
       "Saved": "Active service: {service}",
+      "RedundancyTitle": "Radmin Emergency Fallback",
+      "RedundancyHint": "If the primary connection drops, players will be redirected to this Radmin IP.",
+      "RedundancyEnable": "Enable Emergency Fallback",
+      "RadminHost": "Radmin IP (e.g., 26.x.x.x)",
+      "RadminPort": "Foundry port on Radmin",
+      "InvalidRadmin": "Invalid Radmin IP or port. Fallback was not enabled.",
       "Requirements": {
         "radmin": "Everyone must join the same Radmin network and allow the Foundry port through the firewall.",
         "playit": "The playit.gg agent must be running on the GM's computer.",
@@ -200,6 +210,13 @@
         "Direct": "Direct IP: the public IP must be reachable and the port open on the firewall/router.",
         "Custom": "Custom route: check that the endpoint is up and reachable from your network."
       }
+    },
+    "Chip": {
+      "RadminFallback": "Radmin (Fallback)",
+      "FallbackActive": "Fallback active",
+      "DifferentRoute": "Different Route",
+      "Reconnecting": "Reconnecting…",
+      "Switching": "Switching to Radmin…"
     },
     "Journal": {
       "Generated": "Generated",

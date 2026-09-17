@@ -1,4 +1,10 @@
-import { MODULE_ID, SETTINGS, ROUTE_TYPES, SERVICE_CATALOG } from './constants.js'
+import {
+  MODULE_ID,
+  SETTINGS,
+  ROUTE_TYPES,
+  SERVICE_CATALOG,
+  REDUNDANCY_PRIMARY_TYPES,
+} from './constants.js'
 import {
   getActiveRoute,
   normalizeRouteProfile,
@@ -6,7 +12,41 @@ import {
   setActiveRoute,
 } from './route-profiles.js'
 
-const RADMIN_HOST = /^26\.(?:\d{1,3}\.){2}\d{1,3}$/
+function isValidRadminHost(host) {
+  const parts = String(host).split('.')
+  if (parts.length !== 4) return false
+
+  const octets = parts.map(Number)
+  return (
+    octets.every(
+      (value, index) =>
+        Number.isInteger(value) && value >= 0 && value <= 255 && String(value) === parts[index],
+    ) && octets[0] === 26
+  )
+}
+
+function safeParseRedundancy(raw) {
+  try {
+    const parsed = JSON.parse(raw || '{}')
+    return {
+      enabled: parsed.enabled === true,
+      radminUrl: typeof parsed.radminUrl === 'string' ? parsed.radminUrl : '',
+    }
+  } catch {
+    return {
+      enabled: false,
+      radminUrl: '',
+    }
+  }
+}
+
+function safeUrl(value) {
+  try {
+    return value ? new URL(value) : null
+  } catch {
+    return null
+  }
+}
 
 const SERVICES = [
   { type: ROUTE_TYPES.RADMIN, id: 'radmin-vpn', labelKey: 'CONNGUARD.Service.Name.radmin' },
@@ -58,9 +98,12 @@ export async function openServiceWizard() {
     return null
   }
 
+  const rawRedundancy = game.settings.get(MODULE_ID, SETTINGS.REDUNDANCY_CONFIG)
+  const redundancy = safeParseRedundancy(rawRedundancy)
+
   const result = await foundry.applications.api.DialogV2.input({
     window: { title: game.i18n.localize('CONNGUARD.ServiceWizard.DetailsTitle') },
-    content: renderContent(service.type, profiles),
+    content: renderContent(service.type, profiles, redundancy),
     ok: game.i18n.localize('CONNGUARD.ServiceWizard.Save'),
   })
   if (!result) return null
@@ -72,10 +115,28 @@ export async function openServiceWizard() {
     return null
   }
 
+  let nextRedundancy = { enabled: false, radminUrl: '' }
+  if (REDUNDANCY_PRIMARY_TYPES.includes(service.type) && result.redundancyEnable) {
+    const rHost = String(result.redundancyHost || '').trim()
+    const rPort = Number(result.redundancyPort)
+    if (isValidRadminHost(rHost) && Number.isInteger(rPort) && rPort >= 1 && rPort <= 65535) {
+      nextRedundancy = { enabled: true, radminUrl: `http://${rHost}:${rPort}` }
+    } else {
+      notify(
+        'error',
+        'CONNGUARD.ServiceWizard.InvalidRadmin',
+        'IP/Porta do Radmin inválidos. O fallback não foi ativado.',
+      )
+      return null
+    }
+  }
+
   const nextProfiles = profiles.filter(item => item.id !== service.id)
   nextProfiles.push(profile)
   await game.settings.set(MODULE_ID, SETTINGS.ROUTE_PROFILES, JSON.stringify(nextProfiles, null, 2))
   await setActiveRoute(profile)
+  await game.settings.set(MODULE_ID, SETTINGS.REDUNDANCY_CONFIG, JSON.stringify(nextRedundancy))
+
   globalThis.ui?.notifications?.info?.(
     game.i18n?.format?.('CONNGUARD.ServiceWizard.Saved', { service: profile.label }) ||
       `Serviço ativo: ${profile.label}`,
@@ -88,26 +149,23 @@ function getActiveService(profiles) {
   return active?.type || ROUTE_TYPES.RADMIN
 }
 
-function renderContent(selectedType, profiles) {
+function renderContent(selectedType, profiles, redundancy) {
   const selected = existingFor(selectedType, profiles)
   const isRadmin = selectedType === ROUTE_TYPES.RADMIN
-  const endpoint = selected ? new URL(selected.url) : null
-  const options = SERVICES.map(service =>
-    `<option value="${service.type}" ${service.type === selectedType ? 'selected' : ''}>${escapeHtml(game.i18n.localize(service.labelKey))}</option>`,
-  ).join('')
+  const isPrimary = REDUNDANCY_PRIMARY_TYPES.includes(selectedType)
+  const endpoint = safeUrl(selected?.url)
+  const radminEndpoint = safeUrl(redundancy.radminUrl)
 
   return `
     <p>${game.i18n.localize('CONNGUARD.ServiceWizard.Intro')}</p>
     <p class="notes"><i class="fas fa-circle-info"></i> ${game.i18n.localize('CONNGUARD.ServiceWizard.NoWebRtc')}</p>
     <div class="form-group">
-      <label for="connection-guard-service">${game.i18n.localize('CONNGUARD.ServiceWizard.Service')}</label>
-      <select id="connection-guard-service" name="service">${options}</select>
-    </div>
-    <div class="form-group">
       <label for="connection-guard-service-label">${game.i18n.localize('CONNGUARD.ServiceWizard.DisplayName')}</label>
       <input id="connection-guard-service-label" name="label" type="text" maxlength="64" value="${escapeHtml(selected?.label || '')}" />
     </div>
-    ${isRadmin ? `
+    ${
+      isRadmin
+        ? `
       <div class="form-group">
         <label for="connection-guard-service-host">${game.i18n.localize('CONNGUARD.ServiceWizard.Host')}</label>
         <input id="connection-guard-service-host" name="host" type="text" inputmode="numeric" placeholder="26.123.45.67" value="${escapeHtml(endpoint?.hostname || '')}" required />
@@ -116,19 +174,43 @@ function renderContent(selectedType, profiles) {
         <label for="connection-guard-service-port">${game.i18n.localize('CONNGUARD.ServiceWizard.Port')}</label>
         <input id="connection-guard-service-port" name="port" type="number" min="1" max="65535" step="1" value="${escapeHtml(endpoint?.port || '30000')}" required />
       </div>
-    ` : `
+    `
+        : `
       <div class="form-group">
         <label for="connection-guard-service-endpoint">${game.i18n.localize('CONNGUARD.ServiceWizard.Endpoint')}</label>
         <input id="connection-guard-service-endpoint" name="endpoint" type="text" placeholder="https://exemplo.tunel.gg:30000" value="${escapeHtml(selected?.url || '')}" required />
       </div>
-    `}
+    `
+    }
     <p class="notes">${game.i18n.localize(`CONNGUARD.ServiceWizard.Requirements.${selectedType}`)}</p>
+    ${
+      isPrimary
+        ? `
+      <hr>
+      <h3>${game.i18n.localize('CONNGUARD.ServiceWizard.RedundancyTitle')}</h3>
+      <p class="notes">${game.i18n.localize('CONNGUARD.ServiceWizard.RedundancyHint')}</p>
+      <div class="form-group">
+        <label for="connection-guard-redundancy-enable">${game.i18n.localize('CONNGUARD.ServiceWizard.RedundancyEnable')}</label>
+        <input id="connection-guard-redundancy-enable" name="redundancyEnable" type="checkbox" ${redundancy.enabled ? 'checked' : ''} />
+      </div>
+      <div class="form-group">
+        <label for="connection-guard-redundancy-host">${game.i18n.localize('CONNGUARD.ServiceWizard.RadminHost')}</label>
+        <input id="connection-guard-redundancy-host" name="redundancyHost" type="text" inputmode="numeric" placeholder="26.123.45.67" value="${escapeHtml(radminEndpoint?.hostname || '')}" />
+      </div>
+      <div class="form-group">
+        <label for="connection-guard-redundancy-port">${game.i18n.localize('CONNGUARD.ServiceWizard.RadminPort')}</label>
+        <input id="connection-guard-redundancy-port" name="redundancyPort" type="number" min="1" max="65535" step="1" value="${escapeHtml(radminEndpoint?.port || '30000')}" />
+      </div>
+    `
+        : ''
+    }
   `
 }
 
 function renderServiceChoice(selectedType) {
-  const options = SERVICES.map(service =>
-    `<option value="${service.type}" ${service.type === selectedType ? 'selected' : ''}>${escapeHtml(game.i18n.localize(service.labelKey))}</option>`,
+  const options = SERVICES.map(
+    service =>
+      `<option value="${service.type}" ${service.type === selectedType ? 'selected' : ''}>${escapeHtml(game.i18n.localize(service.labelKey))}</option>`,
   ).join('')
 
   return `
@@ -148,13 +230,15 @@ function buildProfile(service, label, result) {
   if (service.type === ROUTE_TYPES.RADMIN) {
     const host = String(result.host || '').trim()
     const port = Number(result.port)
-    if (!RADMIN_HOST.test(host) || !Number.isInteger(port) || port < 1 || port > 65535) return null
+    if (!isValidRadminHost(host) || !Number.isInteger(port) || port < 1 || port > 65535) return null
     url = `http://${host}:${port}`
     notes = game.i18n.localize('CONNGUARD.ServiceWizard.Note.Radmin')
   } else {
     url = String(result.endpoint || '').trim()
     if (!url) return null
-    notes = game.i18n.localize(SERVICE_CATALOG[service.type]?.hintKey || 'CONNGUARD.ServiceWizard.Note.Custom')
+    notes = game.i18n.localize(
+      SERVICE_CATALOG[service.type]?.hintKey || 'CONNGUARD.ServiceWizard.Note.Custom',
+    )
   }
 
   return normalizeRouteProfile({

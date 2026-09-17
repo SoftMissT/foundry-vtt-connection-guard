@@ -45,6 +45,10 @@
       "RouteScanTimeout": {
         "Name": "Abyss Link timeout por tentativa (ms)",
         "Hint": "Tempo máximo para cada tentativa de teste de rota. Valores altos aumentam precisão, mas deixam o scanner mais lento."
+      },
+      "FailoverTimeout": {
+        "Name": "Tempo limite para fallback (segundos)",
+        "Hint": "Tempo de espera após uma queda de conexão antes de redirecionar para a rota Radmin de emergência."
       }
     },
     "Menu": {
@@ -79,6 +83,12 @@
       "Save": "Salvar e ativar rota",
       "Invalid": "Confira o serviço, endereço e porta informados.",
       "Saved": "Serviço ativo: {service}",
+      "RedundancyTitle": "Radmin Emergency Fallback",
+      "RedundancyHint": "Se a conexão principal cair, os jogadores serão redirecionados para este IP Radmin.",
+      "RedundancyEnable": "Ativar Fallback de Emergência",
+      "RadminHost": "IP do Radmin (ex: 26.x.x.x)",
+      "RadminPort": "Porta do Foundry no Radmin",
+      "InvalidRadmin": "IP ou porta do Radmin inválidos. O fallback não foi ativado.",
       "Requirements": {
         "radmin": "Todos devem estar no mesmo grupo Radmin e liberar a porta do Foundry no firewall.",
         "playit": "O agente playit.gg precisa estar ativo no computador do Mestre.",
@@ -200,6 +210,13 @@
         "Direct": "IP direto: o IP público precisa estar acessível e a porta liberada no firewall/roteador.",
         "Custom": "Rota custom: verifique se o endpoint está no ar e acessível a partir da sua rede."
       }
+    },
+    "Chip": {
+      "RadminFallback": "Radmin (Fallback)",
+      "FallbackActive": "Fallback ativo",
+      "DifferentRoute": "Rota diferente",
+      "Reconnecting": "Reconectando…",
+      "Switching": "Alternando para Radmin…"
     },
     "Journal": {
       "Generated": "Gerado",

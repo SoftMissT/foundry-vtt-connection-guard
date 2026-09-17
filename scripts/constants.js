@@ -28,6 +28,8 @@ export const SETTINGS = {
   ABYSS_THEME: 'abyssTheme',
   ROUTE_PROFILES: 'routeProfiles',
   ROUTE_SCAN_TIMEOUT: 'routeScanTimeout',
+  REDUNDANCY_CONFIG: 'redundancyConfig',
+  FAILOVER_TIMEOUT: 'failoverTimeout',
 }
 
 export const ROUTE_TYPES = {
@@ -39,6 +41,12 @@ export const ROUTE_TYPES = {
   DIRECT: 'direct',
   CUSTOM: 'custom',
 }
+
+export const REDUNDANCY_PRIMARY_TYPES = [
+  ROUTE_TYPES.CLOUDFLARE,
+  ROUTE_TYPES.NGROK,
+  ROUTE_TYPES.PLAYIT,
+]
 
 /**
  * Metadados por serviço de rota: exige VPN? qual hint de setup mostrar
@@ -104,4 +112,5 @@ export const DEFAULTS = {
   JOURNAL_AUTO_EXPORT_INTERVAL_MS: 300000, // 5 minutes
   ROUTE_SCAN_TIMEOUT_MS: 2500,
   ROUTE_SCAN_ATTEMPTS: 3,
+  FAILOVER_TIMEOUT_SECONDS: 30,
 }
