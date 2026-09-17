@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.2.0
+
+- **Radmin emergency fallback** para Cloudflare, ngrok e playit.gg: quando a rota primária cai, após o timeout configurável (30s padrão) o cliente é redirecionado com segurança para o Radmin.
+- **Timeout de failover configurável** (10–120s) e revalidação completa antes de qualquer redirect.
+- **Redirect seguro para Radmin** via `location.replace()`: preserva o pathname (routePrefix), não transporta query/hash e nunca anexa cookie, sessionId, token ou senha.
+- **Sem failback automático:** depois de entrar no Radmin, o cliente permanece lá mesmo se a PRIMARY voltar. Retorno à PRIMARY é manual ou em nova sessão.
+- **Active Route Chip** mostra a rota runtime real: PRIMARY, Radmin (Fallback), Radmin Only ou rota diferente.
+- **Radmin Fallback Readiness:** checklist, status "Not Verified", gerador genérico de comando de firewall (copiável, nunca executado) e teste manual da rota via "Open Radmin Test".
+- **Sem IPs hardcoded** e sem transporte de credenciais. Radmin Only continua sem runtime de redundância.
+
 ## 3.1.1
 
 - Corrige os nomes localizados dos serviços no primeiro dialog.

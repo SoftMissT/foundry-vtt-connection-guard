@@ -1,6 +1,6 @@
 {
   "name": "connection-guard",
-  "version": "3.2.0-rc.2",
+  "version": "3.2.0",
   "private": true,
   "type": "module",
   "description": "Latência, diagnóstico de conexão, reconexão automática e assistente de rotas Abyss Link para Foundry VTT.",
