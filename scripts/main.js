@@ -11,6 +11,16 @@ import { WorldGate } from './world-gate.js'
 
 const journal = new JournalLogger()
 
+/** Instância ativa do WorldGate (criada no ready). */
+let worldGate = null
+
+// Registrado no import do módulo (antes de init/ready): a paleta de Scene
+// Controls é construída cedo; se o hook só entrasse no ready, o 1º render
+// não teria o botão do World Gate.
+Hooks.on('getSceneControlButtons', controls => {
+  worldGate?.registerSceneControl(controls)
+})
+
 Hooks.once('init', () => {
   console.log(`${MODULE_ID} | inicializando`)
   journal.log(JOURNAL_TYPES.LIFECYCLE, { message: 'Módulo inicializado' })
@@ -71,8 +81,9 @@ Hooks.once('ready', () => {
   redundancyManager.start()
 
   const activeRouteChip = new ActiveRouteChip(journal, redundancyManager)
-  const worldGate = new WorldGate(journal)
+  worldGate = new WorldGate(journal)
   worldGate.start()
+  ui.controls?.render({ force: true, reset: true })
 
   setMenuDependencies(diagnostics, journal)
   applyAbyssTheme()
@@ -120,7 +131,8 @@ Hooks.once('ready', () => {
     playerListUI.destroy()
     activeRouteChip.stop()
     redundancyManager.stop()
-    worldGate.stop()
+    worldGate?.stop()
+    worldGate = null
     Hooks.off('updateSetting', onThemeSettingUpdate)
     clearInterval(sweepIntervalId)
     game.socket?.off(SOCKET_EVENT, onSocketMessage)

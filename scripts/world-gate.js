@@ -120,7 +120,6 @@ export function resolveBanUpdates(users) {
 
 export class WorldGate {
   #journal = null
-  #controlHookId = null
   #settingHookId = null
   #socketHandler = null
   #overlayEl = null
@@ -141,15 +140,15 @@ export class WorldGate {
     return this.#readLocked() === true
   }
 
+  get started() {
+    return this.#started
+  }
+
   start() {
     if (this.#started) return this
     this.#started = true
 
     this.#applyInitialGate()
-
-    this.#controlHookId = Hooks.on('getSceneControlButtons', controls =>
-      this.#onGetControlButtons(controls),
-    )
 
     this.#settingHookId = Hooks.on('updateSetting', doc => {
       if (doc.key !== `${MODULE_ID}.${SETTINGS.GATE_LOCKED}`) return
@@ -164,10 +163,6 @@ export class WorldGate {
 
   stop() {
     if (!this.#started) return this
-    if (this.#controlHookId !== null) {
-      Hooks.off('getSceneControlButtons', this.#controlHookId)
-      this.#controlHookId = null
-    }
     if (this.#settingHookId !== null) {
       Hooks.off('updateSetting', this.#settingHookId)
       this.#settingHookId = null
@@ -187,12 +182,14 @@ export class WorldGate {
   // ------------------------------------------------------------------
 
   /**
-   * Registra o controle na paleta padrão do Foundry. O Foundry chama este
-   * hook sempre que a paleta é construída/re-renderizada; o controle é
-   * visível apenas para GM. Tool é um toggle: `active` reflete o estado do
-   * gate e o clique dispara `onChange`.
+   * Registra o controle na paleta padrão do Foundry. Chamado pelo hook
+   * getSceneControlButtons registrado no top-level do main.js (antes de
+   * init/ready) para não perder o primeiro render da paleta. O controle
+   * é visível apenas para GM. Tool é um toggle: `active` reflete o estado
+   * do gate e o clique dispara `onChange`.
    */
-  #onGetControlButtons(controls) {
+  registerSceneControl(controls) {
+    if (!this.#started) return
     if (game.user?.isGM !== true) return
 
     controls[SCENE_CONTROL_NAME] = {

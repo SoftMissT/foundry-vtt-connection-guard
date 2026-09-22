@@ -280,15 +280,14 @@ function gateSetup({
   }
 }
 
-// GATE-07 GM com mesa aberta → registra Scene Control, sem overlay, sem redirect
+// GATE-07 GM com mesa aberta → regista Scene Control, sem overlay, sem redirect
 {
   const env = gateSetup({ isGM: true, locked: false })
   const gate = new WorldGate()
   gate.start()
 
   const controls = {}
-  const controlHook = env.hookCalls.find(h => h.name === 'getSceneControlButtons')
-  controlHook.fn(controls)
+  gate.registerSceneControl(controls)
 
   check('GATE-07 control registrado', Boolean(controls[SCENE_CONTROL_NAME]), true)
   check('GATE-07 tool existe', Boolean(controls[SCENE_CONTROL_NAME].tools[GATE_TOOL_NAME]), true)
@@ -307,25 +306,35 @@ function gateSetup({
   gate.start()
 
   const controls = {}
-  const controlHook = env.hookCalls.find(h => h.name === 'getSceneControlButtons')
-  controlHook.fn(controls)
+  gate.registerSceneControl(controls)
 
   check('GATE-07b tool active = fechado', controls[SCENE_CONTROL_NAME].tools[GATE_TOOL_NAME].active, true)
   check('GATE-07b GM sem overlay', env.appended.some(el => el.className === 'connguard-gate-overlay'), false)
   gateTeardown()
 }
 
-// GATE-07c Player não registra Scene Control
+// GATE-07c Player não regista Scene Control
 {
   const env = gateSetup({ isGM: false, locked: false })
   const gate = new WorldGate()
   gate.start()
 
   const controls = {}
-  const controlHook = env.hookCalls.find(h => h.name === 'getSceneControlButtons')
-  controlHook.fn(controls)
+  gate.registerSceneControl(controls)
 
   check('GATE-07c player sem control', Boolean(controls[SCENE_CONTROL_NAME]), false)
+  gateTeardown()
+}
+
+// GATE-07d gate não started → não regista control (hook top-level espera start)
+{
+  const env = gateSetup({ isGM: true, locked: false })
+  const gate = new WorldGate()
+
+  const controls = {}
+  gate.registerSceneControl(controls)
+
+  check('GATE-07d sem started não regista', Boolean(controls[SCENE_CONTROL_NAME]), false)
   gateTeardown()
 }
 
