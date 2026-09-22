@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.3.4
+
+- **Corrige o botão World Gate que não fazia nada**: o controle registrava `activeTool: world-gate`, e em V13/V14 o `SceneControls#onChangeTool` faz `if (tool === this.tool) return` — como `this.tool` é justamente o tool apontado por `activeTool`, todo clique no cadeado morria nesse `return` antes de disparar `onChange`. Removido o `activeTool` (o botão existe, era clicável, mas nunca chamava o handler).
+- `#onToolChange()` passa a ignorar o `active` recebido (valor visual pode estar defasado, ex.: mudança vinda de outro cliente) e recalcula o estado real por `isLocked`.
+- Guard de reentrância `#syncing`: a sincronização programática do toggle não reabre o diálogo de confirmação.
+- Ícone (`fa-lock`/`fa-lock-open`) e `active` do tool passam a acompanhar o estado real do gate.
+- Suíte `verify-gate.mjs` com 80 verificações: GATE-17 reproduz o `#onChangeTool` real do Foundry (clique alcança `onChange`) e GATE-18 garante que `active` defasado não trava o toggle.
+
 ## 3.3.3
 
 - **Confirmação antes de fechar/abrir a mesa**: o toggle do Scene Control agora abre um `DialogV2` modal (Sim/Não) — cancelar não altera nada e o toggle visual volta ao estado real. Evita fechamento acidental.
