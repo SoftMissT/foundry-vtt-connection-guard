@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.3.1
+
+- **World Gate movido para Scene Controls nativos**: o botão do GM saiu do DOM fixo (cantos inacessíveis/sobrepostos) e agora é um controle nativo do Foundry na paleta lateral (hook `getSceneControlButtons`, API v13/ApplicationV2, compatível 13.350 → 14.999).
+- Tool toggle `world-gate` com `onChange(event, active)` (conforme doc oficial foundryvtt.com/api/v13) e sincronização via `ui.controls.activate({ toggles })`.
+- Suíte `verify-gate.mjs` atualizada: 63 verificações cobrindo registro do Scene Control, estado do toggle, GM-only e self-eject.
+
 ## 3.3.0
 
 - **World Gate (Abrir/Fechar conexão)**: botão nos **Scene Controls** do Foundry (paleta lateral padrão, API v13 — ApplicationV2) para o GM abrir ou fechar a mesa para jogadores — a permissão real de entrada que o módulo não tinha.
