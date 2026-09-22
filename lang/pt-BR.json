@@ -240,7 +240,14 @@
       "ClosedTitle": "Conexão fechada",
       "ClosedHint": "O Mestre fechou a conexão com esta mesa. Aguarde a abertura para entrar novamente.",
       "LockedNotif": "Conexão fechada. Jogadores não podem mais entrar.",
-      "UnlockedNotif": "Conexão aberta. Jogadores podem entrar novamente."
+      "UnlockedNotif": "Conexão aberta. Jogadores podem entrar novamente.",
+      "ConfirmLockTitle": "Fechar conexão da mesa?",
+      "ConfirmLockContent": "Os jogadores (não-GM) serão banidos com role NONE e quem estiver conectado será expulso. GM e Assistentes não são afetados. O servidor continua no ar; apenas o login de players passa a ser rejeitado.",
+      "ConfirmLockYes": "Fechar conexão",
+      "ConfirmUnlockTitle": "Abrir conexão da mesa?",
+      "ConfirmUnlockContent": "As permissões salvas serão restauradas e os jogadores poderão entrar novamente.",
+      "ConfirmUnlockYes": "Abrir conexão",
+      "ConfirmNo": "Cancelar"
     },
     "Journal": {
       "Generated": "Gerado",

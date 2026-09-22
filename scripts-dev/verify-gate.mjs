@@ -175,12 +175,27 @@ function gateSetup({
   settings = {},
   locationOrigin = 'http://localhost:30000',
   onSocketEmit = null,
+  confirmResult = true,
 }) {
   const fakeTimers = makeFakeTimers()
   const store = { ...settings }
   const hookCalls = []
   const appended = []
   const socketEvents = {}
+  const confirmCalls = []
+
+  globalThis.foundry = {
+    applications: {
+      api: {
+        DialogV2: {
+          confirm: async config => {
+            confirmCalls.push(config)
+            return confirmResult
+          },
+        },
+      },
+    },
+  }
 
   globalThis.location = { origin: locationOrigin, href: `${locationOrigin}/game` }
 
@@ -276,6 +291,7 @@ function gateSetup({
     store,
     socketEvents,
     UserUpdateCalls,
+    confirmCalls,
     game: globalThis.game,
   }
 }
@@ -472,9 +488,60 @@ async function testManualRole() {
   gateTeardown()
 }
 
+// GATE-15 toggle() abre DialogV2 de confirmação e não age se cancelar
+async function testConfirmCancel() {
+  const emits = []
+  const env = gateSetup({
+    isGM: true,
+    locked: false,
+    users: [
+      { id: 'gm', role: 4, isGM: true },
+      { id: 'p1', role: 1, isGM: false },
+    ],
+    onSocketEmit: (evt, payload) => emits.push(payload),
+    confirmResult: false,
+  })
+  const gate = new WorldGate()
+  gate.start()
+  await gate.toggle()
+
+  check('GATE-15 confirm chamado', env.confirmCalls.length, 1)
+  check('GATE-15 sem backup', env.store[SETTINGS.GATE_ROLES_BACKUP], undefined)
+  check('GATE-15 sem ban', env.UserUpdateCalls.length, 0)
+  check('GATE-15 GATE_LOCKED inalterado', env.store[SETTINGS.GATE_LOCKED], undefined)
+  check('GATE-15 sem socket emit', emits.length, 0)
+  gateTeardown()
+}
+
+// GATE-16 confirm true → lock executa normalmente
+async function testConfirmAccept() {
+  const emits = []
+  const env = gateSetup({
+    isGM: true,
+    locked: false,
+    users: [
+      { id: 'gm', role: 4, isGM: true },
+      { id: 'p1', role: 1, isGM: false },
+    ],
+    onSocketEmit: (evt, payload) => emits.push(payload),
+    confirmResult: true,
+  })
+  const gate = new WorldGate()
+  gate.start()
+  await gate.toggle()
+
+  check('GATE-16 confirm chamado', env.confirmCalls.length, 1)
+  check('GATE-16 GATE_LOCKED true', env.store[SETTINGS.GATE_LOCKED], true)
+  check('GATE-16 p1 banido', env.UserUpdateCalls.some(u => u._id === 'p1' && u.role === 0), true)
+  check('GATE-16 socket emit locked', emits.some(e => e.locked === true), true)
+  gateTeardown()
+}
+
 await testLock()
 await testUnlock()
 await testManualRole()
+await testConfirmCancel()
+await testConfirmAccept()
 
 console.log(report.join('\n'))
 console.log(`\nResultado: ${checks} verificações, ${failures} falha(s)`)

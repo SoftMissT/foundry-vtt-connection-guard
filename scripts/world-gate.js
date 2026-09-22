@@ -126,6 +126,7 @@ export class WorldGate {
   #redirectTimer = null
   #redirectIssued = false
   #started = false
+  #busy = false
 
   constructor(journal = null) {
     this.#journal = journal
@@ -264,10 +265,58 @@ export class WorldGate {
   async toggle() {
     if (!game.user?.isGM) {
       ui.notifications?.warn(game.i18n.localize('CONNGUARD.Gate.GmOnly'))
+      this.#syncSceneControl()
       return
     }
-    if (this.isLocked) await this.#unlock()
-    else await this.#lock()
+    if (this.#busy) {
+      this.#syncSceneControl()
+      return
+    }
+
+    const locking = !this.isLocked
+    this.#busy = true
+    try {
+      const confirmed = await this.#confirm(locking)
+      if (!confirmed) {
+        this.#syncSceneControl()
+        return
+      }
+      if (locking) await this.#lock()
+      else await this.#unlock()
+    } finally {
+      this.#busy = false
+    }
+  }
+
+  /** DialogV2 de confirmação — cancel/close = false; erro = false. */
+  async #confirm(locking) {
+    try {
+      const result = await foundry.applications.api.DialogV2.confirm({
+        window: {
+          title: game.i18n.localize(
+            locking ? 'CONNGUARD.Gate.ConfirmLockTitle' : 'CONNGUARD.Gate.ConfirmUnlockTitle',
+          ),
+        },
+        content: game.i18n.localize(
+          locking ? 'CONNGUARD.Gate.ConfirmLockContent' : 'CONNGUARD.Gate.ConfirmUnlockContent',
+        ),
+        yes: {
+          label: game.i18n.localize(
+            locking ? 'CONNGUARD.Gate.ConfirmLockYes' : 'CONNGUARD.Gate.ConfirmUnlockYes',
+          ),
+          icon: locking ? 'fa-solid fa-lock' : 'fa-solid fa-lock-open',
+        },
+        no: {
+          label: game.i18n.localize('CONNGUARD.Gate.ConfirmNo'),
+          default: true,
+        },
+        modal: true,
+        rejectClose: false,
+      })
+      return result === true
+    } catch {
+      return false
+    }
   }
 
   async #lock() {
@@ -303,8 +352,10 @@ export class WorldGate {
     if (restoreUpdates.length) {
       await User.updateDocuments(restoreUpdates)
     }
-    await game.settings.set(MODULE_ID, SETTINGS.GATE_ROLES_BACKUP, '')
-    await game.settings.set(MODULE_ID, SETTINGS.GATE_LOCKED, false)
+    await Promise.all([
+      game.settings.set(MODULE_ID, SETTINGS.GATE_ROLES_BACKUP, ''),
+      game.settings.set(MODULE_ID, SETTINGS.GATE_LOCKED, false),
+    ])
 
     this.#journal?.log(JOURNAL_TYPES.CONNECTION, {
       event: 'gate-unlocked',

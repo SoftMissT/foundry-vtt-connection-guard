@@ -240,7 +240,14 @@
       "ClosedTitle": "Connection closed",
       "ClosedHint": "The GM has closed the connection to this table. Wait for it to reopen to enter again.",
       "LockedNotif": "Connection closed. Players can no longer enter.",
-      "UnlockedNotif": "Connection open. Players may enter again."
+      "UnlockedNotif": "Connection open. Players may enter again.",
+      "ConfirmLockTitle": "Close the table connection?",
+      "ConfirmLockContent": "Players (non-GM) will be banned with role NONE and anyone connected will be ejected. GM and Assistants are not affected. The server stays up; only player logins will be rejected.",
+      "ConfirmLockYes": "Close connection",
+      "ConfirmUnlockTitle": "Open the table connection?",
+      "ConfirmUnlockContent": "Saved permissions will be restored and players may enter again.",
+      "ConfirmUnlockYes": "Open connection",
+      "ConfirmNo": "Cancel"
     },
     "Journal": {
       "Generated": "Generated",
