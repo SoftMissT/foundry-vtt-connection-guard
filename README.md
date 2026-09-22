@@ -44,7 +44,7 @@ O Foundry é cliente-servidor: cada jogador fala com o servidor por WebSocket, e
 
 **Assistente de rota (GM)** um wizard guiado pra escolher e configurar o serviço de conexão da mesa: Radmin VPN, playit.gg, ngrok, Cloudflare Tunnel, LAN, IP direto ou algo customizado. Sem editar `module.json`, sem abrir console.
 
-**World Gate (GM)** um botão no HUD para **abrir/fechar a mesa**. Fechado, jogadores não conseguem entrar (bloqueio nativo por role `NONE` no servidor) e quem já estava conectado recebe um overlay de "conexão fechada" e é redirecionado ao login. Útil pra trancar a mesa antes da sessão ou durante um intervalo.
+**World Gate (GM)** um botão nos **Scene Controls** (paleta lateral padrão do Foundry) para **abrir/fechar a mesa**. Fechado, jogadores não conseguem entrar (bloqueio nativo por role `NONE` no servidor) e quem já estava conectado recebe um overlay de "conexão fechada" e é redirecionado ao login. Útil pra trancar a mesa antes da sessão ou durante um intervalo.
 
 **Painel de diagnóstico (GM)** tabela com latência, jitter, perda e status por jogador, mais o histórico de quedas com timestamp e duração.
 
@@ -97,7 +97,7 @@ O módulo grava o serviço escolhido como rota ativa e avisa os jogadores com um
 
 ### Abrir/fechar a mesa (World Gate)
 
-_Apenas GM_ O botão do Connection Guard aparece no canto superior direito do HUD:
+_Apenas GM_ O Connection Guard adiciona um botão na paleta de **Scene Controls** (à esquerda da tela, ícone de escudo):
 
 1. **Fechar conexão**: bloqueia a entrada de novos jogadores (role `NONE`) e expulsa quem está dentro (overlay + redirecionamento ao login).
 2. **Abrir conexão**: restaura as permissões dos jogadores e libera a entrada novamente.

@@ -716,36 +716,7 @@ body.connection-guard-abyss-theme [data-module-id='connection-guard'] .form-grou
   font-size: 12px;
 }
 
-/* World Gate — botão do GM (canto superior direito) e overlay do player */
-.connguard-world-gate-button {
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  z-index: 9997;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: rgba(20, 24, 34, 0.9);
-  color: #e8edf7;
-  font-size: 12px;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
-}
-.connguard-world-gate-button.connguard-gate-locked {
-  border-color: rgba(231, 76, 60, 0.7);
-  color: #ff8a80;
-}
-.connguard-world-gate-button.connguard-gate-open {
-  border-color: rgba(46, 204, 113, 0.7);
-  color: #7be6a5;
-}
-.connguard-world-gate-button:hover {
-  filter: brightness(1.2);
-}
-
+/* World Gate — overlay do player (o botão do GM é um Scene Control nativo) */
 .connguard-gate-overlay {
   position: fixed;
   inset: 0;

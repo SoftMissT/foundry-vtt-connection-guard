@@ -22,6 +22,10 @@ import {
  * - Self-eject: players conectados recebem o estado via updateSetting/socket
  *   e mostram um overlay full-screen + redirecionam ao login.
  *
+ * UI: o botão do GM é um Scene Control nativo (hook getSceneControlButtons,
+ * API v13 — ApplicationV2). Nada de botões fixed no DOM: o Foundry renderiza
+ * o controle na paleta lateral padrão, funcionando em 13.350 → 14.999.
+ *
  * Regras:
  * - GM e Assistentes (isGM) NUNCA são tocados.
  * - O gate não altera rotas, fallback Radmin, firewall ou túneis.
@@ -35,6 +39,10 @@ export const GATE_STATES = {
   OPEN: 'open',
   CLOSED: 'closed',
 }
+
+export const SCENE_CONTROL_NAME = 'connection-guard'
+export const SCENE_CONTROL_ORDER = 20
+export const GATE_TOOL_NAME = 'world-gate'
 
 /** Interpreta o valor do setting GATE_LOCKED. Nunca lança. */
 export function gateStateFromSetting(locked) {
@@ -112,9 +120,9 @@ export function resolveBanUpdates(users) {
 
 export class WorldGate {
   #journal = null
-  #hookId = null
+  #controlHookId = null
+  #settingHookId = null
   #socketHandler = null
-  #buttonEl = null
   #overlayEl = null
   #redirectTimer = null
   #redirectIssued = false
@@ -138,9 +146,12 @@ export class WorldGate {
     this.#started = true
 
     this.#applyInitialGate()
-    this.#renderButton()
 
-    this.#hookId = Hooks.on('updateSetting', doc => {
+    this.#controlHookId = Hooks.on('getSceneControlButtons', controls =>
+      this.#onGetControlButtons(controls),
+    )
+
+    this.#settingHookId = Hooks.on('updateSetting', doc => {
       if (doc.key !== `${MODULE_ID}.${SETTINGS.GATE_LOCKED}`) return
       this.#onLockStateChanged(this.#readLocked())
     })
@@ -153,19 +164,75 @@ export class WorldGate {
 
   stop() {
     if (!this.#started) return this
-    if (this.#hookId !== null) {
-      Hooks.off('updateSetting', this.#hookId)
-      this.#hookId = null
+    if (this.#controlHookId !== null) {
+      Hooks.off('getSceneControlButtons', this.#controlHookId)
+      this.#controlHookId = null
+    }
+    if (this.#settingHookId !== null) {
+      Hooks.off('updateSetting', this.#settingHookId)
+      this.#settingHookId = null
     }
     if (this.#socketHandler) {
       game.socket?.off(SOCKET_EVENT, this.#socketHandler)
       this.#socketHandler = null
     }
     this.#clearRedirectTimer()
-    this.#removeButton()
     this.#removeOverlay()
     this.#started = false
     return this
+  }
+
+  // ------------------------------------------------------------------
+  // Scene Control (API v13 — ApplicationV2)
+  // ------------------------------------------------------------------
+
+  /**
+   * Registra o controle na paleta padrão do Foundry. O Foundry chama este
+   * hook sempre que a paleta é construída/re-renderizada; o controle é
+   * visível apenas para GM. Tool é um toggle: `active` reflete o estado do
+   * gate e o clique dispara `onChange`.
+   */
+  #onGetControlButtons(controls) {
+    if (game.user?.isGM !== true) return
+
+    controls[SCENE_CONTROL_NAME] = {
+      name: SCENE_CONTROL_NAME,
+      order: SCENE_CONTROL_ORDER,
+      title: game.i18n.localize('CONNGUARD.Gate.SceneControlTitle'),
+      icon: 'fa-solid fa-shield-halved',
+      visible: true,
+      tools: {
+        [GATE_TOOL_NAME]: {
+          name: GATE_TOOL_NAME,
+          order: 0,
+          title: game.i18n.localize('CONNGUARD.Gate.ToolTitle'),
+          icon: this.isLocked ? 'fa-solid fa-lock' : 'fa-solid fa-lock-open',
+          toggle: true,
+          active: this.isLocked,
+          onChange: (_event, active) => this.#onToolChange(active),
+        },
+      },
+      activeTool: GATE_TOOL_NAME,
+    }
+  }
+
+  /**
+   * Chamado pelo toggle do Scene Control (API v13: onChange(event, active),
+   * confirmado pela doc oficial foundryvtt.com/api/v13 e pelo type package).
+   * Se o estado visual não bate com o gate real, aplica o toggle — evita
+   * loop quando a mudança veio de outro cliente.
+   */
+  #onToolChange(active) {
+    if (active !== this.isLocked) this.toggle()
+  }
+
+  /** Sincroniza o toggle do Scene Control com o estado real do gate. */
+  #syncSceneControl() {
+    try {
+      ui.controls?.activate({ toggles: { [GATE_TOOL_NAME]: this.isLocked } })
+    } catch (err) {
+      console.warn(`${MODULE_ID} | falha ao sincronizar scene control`, err)
+    }
   }
 
   /**
@@ -184,7 +251,7 @@ export class WorldGate {
       this.#cancelRedirect()
       this.#removeOverlay()
     }
-    this.#updateButton()
+    this.#syncSceneControl()
   }
 
   #onSocketMessage(payload) {
@@ -194,7 +261,7 @@ export class WorldGate {
   }
 
   // ------------------------------------------------------------------
-  // Toggle (chamado pelo botão do GM)
+  // Toggle (chamado pelo Scene Control do GM)
   // ------------------------------------------------------------------
 
   async toggle() {
@@ -281,40 +348,8 @@ export class WorldGate {
   }
 
   // ------------------------------------------------------------------
-  // UI: botão do GM + overlay do player
+  // UI: overlay do player
   // ------------------------------------------------------------------
-
-  #renderButton() {
-    if (!game.user?.isGM || this.#buttonEl) return
-
-    const el = document.createElement('button')
-    el.type = 'button'
-    el.id = 'connguard-world-gate-button'
-    el.className = 'connguard-world-gate-button'
-    el.addEventListener('click', () => this.toggle())
-    document.body.appendChild(el)
-    this.#buttonEl = el
-    this.#updateButton()
-  }
-
-  #updateButton() {
-    const el = this.#buttonEl
-    if (!el) return
-    const locked = this.isLocked
-    el.classList.toggle('connguard-gate-locked', locked)
-    el.classList.toggle('connguard-gate-open', !locked)
-    el.innerHTML = locked
-      ? `<i class="fas fa-lock"></i> ${game.i18n.localize('CONNGUARD.Gate.CloseButton')}`
-      : `<i class="fas fa-unlock"></i> ${game.i18n.localize('CONNGUARD.Gate.OpenButton')}`
-    el.title = locked
-      ? game.i18n.localize('CONNGUARD.Gate.CloseHint')
-      : game.i18n.localize('CONNGUARD.Gate.OpenHint')
-  }
-
-  #removeButton() {
-    this.#buttonEl?.remove()
-    this.#buttonEl = null
-  }
 
   #showOverlay() {
     if (this.#overlayEl) return

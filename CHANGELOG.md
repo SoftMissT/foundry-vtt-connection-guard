@@ -2,7 +2,7 @@
 
 ## 3.3.0
 
-- **World Gate (Abrir/Fechar conexão)**: botão no HUD para o GM abrir ou fechar a mesa para jogadores — a permissão real de entrada que o módulo não tinha.
+- **World Gate (Abrir/Fechar conexão)**: botão nos **Scene Controls** do Foundry (paleta lateral padrão, API v13 — ApplicationV2) para o GM abrir ou fechar a mesa para jogadores — a permissão real de entrada que o módulo não tinha.
 - **Bloqueio nativo no servidor:** ao fechar, o GM salva os roles atuais dos players e define `role NONE` (ban nativo do Foundry) em todos os não-GM. O login passa a ser rejeitado no servidor, independente de rota/túnel.
 - **Restauração automática:** ao abrir, os roles salvos são restaurados (sem sobrescrever mudanças manuais feitas durante o bloqueio). GM e Assistentes nunca são tocados.
 - **Self-eject de players:** clientes conectados recebem o estado via setting/socket e mostram overlay full-screen, com redirecionamento ao login após alguns segundos.

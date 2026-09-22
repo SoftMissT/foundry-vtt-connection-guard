@@ -234,10 +234,8 @@
       "Switching": "Switching to Radmin."
     },
     "Gate": {
-      "OpenButton": "Open connection",
-      "CloseButton": "Close connection",
-      "OpenHint": "Table open: players may enter. Click to close.",
-      "CloseHint": "Table closed: players cannot enter. Click to open.",
+      "SceneControlTitle": "Connection Guard",
+      "ToolTitle": "Open/close table connection",
       "GmOnly": "Only the GM can open or close the table's connection.",
       "ClosedTitle": "Connection closed",
       "ClosedHint": "The GM has closed the connection to this table. Wait for it to reopen to enter again.",

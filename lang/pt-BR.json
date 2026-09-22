@@ -234,10 +234,8 @@
       "Switching": "Alternando para Radmin…"
     },
     "Gate": {
-      "OpenButton": "Abrir conexão",
-      "CloseButton": "Fechar conexão",
-      "OpenHint": "Mesa aberta: jogadores podem entrar. Clique para fechar.",
-      "CloseHint": "Mesa fechada: jogadores não podem entrar. Clique para abrir.",
+      "SceneControlTitle": "Connection Guard",
+      "ToolTitle": "Abrir/fechar conexão da mesa",
       "GmOnly": "Somente o Mestre pode abrir ou fechar a conexão da mesa.",
       "ClosedTitle": "Conexão fechada",
       "ClosedHint": "O Mestre fechou a conexão com esta mesa. Aguarde a abertura para entrar novamente.",
