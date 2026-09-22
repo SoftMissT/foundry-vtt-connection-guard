@@ -16,6 +16,7 @@ export default [
         foundry: 'readonly',
         FormApplication: 'readonly',
         JournalEntry: 'readonly',
+        User: 'readonly',
         CONST: 'readonly',
         RTCPeerConnection: 'readonly',
         HTMLElement: 'readonly',

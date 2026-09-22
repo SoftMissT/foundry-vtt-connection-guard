@@ -1,6 +1,6 @@
 {
   "name": "connection-guard",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "private": true,
   "type": "module",
   "description": "Latência, diagnóstico de conexão, reconexão automática e assistente de rotas Abyss Link para Foundry VTT.",
@@ -10,8 +10,9 @@
     "lint": "eslint scripts --ext .js",
     "lint:fix": "eslint scripts --ext .js --fix",
     "format": "prettier --write \"scripts/**/*.js\" \"lang/**/*.json\" \"*.md\"",
+    "verify": "node scripts-dev/verify-redundancy.mjs && node scripts-dev/verify-gate.mjs",
     "package": "node scripts-dev/package-zip.mjs",
-    "release": "npm run lint && npm run package"
+    "release": "npm run lint && npm run verify && npm run package"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.0",

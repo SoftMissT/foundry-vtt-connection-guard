@@ -7,6 +7,7 @@ import { PlayerListUI } from './player-list-ui.js'
 import { JournalLogger } from './journal-logger.js'
 import { ActiveRouteChip } from './active-route-chip.js'
 import { RouteRedundancyManager } from './route-redundancy-manager.js'
+import { WorldGate } from './world-gate.js'
 
 const journal = new JournalLogger()
 
@@ -70,6 +71,8 @@ Hooks.once('ready', () => {
   redundancyManager.start()
 
   const activeRouteChip = new ActiveRouteChip(journal, redundancyManager)
+  const worldGate = new WorldGate(journal)
+  worldGate.start()
 
   setMenuDependencies(diagnostics, journal)
   applyAbyssTheme()
@@ -117,6 +120,7 @@ Hooks.once('ready', () => {
     playerListUI.destroy()
     activeRouteChip.stop()
     redundancyManager.stop()
+    worldGate.stop()
     Hooks.off('updateSetting', onThemeSettingUpdate)
     clearInterval(sweepIntervalId)
     game.socket?.off(SOCKET_EVENT, onSocketMessage)

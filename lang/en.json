@@ -226,12 +226,23 @@
         "Custom": "Custom route: check that the endpoint is up and reachable from your network."
       }
     },
-    "Chip": {
+"Chip": {
       "RadminFallback": "Radmin (Fallback)",
       "FallbackActive": "Fallback active",
       "DifferentRoute": "Different Route",
-      "Reconnecting": "Reconnecting…",
-      "Switching": "Switching to Radmin…"
+      "Reconnecting": "Reconnecting.",
+      "Switching": "Switching to Radmin."
+    },
+    "Gate": {
+      "OpenButton": "Open connection",
+      "CloseButton": "Close connection",
+      "OpenHint": "Table open: players may enter. Click to close.",
+      "CloseHint": "Table closed: players cannot enter. Click to open.",
+      "GmOnly": "Only the GM can open or close the table's connection.",
+      "ClosedTitle": "Connection closed",
+      "ClosedHint": "The GM has closed the connection to this table. Wait for it to reopen to enter again.",
+      "LockedNotif": "Connection closed. Players can no longer enter.",
+      "UnlockedNotif": "Connection open. Players may enter again."
     },
     "Journal": {
       "Generated": "Generated",

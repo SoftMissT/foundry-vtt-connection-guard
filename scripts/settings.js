@@ -157,6 +157,24 @@ export function registerSettings() {
     config: true,
   })
 
+  // World Gate: quem pode entrar na mesa. Controlado pelo botão no HUD do GM
+  // (scripts/world-gate.js), nunca pela UI de settings — por isso config:false.
+  g.settings.register(MODULE_ID, SETTINGS.GATE_LOCKED, {
+    type: Boolean,
+    default: false,
+    scope: 'world',
+    config: false,
+  })
+
+  // Backup dos roles dos players aplicado ao fechar o gate (para restaurar
+  // ao reabrir). World scope e não-restricted: não contém senhas, só roles.
+  g.settings.register(MODULE_ID, SETTINGS.GATE_ROLES_BACKUP, {
+    type: String,
+    default: '',
+    scope: 'world',
+    config: false,
+  })
+
   g.settings.registerMenu(MODULE_ID, SETTINGS.GM_PANEL_MENU, {
     name: g.i18n.localize('CONNGUARD.Menu.GmPanel.Name'),
     label: g.i18n.localize('CONNGUARD.Menu.GmPanel.Label'),

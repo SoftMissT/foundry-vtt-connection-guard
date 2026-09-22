@@ -44,6 +44,8 @@ O Foundry é cliente-servidor: cada jogador fala com o servidor por WebSocket, e
 
 **Assistente de rota (GM)** um wizard guiado pra escolher e configurar o serviço de conexão da mesa: Radmin VPN, playit.gg, ngrok, Cloudflare Tunnel, LAN, IP direto ou algo customizado. Sem editar `module.json`, sem abrir console.
 
+**World Gate (GM)** um botão no HUD para **abrir/fechar a mesa**. Fechado, jogadores não conseguem entrar (bloqueio nativo por role `NONE` no servidor) e quem já estava conectado recebe um overlay de "conexão fechada" e é redirecionado ao login. Útil pra trancar a mesa antes da sessão ou durante um intervalo.
+
 **Painel de diagnóstico (GM)** tabela com latência, jitter, perda e status por jogador, mais o histórico de quedas com timestamp e duração.
 
 **Journal de testes** captura eventos de runtime (lifecycle, conexão, degradação, rotas, erros) e exporta tudo como uma Journal Entry em Markdown, pra quem quiser auditar se o módulo está fazendo o que devia.
@@ -93,6 +95,15 @@ _Apenas GM_ **Configurar Jogo → Configurações → Connection Guard → Confi
 
 O módulo grava o serviço escolhido como rota ativa e avisa os jogadores com um chip central na tela.
 
+### Abrir/fechar a mesa (World Gate)
+
+_Apenas GM_ O botão do Connection Guard aparece no canto superior direito do HUD:
+
+1. **Fechar conexão**: bloqueia a entrada de novos jogadores (role `NONE`) e expulsa quem está dentro (overlay + redirecionamento ao login).
+2. **Abrir conexão**: restaura as permissões dos jogadores e libera a entrada novamente.
+
+> Nota: o gate é a camada de permissão de entrada — ele **não** desliga túneis/VPN. Mesmo com o gate fechado, o servidor continua no ar; a diferença é que o login de players passa a ser rejeitado. GM e Assistentes nunca são bloqueados.
+
 ### Exportar o journal de testes
 
 **Configurações → Connection Guard → Painel de Diagnóstico (GM) → Exportar Journal**
@@ -138,6 +149,7 @@ connection-guard/
 │   ├── route-profiles.js       # CRUD de perfis de rota + rota ativa
 │   ├── route-scanner.js        # Scanner HTTP de disponibilidade
 │   ├── route-score.js          # Scoring de qualidade de rota
+│   ├── world-gate.js           # World Gate: abrir/fechar a mesa (GM)
 │   └── journal-logger.js       # Captura de eventos → Markdown → Journal Entry
 ├── styles/connection-guard.css # Badges, banner, painel, tema Abyss Link
 ├── lang/

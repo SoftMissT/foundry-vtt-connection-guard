@@ -28,6 +28,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Verify
+        run: npm run verify
+
       - name: Package module
         run: npm run package
 

@@ -9,6 +9,7 @@ export const PLAYERS_RENDER_HOOKS = ['renderPlayers', 'renderPlayerList']
 export const SOCKET_MESSAGES = {
   LATENCY_SAMPLE: 'latency-sample',
   ROUTE_SCAN_RESULT: 'route-scan-result',
+  GATE_CHANGED: 'gate-changed',
 }
 
 export const SETTINGS = {
@@ -30,6 +31,8 @@ export const SETTINGS = {
   ROUTE_SCAN_TIMEOUT: 'routeScanTimeout',
   REDUNDANCY_CONFIG: 'redundancyConfig',
   FAILOVER_TIMEOUT: 'failoverTimeout',
+  GATE_LOCKED: 'gateLocked',
+  GATE_ROLES_BACKUP: 'gateRolesBackup',
 }
 
 export const ROUTE_TYPES = {
@@ -113,4 +116,5 @@ export const DEFAULTS = {
   ROUTE_SCAN_TIMEOUT_MS: 2500,
   ROUTE_SCAN_ATTEMPTS: 3,
   FAILOVER_TIMEOUT_SECONDS: 30,
+  GATE_REDIRECT_DELAY_MS: 8000,
 }

@@ -233,6 +233,17 @@
       "Reconnecting": "Reconectando…",
       "Switching": "Alternando para Radmin…"
     },
+    "Gate": {
+      "OpenButton": "Abrir conexão",
+      "CloseButton": "Fechar conexão",
+      "OpenHint": "Mesa aberta: jogadores podem entrar. Clique para fechar.",
+      "CloseHint": "Mesa fechada: jogadores não podem entrar. Clique para abrir.",
+      "GmOnly": "Somente o Mestre pode abrir ou fechar a conexão da mesa.",
+      "ClosedTitle": "Conexão fechada",
+      "ClosedHint": "O Mestre fechou a conexão com esta mesa. Aguarde a abertura para entrar novamente.",
+      "LockedNotif": "Conexão fechada. Jogadores não podem mais entrar.",
+      "UnlockedNotif": "Conexão aberta. Jogadores podem entrar novamente."
+    },
     "Journal": {
       "Generated": "Gerado",
       "Session": "Sessão",

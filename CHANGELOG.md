@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.3.0
+
+- **World Gate (Abrir/Fechar conexão)**: botão no HUD para o GM abrir ou fechar a mesa para jogadores — a permissão real de entrada que o módulo não tinha.
+- **Bloqueio nativo no servidor:** ao fechar, o GM salva os roles atuais dos players e define `role NONE` (ban nativo do Foundry) em todos os não-GM. O login passa a ser rejeitado no servidor, independente de rota/túnel.
+- **Restauração automática:** ao abrir, os roles salvos são restaurados (sem sobrescrever mudanças manuais feitas durante o bloqueio). GM e Assistentes nunca são tocados.
+- **Self-eject de players:** clientes conectados recebem o estado via setting/socket e mostram overlay full-screen, com redirecionamento ao login após alguns segundos.
+- **Segurança:** o gate não altera rotas, fallback Radmin, firewall ou túneis; não expõe senhas (só roles no backup).
+- **Suíte de verificação `verify-gate.mjs`** e execução de `verify` no CI e no script `release` (lint + verify + package).
+
 ## 3.2.0
 
 - **Radmin emergency fallback** para Cloudflare, ngrok e playit.gg: quando a rota primária cai, após o timeout configurável (30s padrão) o cliente é redirecionado com segurança para o Radmin.
