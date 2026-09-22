@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.3.3
+
+- **Confirmação antes de fechar/abrir a mesa**: o toggle do Scene Control agora abre um `DialogV2` modal (Sim/Não) — cancelar não altera nada e o toggle visual volta ao estado real. Evita fechamento acidental.
+- **Performance**: no `#unlock()` as duas últimas escritas de setting (`GATE_ROLES_BACKUP` + `GATE_LOCKED`) rodam em paralelo via `Promise.all` (menos round-trips sequenciais).
+- **Busy guard**: ignor re-clique enquanto o toggle anterior ainda processa (e força re-sincronização do controle).
+- i18n pt-BR/en: chaves `Gate.ConfirmLock*` / `Gate.ConfirmUnlock*` / `Gate.ConfirmNo`.
+- Suíte `verify-gate.mjs` com 73 verificações (mock de `DialogV2.confirm`: GATE-15 cancel, GATE-16 accept).
+
 ## 3.3.2
 
 - **Corrige botão World Gate que não aparecia**: o hook `getSceneControlButtons` agora é registrado no top-level do `main.js` (antes de `init`/`ready`), com holder da instância `WorldGate`. Antes o hook só entrava no `ready`, depois do primeiro render da paleta — o controle ficava invisível até um re-render manual.

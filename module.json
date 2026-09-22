@@ -2,7 +2,7 @@
   "id": "connection-guard",
   "title": "Connection Guard: Abyss Link",
   "description": "Monitora latência, detecta degradação preditiva, reconecta automaticamente, exporta journal e configura a rota de conexão escolhida pelo GM.",
-  "version": "3.3.2",
+  "version": "3.3.3",
   "compatibility": {
     "minimum": "13",
     "verified": "14.999"
