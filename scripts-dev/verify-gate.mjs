@@ -537,11 +537,96 @@ async function testConfirmAccept() {
   gateTeardown()
 }
 
+/**
+ * Espelha `SceneControls#onChangeTool` do Foundry V13/V14 (foundry.mjs):
+ *   const tool = this.control.tools[event.target.dataset.tool]
+ *   if ( tool === this.tool ) return        // this.tool = tools[control.activeTool]
+ *   if ( tool.button ) { onChange(tool, event, true); return }
+ *   if ( tool.toggle ) { active = !tool.active; tool.active = active }
+ *   tool.onChange(event, active)
+ * Retorna false quando o Foundry engole o clique no `return` antecipado.
+ */
+function foundryToolClick(control, toolName) {
+  const activeToolName = control.activeTool ?? null
+  const thisTool = activeToolName ? control.tools[activeToolName] ?? null : null
+  const tool = control.tools[toolName]
+  if (tool === thisTool) return false
+  if (tool.button) {
+    tool.onChange?.(null, true)
+    return true
+  }
+  const active = tool.toggle ? !tool.active : undefined
+  if (tool.toggle) tool.active = active
+  tool.onChange?.(null, active)
+  return true
+}
+
+const flush = () => new Promise(resolve => setImmediate(resolve))
+
+// GATE-17 regressão: sem `activeTool` o clique alcança o onChange. Com ele, o
+// Foundry retornava cedo (`tool === this.tool`) e o botão não fazia nada.
+async function testSceneControlClick() {
+  const env = gateSetup({
+    isGM: true,
+    locked: false,
+    users: [
+      { id: 'gm', role: 4, isGM: true },
+      { id: 'p1', role: 1, isGM: false },
+    ],
+  })
+  const gate = new WorldGate()
+  gate.start()
+  await flush()
+
+  const controls = {}
+  gate.registerSceneControl(controls)
+  const control = controls[SCENE_CONTROL_NAME]
+
+  check('GATE-17 control sem activeTool', control.activeTool, undefined)
+  check('GATE-17 clique alcança onChange', foundryToolClick(control, GATE_TOOL_NAME), true)
+
+  await flush()
+  await flush()
+  check('GATE-17 clique abre confirmação', env.confirmCalls.length, 1)
+  check('GATE-17 clique fecha a mesa', env.store[SETTINGS.GATE_LOCKED], true)
+  check('GATE-17 p1 banido', env.UserUpdateCalls.some(u => u._id === 'p1' && u.role === 0), true)
+  gateTeardown()
+}
+
+// GATE-18 regressão: `active` defasado não pode impedir o toggle (antes,
+// `active === isLocked` → nada acontecia: o sintoma "só aparece o cadeado").
+async function testStaleActiveParam() {
+  const env = gateSetup({
+    isGM: true,
+    locked: false,
+    users: [
+      { id: 'gm', role: 4, isGM: true },
+      { id: 'p1', role: 1, isGM: false },
+    ],
+  })
+  const gate = new WorldGate()
+  gate.start()
+  await flush()
+
+  const controls = {}
+  gate.registerSceneControl(controls)
+  const tool = controls[SCENE_CONTROL_NAME].tools[GATE_TOOL_NAME]
+
+  tool.onChange(null, false)
+  await flush()
+  await flush()
+  check('GATE-18 active defasado ainda confirma', env.confirmCalls.length, 1)
+  check('GATE-18 active defasado ainda fecha', env.store[SETTINGS.GATE_LOCKED], true)
+  gateTeardown()
+}
+
 await testLock()
 await testUnlock()
 await testManualRole()
 await testConfirmCancel()
 await testConfirmAccept()
+await testSceneControlClick()
+await testStaleActiveParam()
 
 console.log(report.join('\n'))
 console.log(`\nResultado: ${checks} verificações, ${failures} falha(s)`)

@@ -127,6 +127,8 @@ export class WorldGate {
   #redirectIssued = false
   #started = false
   #busy = false
+  #syncing = 0
+  #tool = null
 
   constructor(journal = null) {
     this.#journal = journal
@@ -193,42 +195,66 @@ export class WorldGate {
     if (!this.#started) return
     if (game.user?.isGM !== true) return
 
+    // NÃO definir `activeTool`: em V13/V14 o `SceneControls#onChangeTool` faz
+    // `if (tool === this.tool) return` e `this.tool` é justamente o tool
+    // apontado por `activeTool`. Com o toggle como activeTool, todo clique
+    // morria nesse return — o botão existia mas nunca disparava `onChange`.
+    const tool = {
+      name: GATE_TOOL_NAME,
+      order: 0,
+      title: game.i18n.localize('CONNGUARD.Gate.ToolTitle'),
+      icon: this.#toolIcon(),
+      toggle: true,
+      active: this.isLocked,
+      onChange: () => this.#onToolChange(),
+    }
+    this.#tool = tool
+
     controls[SCENE_CONTROL_NAME] = {
       name: SCENE_CONTROL_NAME,
       order: SCENE_CONTROL_ORDER,
       title: game.i18n.localize('CONNGUARD.Gate.SceneControlTitle'),
       icon: 'fa-solid fa-shield-halved',
       visible: true,
-      tools: {
-        [GATE_TOOL_NAME]: {
-          name: GATE_TOOL_NAME,
-          order: 0,
-          title: game.i18n.localize('CONNGUARD.Gate.ToolTitle'),
-          icon: this.isLocked ? 'fa-solid fa-lock' : 'fa-solid fa-lock-open',
-          toggle: true,
-          active: this.isLocked,
-          onChange: (_event, active) => this.#onToolChange(active),
-        },
-      },
-      activeTool: GATE_TOOL_NAME,
+      tools: { [GATE_TOOL_NAME]: tool },
     }
   }
 
+  /** Ícone do toggle conforme o estado real do gate. */
+  #toolIcon() {
+    return this.isLocked ? 'fa-solid fa-lock' : 'fa-solid fa-lock-open'
+  }
+
   /**
-   * Chamado pelo toggle do Scene Control (API v13: onChange(event, active),
-   * confirmado pela doc oficial foundryvtt.com/api/v13 e pelo type package).
-   * Se o estado visual não bate com o gate real, aplica o toggle — evita
-   * loop quando a mudança veio de outro cliente.
+   * Chamado pelo toggle do Scene Control (API v13/v14: `onChange(event, active)`).
+   * O `active` recebido é ignorado de propósito: o Foundry inverte o estado
+   * visual antes de chamar e esse valor pode estar defasado (ex.: a mudança
+   * veio de outro cliente). O estado real é sempre relido de `isLocked`.
+   * O guard `#syncing` evita que uma sincronização programática reabra o diálogo.
    */
-  #onToolChange(active) {
-    if (active !== this.isLocked) this.toggle()
+  async #onToolChange() {
+    if (this.#syncing > 0) return
+    await this.toggle()
   }
 
   /** Sincroniza o toggle do Scene Control com o estado real do gate. */
   #syncSceneControl() {
+    const tool = this.#tool
+    if (tool) {
+      tool.active = this.isLocked
+      tool.icon = this.#toolIcon()
+    }
+
+    this.#syncing += 1
     try {
-      ui.controls?.activate({ toggles: { [GATE_TOOL_NAME]: this.isLocked } })
+      const pending = ui.controls?.activate({ toggles: { [GATE_TOOL_NAME]: this.isLocked } })
+      // `activate` é async: o `onChange` disparado por ele roda durante o await,
+      // então o contador só volta a zero depois — mantendo o guard ativo.
+      Promise.resolve(pending).finally(() => {
+        this.#syncing -= 1
+      })
     } catch (err) {
+      this.#syncing -= 1
       console.warn(`${MODULE_ID} | falha ao sincronizar scene control`, err)
     }
   }
