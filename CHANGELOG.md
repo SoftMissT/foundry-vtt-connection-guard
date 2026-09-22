@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.3.2
+
+- **Corrige botão World Gate que não aparecia**: o hook `getSceneControlButtons` agora é registrado no top-level do `main.js` (antes de `init`/`ready`), com holder da instância `WorldGate`. Antes o hook só entrava no `ready`, depois do primeiro render da paleta — o controle ficava invisível até um re-render manual.
+- `ui.controls.render(true)` após `WorldGate.start()` garante a paleta atualizada no boot.
+- Método público `registerSceneControl(controls)` no `WorldGate`; suíte `verify-gate.mjs` com 64 verificações (inclui GATE-07d: sem `start()` não regista).
+
 ## 3.3.1
 
 - **World Gate movido para Scene Controls nativos**: o botão do GM saiu do DOM fixo (cantos inacessíveis/sobrepostos) e agora é um controle nativo do Foundry na paleta lateral (hook `getSceneControlButtons`, API v13/ApplicationV2, compatível 13.350 → 14.999).
