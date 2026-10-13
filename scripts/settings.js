@@ -161,7 +161,7 @@ export function registerSettings() {
   })
 
   // World Gate: quem pode entrar na mesa. Controlado pelo botão no HUD do GM
-  // (scripts/world-gate.js), nunca pela UI de settings — por isso config:false.
+  // (scripts/world-gate.js), nunca pela UI de settings por isso config:false.
   g.settings.register(MODULE_ID, SETTINGS.GATE_LOCKED, {
     type: Boolean,
     default: false,

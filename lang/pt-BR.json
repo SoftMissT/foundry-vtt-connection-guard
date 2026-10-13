@@ -111,7 +111,7 @@
       "Invalid": "Confira o serviço, endereço e porta informados.",
       "Saved": "Serviço ativo: {service}",
       "RedundancyTitle": "Plano B (Radmin)",
-      "RedundancyHint": "Se a conexão principal cair, os jogadores podem ser levados para este endereço do Radmin. Opcional — deixe desligado se você não usa Radmin.",
+      "RedundancyHint": "Se a conexão principal cair, os jogadores podem ser levados para este endereço do Radmin. Opcional deixe desligado se você não usa Radmin.",
       "RedundancyEnable": "Ativar plano B",
       "RadminHost": "IP do Radmin do plano B",
       "RadminPort": "Porta do Foundry no Radmin",
@@ -128,8 +128,8 @@
       "MarkVerified": "Marcar como verificado",
       "CopiedFirewallCommand": "Comando de firewall copiado.",
       "CopyFailed": "Não foi possível copiar o comando de firewall.",
-      "RadminNotVerified": "Radmin Fallback — Não Verificado",
-      "RadminVerified": "Radmin Fallback — Verificado",
+      "RadminNotVerified": "Radmin Fallback Não Verificado",
+      "RadminVerified": "Radmin Fallback Verificado",
       "VerifiedNotif": "Radmin fallback marcado como verificado.",
       "Requirements": {
         "radmin": "Todos devem estar no mesmo grupo Radmin e liberar a porta do Foundry no firewall.",
@@ -288,7 +288,7 @@
       "ConfirmUnlockContent": "As permissões salvas serão restauradas e os jogadores poderão entrar novamente.",
       "ConfirmUnlockYes": "Abrir conexão",
       "ConfirmNo": "Cancelar",
-      "ToggleFailed": "A operação não terminou. O cadeado mostra o estado real — tente de novo."
+      "ToggleFailed": "A operação não terminou. O cadeado mostra o estado real tente de novo."
     },
     "Journal": {
       "Generated": "Gerado",

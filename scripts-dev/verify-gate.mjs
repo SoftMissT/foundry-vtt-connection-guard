@@ -1,4 +1,4 @@
-// Verificação do World Gate — roda fora do Foundry.
+// Verificação do World Gate roda fora do Foundry.
 // Funções puras são testadas diretamente; o WorldGate é instanciado com
 // `game`/`document`/`Hooks` mockados (fake timers para o redirect).
 import {
@@ -52,7 +52,11 @@ check('GATE-02 player + open → false', shouldEjectSelf(false, false), false)
   ]
   const backup = collectRoleBackup(users)
   check('GATE-03 tamanho', backup.length, 3)
-  check('GATE-03 gm fora', backup.some(u => u.id === 'gm'), false)
+  check(
+    'GATE-03 gm fora',
+    backup.some(u => u.id === 'gm'),
+    false,
+  )
   check('GATE-03 p1 role', backup.find(u => u.id === 'p1')?.role, 1)
   check('GATE-03 p3 role 0 preservado', backup.find(u => u.id === 'p3')?.role, 0)
   check('GATE-03 usuário sem id ignorado', collectRoleBackup([{ role: 1 }]).length, 0)
@@ -64,21 +68,9 @@ check('GATE-04 JSON válido', parseRolesBackup('[{"id":"p1","role":1}]').length,
 check('GATE-04 JSON inválido', parseRolesBackup('{nope').length, 0)
 check('GATE-04 vazio', parseRolesBackup('').length, 0)
 check('GATE-04 null', parseRolesBackup(null).length, 0)
-check(
-  'GATE-04 não-array ignorado',
-  parseRolesBackup('{"id":"p1"}').length,
-  0,
-)
-check(
-  'GATE-04 entrada sem id descartada',
-  parseRolesBackup('[{"role":1}]').length,
-  0,
-)
-check(
-  'GATE-04 role inválida descartada',
-  parseRolesBackup('[{"id":"p1","role":"x"}]').length,
-  0,
-)
+check('GATE-04 não-array ignorado', parseRolesBackup('{"id":"p1"}').length, 0)
+check('GATE-04 entrada sem id descartada', parseRolesBackup('[{"role":1}]').length, 0)
+check('GATE-04 role inválida descartada', parseRolesBackup('[{"id":"p1","role":"x"}]').length, 0)
 check(
   'GATE-04 role numérica string aceita',
   parseRolesBackup('[{"id":"p1","role":"2"}]')[0]?.role,
@@ -102,8 +94,16 @@ check(
   check('GATE-05 restaura só quem está em NONE', updates.length, 2)
   check('GATE-05 p1→1', updates.find(u => u._id === 'p1')?.role, 1)
   check('GATE-05 p3→2', updates.find(u => u._id === 'p3')?.role, 2)
-  check('GATE-05 p2 não-banido intocado', updates.some(u => u._id === 'p2'), false)
-  check('GATE-05 gm nunca restaurado', updates.some(u => u._id === 'gm'), false)
+  check(
+    'GATE-05 p2 não-banido intocado',
+    updates.some(u => u._id === 'p2'),
+    false,
+  )
+  check(
+    'GATE-05 gm nunca restaurado',
+    updates.some(u => u._id === 'gm'),
+    false,
+  )
   check('GATE-05 sem backup → vazio', resolveRestoreUpdates(users, []).length, 0)
   check('GATE-05 backup sem entrada → vazio', resolveRestoreUpdates(users, null).length, 0)
 }
@@ -170,7 +170,6 @@ function gateTeardown() {
 
 function gateSetup({
   isGM = true,
-  locked = false,
   users = [],
   settings = {},
   locationOrigin = 'http://localhost:30000',
@@ -323,8 +322,16 @@ function gateSetup({
   check('GATE-07 control registrado', Boolean(controls[SCENE_CONTROL_NAME]), true)
   check('GATE-07 tool existe', Boolean(controls[SCENE_CONTROL_NAME].tools[GATE_TOOL_NAME]), true)
   check('GATE-07 tool toggle true', controls[SCENE_CONTROL_NAME].tools[GATE_TOOL_NAME].toggle, true)
-  check('GATE-07 tool active = aberto', controls[SCENE_CONTROL_NAME].tools[GATE_TOOL_NAME].active, false)
-  check('GATE-07 sem overlay', env.appended.some(el => el.className === 'connguard-gate-overlay'), false)
+  check(
+    'GATE-07 tool active = aberto',
+    controls[SCENE_CONTROL_NAME].tools[GATE_TOOL_NAME].active,
+    false,
+  )
+  check(
+    'GATE-07 sem overlay',
+    env.appended.some(el => el.className === 'connguard-gate-overlay'),
+    false,
+  )
   check('GATE-07 timers 0', env.fakeTimers.active().length, 0)
   check('GATE-07 state OPEN', gate.state, GATE_STATES.OPEN)
   gateTeardown()
@@ -339,14 +346,22 @@ function gateSetup({
   const controls = {}
   gate.registerSceneControl(controls)
 
-  check('GATE-07b tool active = fechado', controls[SCENE_CONTROL_NAME].tools[GATE_TOOL_NAME].active, true)
-  check('GATE-07b GM sem overlay', env.appended.some(el => el.className === 'connguard-gate-overlay'), false)
+  check(
+    'GATE-07b tool active = fechado',
+    controls[SCENE_CONTROL_NAME].tools[GATE_TOOL_NAME].active,
+    true,
+  )
+  check(
+    'GATE-07b GM sem overlay',
+    env.appended.some(el => el.className === 'connguard-gate-overlay'),
+    false,
+  )
   gateTeardown()
 }
 
 // GATE-07c Player não regista Scene Control
 {
-  const env = gateSetup({ isGM: false, locked: false })
+  gateSetup({ isGM: false, locked: false })
   const gate = new WorldGate()
   gate.start()
 
@@ -359,7 +374,7 @@ function gateSetup({
 
 // GATE-07d gate não started → não regista control (hook top-level espera start)
 {
-  const env = gateSetup({ isGM: true, locked: false })
+  gateSetup({ isGM: true, locked: false })
   const gate = new WorldGate()
 
   const controls = {}
@@ -378,7 +393,11 @@ function gateSetup({
   })
   const gate = new WorldGate()
   gate.start()
-  check('GATE-08 overlay criado', env.appended.some(el => el.className === 'connguard-gate-overlay'), true)
+  check(
+    'GATE-08 overlay criado',
+    env.appended.some(el => el.className === 'connguard-gate-overlay'),
+    true,
+  )
   check('GATE-08 timer de redirect', env.fakeTimers.active().length, 1)
   check('GATE-08 state CLOSED', gate.state, GATE_STATES.CLOSED)
   gateTeardown()
@@ -389,7 +408,11 @@ function gateSetup({
   const env = gateSetup({ isGM: false, locked: false })
   const gate = new WorldGate()
   gate.start()
-  check('GATE-09 sem overlay', env.appended.some(el => el.className === 'connguard-gate-overlay'), false)
+  check(
+    'GATE-09 sem overlay',
+    env.appended.some(el => el.className === 'connguard-gate-overlay'),
+    false,
+  )
   check('GATE-09 timers 0', env.fakeTimers.active().length, 0)
   gateTeardown()
 }
@@ -425,11 +448,27 @@ async function testLock() {
 
   const backup = JSON.parse(env.store[SETTINGS.GATE_ROLES_BACKUP] || '[]')
   check('GATE-11 backup 2 players', backup.length, 2)
-  check('GATE-11 gm fora do backup', backup.some(u => u.id === 'gm'), false)
-  check('GATE-11 p1 banido', env.UserUpdateCalls.some(u => u._id === 'p1' && u.role === 0), true)
-  check('GATE-11 p2 banido', env.UserUpdateCalls.some(u => u._id === 'p2' && u.role === 0), true)
+  check(
+    'GATE-11 gm fora do backup',
+    backup.some(u => u.id === 'gm'),
+    false,
+  )
+  check(
+    'GATE-11 p1 banido',
+    env.UserUpdateCalls.some(u => u._id === 'p1' && u.role === 0),
+    true,
+  )
+  check(
+    'GATE-11 p2 banido',
+    env.UserUpdateCalls.some(u => u._id === 'p2' && u.role === 0),
+    true,
+  )
   check('GATE-11 GATE_LOCKED true', env.store[SETTINGS.GATE_LOCKED], true)
-  check('GATE-11 socket emit locked', emits.some(e => e.type === SOCKET_MESSAGES.GATE_CHANGED && e.locked === true), true)
+  check(
+    'GATE-11 socket emit locked',
+    emits.some(e => e.type === SOCKET_MESSAGES.GATE_CHANGED && e.locked === true),
+    true,
+  )
   gateTeardown()
 }
 
@@ -457,11 +496,23 @@ async function testUnlock() {
   gate.start()
   await gate.toggle()
 
-  check('GATE-12 p1 restaurado 1', env.UserUpdateCalls.some(u => u._id === 'p1' && u.role === 1), true)
-  check('GATE-12 p2 restaurado 2', env.UserUpdateCalls.some(u => u._id === 'p2' && u.role === 2), true)
+  check(
+    'GATE-12 p1 restaurado 1',
+    env.UserUpdateCalls.some(u => u._id === 'p1' && u.role === 1),
+    true,
+  )
+  check(
+    'GATE-12 p2 restaurado 2',
+    env.UserUpdateCalls.some(u => u._id === 'p2' && u.role === 2),
+    true,
+  )
   check('GATE-12 backup limpo', env.store[SETTINGS.GATE_ROLES_BACKUP], '')
   check('GATE-12 GATE_LOCKED false', env.store[SETTINGS.GATE_LOCKED], false)
-  check('GATE-12 socket emit open', emits.some(e => e.type === SOCKET_MESSAGES.GATE_CHANGED && e.locked === false), true)
+  check(
+    'GATE-12 socket emit open',
+    emits.some(e => e.type === SOCKET_MESSAGES.GATE_CHANGED && e.locked === false),
+    true,
+  )
   gateTeardown()
 }
 
@@ -487,14 +538,22 @@ async function testManualRole() {
   gate.start()
   await gate.toggle()
 
-  check('GATE-13 p1 (role 1) não tocado', env.UserUpdateCalls.some(u => u._id === 'p1'), false)
-  check('GATE-13 p2 (role 0) restaurado', env.UserUpdateCalls.some(u => u._id === 'p2' && u.role === 2), true)
+  check(
+    'GATE-13 p1 (role 1) não tocado',
+    env.UserUpdateCalls.some(u => u._id === 'p1'),
+    false,
+  )
+  check(
+    'GATE-13 p2 (role 0) restaurado',
+    env.UserUpdateCalls.some(u => u._id === 'p2' && u.role === 2),
+    true,
+  )
   gateTeardown()
 }
 
 // GATE-14 stop() limpa recursos (sem erro em stop duplo)
 {
-  const env = gateSetup({ isGM: true, locked: false })
+  gateSetup({ isGM: true, locked: false })
   const gate = new WorldGate()
   gate.start()
   gate.stop()
@@ -547,8 +606,16 @@ async function testConfirmAccept() {
 
   check('GATE-16 confirm chamado', env.confirmCalls.length, 1)
   check('GATE-16 GATE_LOCKED true', env.store[SETTINGS.GATE_LOCKED], true)
-  check('GATE-16 p1 banido', env.UserUpdateCalls.some(u => u._id === 'p1' && u.role === 0), true)
-  check('GATE-16 socket emit locked', emits.some(e => e.locked === true), true)
+  check(
+    'GATE-16 p1 banido',
+    env.UserUpdateCalls.some(u => u._id === 'p1' && u.role === 0),
+    true,
+  )
+  check(
+    'GATE-16 socket emit locked',
+    emits.some(e => e.locked === true),
+    true,
+  )
   gateTeardown()
 }
 
@@ -563,7 +630,7 @@ async function testConfirmAccept() {
  */
 function foundryToolClick(control, toolName) {
   const activeToolName = control.activeTool ?? null
-  const thisTool = activeToolName ? control.tools[activeToolName] ?? null : null
+  const thisTool = activeToolName ? (control.tools[activeToolName] ?? null) : null
   const tool = control.tools[toolName]
   if (tool === thisTool) return false
   if (tool.button) {
@@ -604,7 +671,11 @@ async function testSceneControlClick() {
   await flush()
   check('GATE-17 clique abre confirmação', env.confirmCalls.length, 1)
   check('GATE-17 clique fecha a mesa', env.store[SETTINGS.GATE_LOCKED], true)
-  check('GATE-17 p1 banido', env.UserUpdateCalls.some(u => u._id === 'p1' && u.role === 0), true)
+  check(
+    'GATE-17 p1 banido',
+    env.UserUpdateCalls.some(u => u._id === 'p1' && u.role === 0),
+    true,
+  )
   gateTeardown()
 }
 
@@ -716,7 +787,11 @@ async function testPartialRetryMerges() {
     env.UserUpdateCalls.some(u => u._id === 'p2' && u.role === 0),
     true,
   )
-  check('GATE-21 p1 não re-banido', env.UserUpdateCalls.some(u => u._id === 'p1'), false)
+  check(
+    'GATE-21 p1 não re-banido',
+    env.UserUpdateCalls.some(u => u._id === 'p1'),
+    false,
+  )
   check('GATE-21 GATE_LOCKED true', env.store[SETTINGS.GATE_LOCKED], true)
   gateTeardown()
 }

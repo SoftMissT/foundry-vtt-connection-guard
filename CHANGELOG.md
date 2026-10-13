@@ -1,22 +1,30 @@
 # Changelog
 
+## 3.5.1
+
+- **`SECURITY.md`**: política de segurança (versões suportadas, canal privado de reporte e escopo do módulo: sem credenciais, sem privilégios, socket validado, apenas as rotas configuradas são sondadas). README ganhou a seção "Segurança".
+- **README**: `npm run release` documentado corretamente (`lint + verify + package`) e passo do assistente atualizado para o fluxo novo ("Como seus amigos entram na sua mesa?").
+- **Lint de dev**: `npm run lint` agora cobre `scripts-dev/` com os globals de Node — os problemas do editor (`URL`, `setImmediate`, variáveis não usadas) foram corrigidos.
+- **Harness**: labels sem `for` redundante; `.htmlvalidate.json` alinhado ao estilo do Prettier (doctype minúsculo e void self-closing).
+- Passe de formatação/prosa em todo o repo (Prettier + travessões removidos da prosa).
+
 ## 3.5.0
 
-- **Painel do GM estado-primeiro**: o painel abre com um veredito grande — **Tudo certo / Atenção / Problema** — com uma ação recomendada por estado ("peça para recarregar a página", "escaneie as rotas") e as tabelas/histórico atrás de "Ver detalhes técnicos". Novo `scripts/panel-verdict.js` (função pura) + suíte `verify-panel.mjs` (20 verificações).
+- **Painel do GM estado-primeiro**: o painel abre com um veredito grande **Tudo certo / Atenção / Problema** com uma ação recomendada por estado ("peça para recarregar a página", "escaneie as rotas") e as tabelas/histórico atrás de "Ver detalhes técnicos". Novo `scripts/panel-verdict.js` (função pura) + suíte `verify-panel.mjs` (20 verificações).
 - **Assistente em linguagem de gente**: a primeira pergunta virou "Como seus amigos entram na sua mesa?" com opções do mundo real ("Instalam o Radmin VPN e entram no meu grupo", "Abrem um link tipo xxxx.playit.gg", "Estão na mesma casa ou rede que eu") e uma ajuda para quem não sabe; os rótulos do formulário foram reescritos ("Endereço que você manda para os amigos", "Plano B (Radmin)").
-- **Verificação visual**: harness `scripts-dev/panel-harness.html` renderizado no Chromium (1000px e 420px) — contraste no tema Abyss entre 6,33:1 e 15,05:1, zero overflow; o harness troca os ícones FontAwesome por glifos e não usa as fontes do Foundry (declarado).
+- **Verificação visual**: harness `scripts-dev/panel-harness.html` renderizado no Chromium (1000px e 420px) contraste no tema Abyss entre 6,33:1 e 15,05:1, zero overflow; o harness troca os ícones FontAwesome por glifos e não usa as fontes do Foundry (declarado).
 - i18n pt-BR/en: +18 chaves (paridade 247/247).
 
 ## 3.4.0
 
-- **Modo simples**: os 7 settings técnicos (intervalo de medição, limiar e ciclos de degradação, histórico de quedas, timeout do scanner, timeout do failover, espera de reconexão) saem da tela nativa de configurações e passam a viver no novo menu GM **"Avançado (rede)"** (`scripts/advanced-settings.js`) — com linguagem simples, escrita sanitizada (limites, passo, padrão) e gravação só do que mudou.
+- **Modo simples**: os 7 settings técnicos (intervalo de medição, limiar e ciclos de degradação, histórico de quedas, timeout do scanner, timeout do failover, espera de reconexão) saem da tela nativa de configurações e passam a viver no novo menu GM **"Avançado (rede)"** (`scripts/advanced-settings.js`) com linguagem simples, escrita sanitizada (limites, passo, padrão) e gravação só do que mudou.
 - **Cadeado com resposta imediata**: o ícone vira logo após a confirmação e é revertido com aviso se a escrita falhar (antes, falha era silenciosa). `#syncSceneControl` ignora clientes sem o controle (players) e aceita estado-alvo explícito.
-- **Robustez do lock**: um novo fechamento após falha parcial preserva o backup de roles original e funde quem ficou fora dele (ex.: usuário criado após a falha entra com a role atual) — antes, o backup seria sobrescrito com roles NONE e os jogadores nunca seriam restaurados.
+- **Robustez do lock**: um novo fechamento após falha parcial preserva o backup de roles original e funde quem ficou fora dele (ex.: usuário criado após a falha entra com a role atual) antes, o backup seria sobrescrito com roles NONE e os jogadores nunca seriam restaurados.
 - Suíte nova `verify-advanced.mjs` (107 verificações) e casos GATE-19/20/21 no `verify-gate.mjs` (93 no total); `npm run verify` cobre as três suítes.
 
 ## 3.3.4
 
-- **Corrige o botão World Gate que não fazia nada**: o controle registrava `activeTool: world-gate`, e em V13/V14 o `SceneControls#onChangeTool` faz `if (tool === this.tool) return` — como `this.tool` é justamente o tool apontado por `activeTool`, todo clique no cadeado morria nesse `return` antes de disparar `onChange`. Removido o `activeTool` (o botão existe, era clicável, mas nunca chamava o handler).
+- **Corrige o botão World Gate que não fazia nada**: o controle registrava `activeTool: world-gate`, e em V13/V14 o `SceneControls#onChangeTool` faz `if (tool === this.tool) return` como `this.tool` é justamente o tool apontado por `activeTool`, todo clique no cadeado morria nesse `return` antes de disparar `onChange`. Removido o `activeTool` (o botão existe, era clicável, mas nunca chamava o handler).
 - `#onToolChange()` passa a ignorar o `active` recebido (valor visual pode estar defasado, ex.: mudança vinda de outro cliente) e recalcula o estado real por `isLocked`.
 - Guard de reentrância `#syncing`: a sincronização programática do toggle não reabre o diálogo de confirmação.
 - Ícone (`fa-lock`/`fa-lock-open`) e `active` do tool passam a acompanhar o estado real do gate.
@@ -24,7 +32,7 @@
 
 ## 3.3.3
 
-- **Confirmação antes de fechar/abrir a mesa**: o toggle do Scene Control agora abre um `DialogV2` modal (Sim/Não) — cancelar não altera nada e o toggle visual volta ao estado real. Evita fechamento acidental.
+- **Confirmação antes de fechar/abrir a mesa**: o toggle do Scene Control agora abre um `DialogV2` modal (Sim/Não) cancelar não altera nada e o toggle visual volta ao estado real. Evita fechamento acidental.
 - **Performance**: no `#unlock()` as duas últimas escritas de setting (`GATE_ROLES_BACKUP` + `GATE_LOCKED`) rodam em paralelo via `Promise.all` (menos round-trips sequenciais).
 - **Busy guard**: ignor re-clique enquanto o toggle anterior ainda processa (e força re-sincronização do controle).
 - i18n pt-BR/en: chaves `Gate.ConfirmLock*` / `Gate.ConfirmUnlock*` / `Gate.ConfirmNo`.
@@ -32,7 +40,7 @@
 
 ## 3.3.2
 
-- **Corrige botão World Gate que não aparecia**: o hook `getSceneControlButtons` agora é registrado no top-level do `main.js` (antes de `init`/`ready`), com holder da instância `WorldGate`. Antes o hook só entrava no `ready`, depois do primeiro render da paleta — o controle ficava invisível até um re-render manual.
+- **Corrige botão World Gate que não aparecia**: o hook `getSceneControlButtons` agora é registrado no top-level do `main.js` (antes de `init`/`ready`), com holder da instância `WorldGate`. Antes o hook só entrava no `ready`, depois do primeiro render da paleta o controle ficava invisível até um re-render manual.
 - `ui.controls.render(true)` após `WorldGate.start()` garante a paleta atualizada no boot.
 - Método público `registerSceneControl(controls)` no `WorldGate`; suíte `verify-gate.mjs` com 64 verificações (inclui GATE-07d: sem `start()` não regista).
 
@@ -44,7 +52,7 @@
 
 ## 3.3.0
 
-- **World Gate (Abrir/Fechar conexão)**: botão nos **Scene Controls** do Foundry (paleta lateral padrão, API v13 — ApplicationV2) para o GM abrir ou fechar a mesa para jogadores — a permissão real de entrada que o módulo não tinha.
+- **World Gate (Abrir/Fechar conexão)**: botão nos **Scene Controls** do Foundry (paleta lateral padrão, API v13 ApplicationV2) para o GM abrir ou fechar a mesa para jogadores a permissão real de entrada que o módulo não tinha.
 - **Bloqueio nativo no servidor:** ao fechar, o GM salva os roles atuais dos players e define `role NONE` (ban nativo do Foundry) em todos os não-GM. O login passa a ser rejeitado no servidor, independente de rota/túnel.
 - **Restauração automática:** ao abrir, os roles salvos são restaurados (sem sobrescrever mudanças manuais feitas durante o bloqueio). GM e Assistentes nunca são tocados.
 - **Self-eject de players:** clientes conectados recebem o estado via setting/socket e mostram overlay full-screen, com redirecionamento ao login após alguns segundos.

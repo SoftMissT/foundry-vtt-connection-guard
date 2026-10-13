@@ -111,7 +111,7 @@
       "Invalid": "Check the selected service, address, and port.",
       "Saved": "Active service: {service}",
       "RedundancyTitle": "Plan B (Radmin)",
-      "RedundancyHint": "If the main connection drops, players can be sent to this Radmin address. Optional — leave it off if you do not use Radmin.",
+      "RedundancyHint": "If the main connection drops, players can be sent to this Radmin address. Optional leave it off if you do not use Radmin.",
       "RedundancyEnable": "Enable Plan B",
       "RadminHost": "Plan B Radmin IP",
       "RadminPort": "Foundry port on Radmin",
@@ -128,8 +128,8 @@
       "MarkVerified": "Mark as Verified",
       "CopiedFirewallCommand": "Firewall command copied.",
       "CopyFailed": "Could not copy the firewall command.",
-      "RadminNotVerified": "Radmin Fallback — Not Verified",
-      "RadminVerified": "Radmin Fallback — Verified",
+      "RadminNotVerified": "Radmin Fallback Not Verified",
+      "RadminVerified": "Radmin Fallback Verified",
       "VerifiedNotif": "Radmin fallback marked as verified.",
       "Requirements": {
         "radmin": "Everyone must join the same Radmin network and allow the Foundry port through the firewall.",
@@ -266,7 +266,7 @@
         "Custom": "Custom route: check that the endpoint is up and reachable from your network."
       }
     },
-"Chip": {
+    "Chip": {
       "RadminFallback": "Radmin (Fallback)",
       "FallbackActive": "Fallback active",
       "DifferentRoute": "Different Route",
@@ -288,7 +288,7 @@
       "ConfirmUnlockContent": "Saved permissions will be restored and players may enter again.",
       "ConfirmUnlockYes": "Open connection",
       "ConfirmNo": "Cancel",
-      "ToggleFailed": "The operation did not finish. The padlock shows the real state — try again."
+      "ToggleFailed": "The operation did not finish. The padlock shows the real state try again."
     },
     "Journal": {
       "Generated": "Generated",

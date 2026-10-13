@@ -89,9 +89,8 @@ O badge aparece automaticamente ao lado do nome de cada usuário na lista de jog
 
 _Apenas GM_ **Configurar Jogo → Configurações → Connection Guard → Configurar Serviço**
 
-1. Escolha o serviço: Radmin VPN Free, playit.gg, ngrok, Cloudflare Tunnel, LAN, IP direto ou customizado.
-2. Preencha os dados pedidos.
-3. Salvar e ativar rota.
+1. Responda **Como seus amigos entram na sua mesa?** (Radmin VPN, um link de túnel tipo playit/ngrok/Cloudflare, mesma rede local...) e preencha o endereço pedido.
+2. Salvar e ativar rota.
 
 O módulo grava o serviço escolhido como rota ativa e avisa os jogadores com um chip central na tela.
 
@@ -118,13 +117,13 @@ Tudo em **Configurar Jogo → Configurações → Connection Guard**.
 
 O essencial fica na tela nativa:
 
-| Setting                        | Escopo  | Padrão  | O que faz                                      |
-| :----------------------------- | :-----: | :-----: | :--------------------------------------------- |
-| Ocultar latência               | Cliente |  `off`  | Esconde o badge na lista de jogadores          |
-| Modo compacto                  | Cliente |  `off`  | `+`/`-`/`!` no lugar do valor em ms            |
-| Tooltip de diagnóstico         | Cliente |  `on`   | Jitter e perda no hover do badge               |
-| Reconexão automática agressiva | Cliente |  `on`   | Backoff mais curto + reconexão forçada         |
-| Tema Abyss Link                |  Mundo  |  `on`   | Camada visual escura/neon da mesa              |
+| Setting                        | Escopo  | Padrão | O que faz                              |
+| :----------------------------- | :-----: | :----: | :------------------------------------- |
+| Ocultar latência               | Cliente | `off`  | Esconde o badge na lista de jogadores  |
+| Modo compacto                  | Cliente | `off`  | `+`/`-`/`!` no lugar do valor em ms    |
+| Tooltip de diagnóstico         | Cliente |  `on`  | Jitter e perda no hover do badge       |
+| Reconexão automática agressiva | Cliente |  `on`  | Backoff mais curto + reconexão forçada |
+| Tema Abyss Link                |  Mundo  |  `on`  | Camada visual escura/neon da mesa      |
 
 As opções técnicas (intervalo de medição, limiar de degradação, ciclos de alerta, histórico de quedas, timeout do scanner de rotas, timeout do fallback e espera máxima de reconexão) vivem no menu **Avançado (rede)** — GM-only, com valores padrão seguros; quem não entende de rede não precisa tocar em nada.
 
@@ -246,6 +245,12 @@ Não deveria ele aparece centralizado, some em 15s com uma animação suave, e t
 
 ---
 
+## Segurança
+
+Encontrou uma vulnerabilidade? Não abra issue pública — use o canal privado descrito em [SECURITY.md](SECURITY.md). O módulo não guarda credenciais, não instala nada e não pede privilégio administrativo.
+
+---
+
 ## Contribuindo
 
 1. Fork
@@ -261,7 +266,7 @@ npm run lint        # ESLint
 npm run lint:fix    # ESLint com auto-fix
 npm run format      # Prettier (scripts, lang, docs)
 npm run package     # Monta dist/ e module.zip
-npm run release     # lint + package (usado no CI)
+npm run release     # lint + verify + package (usado no CI)
 ```
 
 ---

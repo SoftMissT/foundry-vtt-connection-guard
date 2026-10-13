@@ -47,7 +47,23 @@ export default [
       globals: {
         console: 'readonly',
         process: 'readonly',
+        URL: 'readonly',
+        setImmediate: 'readonly',
+        clearImmediate: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        structuredClone: 'readonly',
+        queueMicrotask: 'readonly',
+        performance: 'readonly',
+        fetch: 'readonly',
+        AbortController: 'readonly',
+        globalThis: 'readonly',
       },
+    },
+    rules: {
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
 ]

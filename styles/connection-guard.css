@@ -398,7 +398,7 @@ body.connection-guard-abyss-theme .application .connguard-panel {
   box-shadow: 0 0 10px rgba(225, 28, 75, 0.35);
 }
 
-/* Chip fixo de rota ativa  HUD de todos os clientes — centralizado na tela */
+/* Chip fixo de rota ativa  HUD de todos os clientes centralizado na tela */
 .connguard-active-route-chip {
   position: fixed;
   top: 50%;
@@ -716,7 +716,7 @@ body.connection-guard-abyss-theme [data-module-id='connection-guard'] .form-grou
   font-size: 12px;
 }
 
-/* World Gate — overlay do player (o botão do GM é um Scene Control nativo) */
+/* World Gate overlay do player (o botão do GM é um Scene Control nativo) */
 .connguard-gate-overlay {
   position: fixed;
   inset: 0;

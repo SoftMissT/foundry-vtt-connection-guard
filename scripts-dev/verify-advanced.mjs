@@ -1,4 +1,4 @@
-// Verificação do painel Avançado — roda fora do Foundry.
+// Verificação do painel Avançado roda fora do Foundry.
 // Metadados e sanitização são testados direto; o fluxo de gravação usa
 // game/foundry/ui mockados (mesmo padrão do verify-gate.mjs).
 import {
@@ -94,7 +94,11 @@ const html = buildAdvancedFormHtml(
 
 for (const def of ADVANCED_SETTINGS) {
   check(`ADV-03 campo ${def.key} presente`, html.includes(`name="${def.key}"`), true)
-  check(`ADV-03 campo ${def.key} numérico`, html.includes(`id="connection-guard-adv-${def.key}"`), true)
+  check(
+    `ADV-03 campo ${def.key} numérico`,
+    html.includes(`id="connection-guard-adv-${def.key}"`),
+    true,
+  )
   check(`ADV-03 campo ${def.key} min`, html.includes(`min="${def.min}"`), true)
   check(`ADV-03 campo ${def.key} max`, html.includes(`max="${def.max}"`), true)
   check(`ADV-03 campo ${def.key} value padrão`, html.includes(`value="${def.default}"`), true)

@@ -8,7 +8,7 @@ import {
 } from './constants.js'
 
 /**
- * World Gate — abre/fecha a mesa para jogadores (GM).
+ * World Gate abre/fecha a mesa para jogadores (GM).
  *
  * Objetivo: impedir que jogadores entrem no mundo enquanto a conexão está
  * fechada, e expulsar quem já está dentro. O Connection Guard não bloqueava
@@ -23,14 +23,14 @@ import {
  *   e mostram um overlay full-screen + redirecionam ao login.
  *
  * UI: o botão do GM é um Scene Control nativo (hook getSceneControlButtons,
- * API v13 — ApplicationV2). Nada de botões fixed no DOM: o Foundry renderiza
+ * API v13 ApplicationV2). Nada de botões fixed no DOM: o Foundry renderiza
  * o controle na paleta lateral padrão, funcionando em 13.350 → 14.999.
  *
  * Regras:
  * - GM e Assistentes (isGM) NUNCA são tocados.
  * - O gate não altera rotas, fallback Radmin, firewall ou túneis.
  * - As funções puras (fora da classe) não acessam game/window/document no
- *   top-level — testáveis em Node, como o RouteRedundancyManager.
+ *   top-level testáveis em Node, como o RouteRedundancyManager.
  */
 
 const ROLE_NONE = 0
@@ -87,7 +87,7 @@ export function parseRolesBackup(raw) {
 
 /**
  * Calcula os updates de restauração de role. Restaura apenas os usuários
- * que (a) estão no backup E (b) estão atualmente com role NONE — nunca
+ * que (a) estão no backup E (b) estão atualmente com role NONE nunca
  * sobrescreve uma role que o GM mudou manualmente durante o bloqueio.
  */
 export function resolveRestoreUpdates(users, backup) {
@@ -181,7 +181,7 @@ export class WorldGate {
   }
 
   // ------------------------------------------------------------------
-  // Scene Control (API v13 — ApplicationV2)
+  // Scene Control (API v13 ApplicationV2)
   // ------------------------------------------------------------------
 
   /**
@@ -198,7 +198,7 @@ export class WorldGate {
     // NÃO definir `activeTool`: em V13/V14 o `SceneControls#onChangeTool` faz
     // `if (tool === this.tool) return` e `this.tool` é justamente o tool
     // apontado por `activeTool`. Com o toggle como activeTool, todo clique
-    // morria nesse return — o botão existia mas nunca disparava `onChange`.
+    // morria nesse return o botão existia mas nunca disparava `onChange`.
     const tool = {
       name: GATE_TOOL_NAME,
       order: 0,
@@ -254,7 +254,7 @@ export class WorldGate {
     try {
       const pending = ui.controls?.activate({ toggles: { [GATE_TOOL_NAME]: locked } })
       // `activate` é async: o `onChange` disparado por ele roda durante o await,
-      // então o contador só volta a zero depois — mantendo o guard ativo.
+      // então o contador só volta a zero depois mantendo o guard ativo.
       Promise.resolve(pending).finally(() => {
         this.#syncing -= 1
       })
@@ -328,7 +328,7 @@ export class WorldGate {
     }
   }
 
-  /** DialogV2 de confirmação — cancel/close = false; erro = false. */
+  /** DialogV2 de confirmação cancel/close = false; erro = false. */
   async #confirm(locking) {
     try {
       const result = await foundry.applications.api.DialogV2.confirm({
@@ -370,7 +370,7 @@ export class WorldGate {
     // (os players já estão em NONE). Sobrescrever aqui salvaria roles NONE
     // como backup e os jogadores nunca seriam restaurados. Quem ficou fora
     // do backup preservado (ex.: usuário criado após a falha) entra com a
-    // role atual — senão seria banido agora e nunca restaurado no unlock.
+    // role atual senão seria banido agora e nunca restaurado no unlock.
     const existingBackup = parseRolesBackup(
       game.settings.get(MODULE_ID, SETTINGS.GATE_ROLES_BACKUP),
     )
@@ -403,9 +403,7 @@ export class WorldGate {
   async #unlock() {
     if (!this.isLocked) return
 
-    const backup = parseRolesBackup(
-      game.settings.get(MODULE_ID, SETTINGS.GATE_ROLES_BACKUP),
-    )
+    const backup = parseRolesBackup(game.settings.get(MODULE_ID, SETTINGS.GATE_ROLES_BACKUP))
     const users = [...game.users]
     const restoreUpdates = resolveRestoreUpdates(users, backup)
 
@@ -437,9 +435,7 @@ export class WorldGate {
     this.#redirectTimer = setTimeout(() => {
       this.#redirectTimer = null
       const prefix = game.data?.routePrefix || ''
-      const target = prefix
-        ? `${globalThis.location.origin}${prefix}`
-        : globalThis.location.origin
+      const target = prefix ? `${globalThis.location.origin}${prefix}` : globalThis.location.origin
       globalThis.location.href = target
     }, DEFAULTS.GATE_REDIRECT_DELAY_MS)
   }

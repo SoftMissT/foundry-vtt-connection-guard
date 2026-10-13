@@ -110,8 +110,12 @@ export function buildAdvancedFormHtml(values, t) {
         <p class="notes">${t(def.hintKey)}</p>
       </div>`
 
-  const world = ADVANCED_SETTINGS.filter(def => def.scope === 'world').map(group).join('')
-  const client = ADVANCED_SETTINGS.filter(def => def.scope === 'client').map(group).join('')
+  const world = ADVANCED_SETTINGS.filter(def => def.scope === 'world')
+    .map(group)
+    .join('')
+  const client = ADVANCED_SETTINGS.filter(def => def.scope === 'client')
+    .map(group)
+    .join('')
 
   return `
     <p class="notes">${t('CONNGUARD.Advanced.Intro')}</p>
@@ -156,8 +160,6 @@ export async function openAdvancedSettings() {
     return null
   }
 
-  ui.notifications?.info(
-    game.i18n.format('CONNGUARD.Advanced.Saved', { count: changed.length }),
-  )
+  ui.notifications?.info(game.i18n.format('CONNGUARD.Advanced.Saved', { count: changed.length }))
   return changed
 }
