@@ -2,8 +2,8 @@
   "CONNGUARD": {
     "Settings": {
       "Interval": {
-        "Name": "Measurement interval (seconds)",
-        "Hint": "How often each client measures its own latency against the server."
+        "Name": "How often to measure latency (seconds)",
+        "Hint": "Default: 20. Lower = more measurements; higher = less traffic. Leave as is if unsure."
       },
       "Hide": {
         "Name": "Hide latency in the player list"
@@ -24,31 +24,32 @@
         "Hint": "Shortens the delay between reconnection attempts and forces a new attempt as soon as the network or tab become active again."
       },
       "ReconnectMaxDelay": {
-        "Name": "Max delay between attempts (seconds)",
-        "Hint": "Ceiling of the exponential reconnection backoff."
+        "Name": "Max wait between reconnect attempts (seconds)",
+        "Hint": "Default: 15. Leave as is if unsure."
       },
       "HistorySize": {
-        "Name": "How many drops to keep in history"
+        "Name": "How many drops to keep in history",
+        "Hint": "Default: 30. How many recent drops the GM panel keeps."
       },
       "DegradationThreshold": {
-        "Name": "Degradation threshold (ms)",
-        "Hint": "Average RTT above this value for consecutive cycles triggers a degradation alert."
+        "Name": "Latency that triggers a warning (ms)",
+        "Hint": "Default: 300. Above this for several cycles, the module warns before the drop."
       },
       "DegradationCycles": {
-        "Name": "Cycles before degradation alert",
-        "Hint": "How many consecutive cycles above the threshold before triggering an alert."
+        "Name": "Warnings in a row before alerting",
+        "Hint": "Default: 3. How many measurements above the limit before warning."
       },
       "RouteProfiles": {
         "Name": "Abyss Link extra routes",
         "Hint": "Optional. Paste one route per line or comma-separated. Example: softmisst.playit.plus:1051, 192.168.0.10:30000, 26.0.0.10:30000. The module always includes the current route automatically."
       },
       "RouteScanTimeout": {
-        "Name": "Abyss Link timeout per attempt (ms)",
-        "Hint": "Max time for each route test attempt. Higher values improve tolerance but make scans slower."
+        "Name": "Max time per route test (ms)",
+        "Hint": "Default: 2500. Leave as is if unsure."
       },
       "FailoverTimeout": {
-        "Name": "Failover timeout (seconds)",
-        "Hint": "Wait time after a connection drop before redirecting to the emergency Radmin route."
+        "Name": "Wait before Plan B (Radmin) (seconds)",
+        "Hint": "Default: 30. If the main connection drops, how long to wait before sending players to Radmin."
       }
     },
     "Menu": {
@@ -67,7 +68,22 @@
         "Label": "Configure service",
         "Hint": "Choose the service used by the GM and configure only the selected route."
       },
+      "Advanced": {
+        "Name": "Advanced (network)",
+        "Label": "Open advanced settings",
+        "Hint": "Technical intervals and timings. Leave as is if unsure."
+      },
       "DependenciesNotReady": "Connection Guard is not ready yet. Try again after the scene finishes loading."
+    },
+    "Advanced": {
+      "Title": "Advanced settings",
+      "Intro": "These options are technical; the defaults work for most tables. Change only if you know what you're doing.",
+      "SectionWorld": "For the whole table",
+      "SectionClient": "Only for you (this computer)",
+      "Save": "Save",
+      "Saved": "Settings saved ({count} changed).",
+      "SaveFailed": "Could not save. Check the console and try again.",
+      "GmOnly": "Only the GM can open advanced settings."
     },
     "ServiceWizard": {
       "Title": "Choose connection service",
@@ -247,7 +263,8 @@
       "ConfirmUnlockTitle": "Open the table connection?",
       "ConfirmUnlockContent": "Saved permissions will be restored and players may enter again.",
       "ConfirmUnlockYes": "Open connection",
-      "ConfirmNo": "Cancel"
+      "ConfirmNo": "Cancel",
+      "ToggleFailed": "The operation did not finish. The padlock shows the real state — try again."
     },
     "Journal": {
       "Generated": "Generated",

@@ -2,8 +2,8 @@
   "CONNGUARD": {
     "Settings": {
       "Interval": {
-        "Name": "Intervalo de medição (segundos)",
-        "Hint": "De quanto em quanto tempo cada cliente mede sua própria latência contra o servidor."
+        "Name": "De quanto em quanto tempo medir a latência (segundos)",
+        "Hint": "Padrão: 20. Menos tempo = mais medições; mais tempo = menos tráfego. Deixe como está se não souber."
       },
       "Hide": {
         "Name": "Ocultar latência na lista de jogadores"
@@ -24,31 +24,32 @@
         "Hint": "Reduz o tempo entre tentativas de reconexão e força uma nova tentativa assim que a rede ou a aba voltam a ficar ativas."
       },
       "ReconnectMaxDelay": {
-        "Name": "Atraso máximo entre tentativas (segundos)",
-        "Hint": "Teto do backoff exponencial de reconexão."
+        "Name": "Espera máxima entre tentativas de reconexão (segundos)",
+        "Hint": "Padrão: 15. Deixe como está se não souber."
       },
       "HistorySize": {
-        "Name": "Quantas quedas guardar no histórico"
+        "Name": "Quantas quedas guardar no histórico",
+        "Hint": "Padrão: 30. Quantas quedas recentes o painel do Mestre guarda."
       },
       "DegradationThreshold": {
-        "Name": "Limiar de degradação (ms)",
-        "Hint": "RTT médio acima deste valor por ciclos consecutivos dispara alerta de degradação."
+        "Name": "Latência que dispara aviso (ms)",
+        "Hint": "Padrão: 300. Acima disso por vários ciclos seguidos, o módulo avisa antes da queda."
       },
       "DegradationCycles": {
-        "Name": "Ciclos para alerta de degradação",
-        "Hint": "Quantos ciclos consecutivos acima do limiar antes de emitir alerta."
+        "Name": "Avisos seguidos antes de alertar",
+        "Hint": "Padrão: 3. Quantas medições seguidas acima do limite antes do aviso."
       },
       "RouteProfiles": {
         "Name": "Abyss Link rotas extras",
         "Hint": "Opcional. Cole uma rota por linha ou separada por vírgula. Ex: softmisst.playit.plus:1051, 192.168.0.10:30000, 26.0.0.10:30000. O módulo sempre inclui automaticamente a rota atual."
       },
       "RouteScanTimeout": {
-        "Name": "Abyss Link timeout por tentativa (ms)",
-        "Hint": "Tempo máximo para cada tentativa de teste de rota. Valores altos aumentam precisão, mas deixam o scanner mais lento."
+        "Name": "Tempo máximo por teste de rota (ms)",
+        "Hint": "Padrão: 2500. Deixe como está se não souber."
       },
       "FailoverTimeout": {
-        "Name": "Tempo limite para fallback (segundos)",
-        "Hint": "Tempo de espera após uma queda de conexão antes de redirecionar para a rota Radmin de emergência."
+        "Name": "Espera antes do plano B (Radmin) (segundos)",
+        "Hint": "Padrão: 30. Se a conexão principal cair, quanto esperar antes de mandar os jogadores para o Radmin."
       }
     },
     "Menu": {
@@ -67,7 +68,22 @@
         "Label": "Configurar serviço",
         "Hint": "Escolha o serviço usado pelo Mestre e configure somente a rota selecionada."
       },
+      "Advanced": {
+        "Name": "Avançado (rede)",
+        "Label": "Abrir configurações avançadas",
+        "Hint": "Intervalos e tempos técnicos do módulo. Deixe como está se não souber."
+      },
       "DependenciesNotReady": "Connection Guard ainda não está pronto. Tente novamente após o carregamento da cena."
+    },
+    "Advanced": {
+      "Title": "Configurações avançadas",
+      "Intro": "Estas opções são técnicas e os valores padrão funcionam para a maioria das mesas. Só mude se souber o que está fazendo.",
+      "SectionWorld": "Para toda a mesa",
+      "SectionClient": "Só para você (este computador)",
+      "Save": "Salvar",
+      "Saved": "Configurações salvas ({count} alterada(s)).",
+      "SaveFailed": "Não foi possível salvar. Confira o console e tente de novo.",
+      "GmOnly": "Somente o Mestre pode abrir as configurações avançadas."
     },
     "ServiceWizard": {
       "Title": "Escolher serviço de conexão",
@@ -247,7 +263,8 @@
       "ConfirmUnlockTitle": "Abrir conexão da mesa?",
       "ConfirmUnlockContent": "As permissões salvas serão restauradas e os jogadores poderão entrar novamente.",
       "ConfirmUnlockYes": "Abrir conexão",
-      "ConfirmNo": "Cancelar"
+      "ConfirmNo": "Cancelar",
+      "ToggleFailed": "A operação não terminou. O cadeado mostra o estado real — tente de novo."
     },
     "Journal": {
       "Generated": "Gerado",

@@ -116,17 +116,17 @@ Isso cria (ou atualiza) uma Journal Entry com o histórico completo em Markdown,
 
 Tudo em **Configurar Jogo → Configurações → Connection Guard**.
 
+O essencial fica na tela nativa:
+
 | Setting                        | Escopo  | Padrão  | O que faz                                      |
 | :----------------------------- | :-----: | :-----: | :--------------------------------------------- |
-| Intervalo de medição           |  Mundo  |  `20s`  | Frequência da medição de latência por cliente  |
 | Ocultar latência               | Cliente |  `off`  | Esconde o badge na lista de jogadores          |
 | Modo compacto                  | Cliente |  `off`  | `+`/`-`/`!` no lugar do valor em ms            |
 | Tooltip de diagnóstico         | Cliente |  `on`   | Jitter e perda no hover do badge               |
-| Reconexão agressiva            | Cliente |  `on`   | Backoff mais curto + reconexão forçada         |
-| Atraso máximo entre tentativas | Cliente |  `15s`  | Teto do backoff exponencial                    |
-| Histórico de quedas            |  Mundo  |  `30`   | Quantas quedas o painel do GM guarda           |
-| Limiar de degradação           |  Mundo  | `300ms` | RTT acima disso liga o monitoramento preditivo |
-| Ciclos para alerta             |  Mundo  |   `3`   | Ciclos consecutivos antes de disparar o alerta |
+| Reconexão automática agressiva | Cliente |  `on`   | Backoff mais curto + reconexão forçada         |
+| Tema Abyss Link                |  Mundo  |  `on`   | Camada visual escura/neon da mesa              |
+
+As opções técnicas (intervalo de medição, limiar de degradação, ciclos de alerta, histórico de quedas, timeout do scanner de rotas, timeout do fallback e espera máxima de reconexão) vivem no menu **Avançado (rede)** — GM-only, com valores padrão seguros; quem não entende de rede não precisa tocar em nada.
 
 ---
 

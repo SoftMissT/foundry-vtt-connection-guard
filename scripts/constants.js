@@ -23,6 +23,7 @@ export const SETTINGS = {
   GM_PANEL_MENU: 'gmPanelMenu',
   SERVICE_WIZARD_MENU: 'serviceWizardMenu',
   ROUTE_ORACLE_MENU: 'routeOracleMenu',
+  ADVANCED_MENU: 'advancedMenu',
   ACTIVE_ROUTE: 'activeRoute',
   DEGRADATION_THRESHOLD: 'degradationThreshold',
   DEGRADATION_CYCLES: 'degradationCycles',

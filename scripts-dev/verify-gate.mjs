@@ -176,6 +176,7 @@ function gateSetup({
   locationOrigin = 'http://localhost:30000',
   onSocketEmit = null,
   confirmResult = true,
+  failOnSet = null,
 }) {
   const fakeTimers = makeFakeTimers()
   const store = { ...settings }
@@ -183,6 +184,11 @@ function gateSetup({
   const appended = []
   const socketEvents = {}
   const confirmCalls = []
+  const notifCalls = []
+  const consoleWarns = []
+
+  const originalWarn = console.warn
+  console.warn = (...args) => consoleWarns.push(args)
 
   globalThis.foundry = {
     applications: {
@@ -208,7 +214,11 @@ function gateSetup({
   }
 
   globalThis.ui = {
-    notifications: { warn: () => {}, info: () => {} },
+    notifications: {
+      warn: (...args) => notifCalls.push({ type: 'warn', args }),
+      info: (...args) => notifCalls.push({ type: 'info', args }),
+      error: (...args) => notifCalls.push({ type: 'error', args }),
+    },
     controls: { activate: async () => {} },
   }
 
@@ -255,6 +265,7 @@ function gateSetup({
     settings: {
       get: (mid, key) => store[key],
       set: async (mid, key, value) => {
+        if (failOnSet && failOnSet(key, value)) throw new Error('mock: falha forçada na escrita')
         store[key] = value
       },
     },
@@ -282,7 +293,9 @@ function gateSetup({
     },
   }
 
-  teardownHandlers.push(() => {})
+  teardownHandlers.push(() => {
+    console.warn = originalWarn
+  })
 
   return {
     fakeTimers,
@@ -292,6 +305,8 @@ function gateSetup({
     socketEvents,
     UserUpdateCalls,
     confirmCalls,
+    notifCalls,
+    consoleWarns,
     game: globalThis.game,
   }
 }
@@ -620,6 +635,92 @@ async function testStaleActiveParam() {
   gateTeardown()
 }
 
+// GATE-19 lock repetido após falha parcial preserva o backup original
+async function testPartialRetry() {
+  const env = gateSetup({
+    isGM: true,
+    locked: false,
+    users: [
+      { id: 'gm', role: 4, isGM: true },
+      { id: 'p1', role: 0, isGM: false },
+    ],
+    settings: {
+      [SETTINGS.GATE_ROLES_BACKUP]: JSON.stringify([{ id: 'p1', role: 1 }]),
+    },
+  })
+  const gate = new WorldGate()
+  gate.start()
+  await gate.toggle()
+
+  const backup = JSON.parse(env.store[SETTINGS.GATE_ROLES_BACKUP] || '[]')
+  check('GATE-19 backup original preservado', backup.find(u => u.id === 'p1')?.role, 1)
+  check('GATE-19 GATE_LOCKED true', env.store[SETTINGS.GATE_LOCKED], true)
+  check('GATE-19 sem re-ban (já estava NONE)', env.UserUpdateCalls.length, 0)
+  gateTeardown()
+}
+
+// GATE-20 falha de escrita reverte o estado visual e avisa (não silencioso)
+async function testFailureReverts() {
+  const env = gateSetup({
+    isGM: true,
+    locked: false,
+    users: [
+      { id: 'gm', role: 4, isGM: true },
+      { id: 'p1', role: 1, isGM: false },
+    ],
+    failOnSet: (key, value) => key === SETTINGS.GATE_LOCKED && value === true,
+  })
+  const gate = new WorldGate()
+  gate.start()
+  const controls = {}
+  gate.registerSceneControl(controls)
+  const tool = controls[SCENE_CONTROL_NAME].tools[GATE_TOOL_NAME]
+
+  await gate.toggle()
+
+  check('GATE-20 GATE_LOCKED não gravado', env.store[SETTINGS.GATE_LOCKED], undefined)
+  check('GATE-20 toggle volta a aberto', tool.active, false)
+  check('GATE-20 ícone volta a lock-open', tool.icon, 'fa-solid fa-lock-open')
+  check('GATE-20 erro notificado', env.notifCalls.filter(c => c.type === 'error').length, 1)
+  check(
+    'GATE-20 backup parcial ficou gravado (coberto pelo GATE-19 no retry)',
+    Boolean(env.store[SETTINGS.GATE_ROLES_BACKUP]),
+    true,
+  )
+  gateTeardown()
+}
+
+// GATE-21 retry pós-falha funde no backup quem ficou fora dele (sem ban sem volta)
+async function testPartialRetryMerges() {
+  const env = gateSetup({
+    isGM: true,
+    locked: false,
+    users: [
+      { id: 'gm', role: 4, isGM: true },
+      { id: 'p1', role: 0, isGM: false },
+      { id: 'p2', role: 2, isGM: false },
+    ],
+    settings: {
+      [SETTINGS.GATE_ROLES_BACKUP]: JSON.stringify([{ id: 'p1', role: 1 }]),
+    },
+  })
+  const gate = new WorldGate()
+  gate.start()
+  await gate.toggle()
+
+  const backup = JSON.parse(env.store[SETTINGS.GATE_ROLES_BACKUP] || '[]')
+  check('GATE-21 p1 original preservado', backup.find(u => u.id === 'p1')?.role, 1)
+  check('GATE-21 p2 entrou no backup', backup.find(u => u.id === 'p2')?.role, 2)
+  check(
+    'GATE-21 p2 banido agora',
+    env.UserUpdateCalls.some(u => u._id === 'p2' && u.role === 0),
+    true,
+  )
+  check('GATE-21 p1 não re-banido', env.UserUpdateCalls.some(u => u._id === 'p1'), false)
+  check('GATE-21 GATE_LOCKED true', env.store[SETTINGS.GATE_LOCKED], true)
+  gateTeardown()
+}
+
 await testLock()
 await testUnlock()
 await testManualRole()
@@ -627,6 +728,9 @@ await testConfirmCancel()
 await testConfirmAccept()
 await testSceneControlClick()
 await testStaleActiveParam()
+await testPartialRetry()
+await testFailureReverts()
+await testPartialRetryMerges()
 
 console.log(report.join('\n'))
 console.log(`\nResultado: ${checks} verificações, ${failures} falha(s)`)

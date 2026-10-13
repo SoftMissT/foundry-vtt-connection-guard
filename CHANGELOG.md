@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.4.0
+
+- **Modo simples**: os 7 settings técnicos (intervalo de medição, limiar e ciclos de degradação, histórico de quedas, timeout do scanner, timeout do failover, espera de reconexão) saem da tela nativa de configurações e passam a viver no novo menu GM **"Avançado (rede)"** (`scripts/advanced-settings.js`) — com linguagem simples, escrita sanitizada (limites, passo, padrão) e gravação só do que mudou.
+- **Cadeado com resposta imediata**: o ícone vira logo após a confirmação e é revertido com aviso se a escrita falhar (antes, falha era silenciosa). `#syncSceneControl` ignora clientes sem o controle (players) e aceita estado-alvo explícito.
+- **Robustez do lock**: um novo fechamento após falha parcial preserva o backup de roles original e funde quem ficou fora dele (ex.: usuário criado após a falha entra com a role atual) — antes, o backup seria sobrescrito com roles NONE e os jogadores nunca seriam restaurados.
+- Suíte nova `verify-advanced.mjs` (107 verificações) e casos GATE-19/20/21 no `verify-gate.mjs` (93 no total); `npm run verify` cobre as três suítes.
+
 ## 3.3.4
 
 - **Corrige o botão World Gate que não fazia nada**: o controle registrava `activeTool: world-gate`, e em V13/V14 o `SceneControls#onChangeTool` faz `if (tool === this.tool) return` — como `this.tool` é justamente o tool apontado por `activeTool`, todo clique no cadeado morria nesse `return` antes de disparar `onChange`. Removido o `activeTool` (o botão existe, era clicável, mas nunca chamava o handler).

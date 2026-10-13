@@ -2,6 +2,7 @@ import { MODULE_ID, SETTINGS, DEFAULTS } from './constants.js'
 import { GmPanel } from './gm-panel.js'
 import { RouteWizard } from './route-wizard.js'
 import { openServiceWizard } from './service-wizard.js'
+import { openAdvancedSettings } from './advanced-settings.js'
 
 /** Referências para as instâncias reais, preenchidas por main.js no ready. */
 let _diagnostics = null
@@ -19,6 +20,8 @@ export function setMenuDependencies(diagnostics, journal) {
 export function registerSettings() {
   const g = game
 
+  // Settings técnicos: fora da tela nativa (config:false). Vivem no painel
+  // "Avançado (rede)" (scripts/advanced-settings.js), em linguagem simples.
   g.settings.register(MODULE_ID, SETTINGS.LATENCY_INTERVAL, {
     name: g.i18n.localize('CONNGUARD.Settings.Interval.Name'),
     hint: g.i18n.localize('CONNGUARD.Settings.Interval.Hint'),
@@ -26,7 +29,7 @@ export function registerSettings() {
     range: { min: DEFAULTS.MIN_INTERVAL_SECONDS, max: 90, step: 5 },
     default: DEFAULTS.LATENCY_INTERVAL_SECONDS,
     scope: 'world',
-    config: true,
+    config: false,
   })
 
   g.settings.register(MODULE_ID, SETTINGS.HIDE_LATENCY, {
@@ -79,7 +82,7 @@ export function registerSettings() {
     range: { min: 3, max: 60, step: 1 },
     default: DEFAULTS.RECONNECT_MAX_DELAY_SECONDS,
     scope: 'client',
-    config: true,
+    config: false,
   })
 
   g.settings.register(MODULE_ID, SETTINGS.DIAGNOSTICS_HISTORY_SIZE, {
@@ -88,7 +91,7 @@ export function registerSettings() {
     range: { min: 10, max: 100, step: 5 },
     default: DEFAULTS.DIAGNOSTICS_HISTORY_SIZE,
     scope: 'world',
-    config: true,
+    config: false,
   })
 
   g.settings.register(MODULE_ID, SETTINGS.DEGRADATION_THRESHOLD, {
@@ -98,7 +101,7 @@ export function registerSettings() {
     range: { min: 100, max: 1000, step: 50 },
     default: DEFAULTS.DEGRADATION_THRESHOLD_MS,
     scope: 'world',
-    config: true,
+    config: false,
   })
 
   g.settings.register(MODULE_ID, SETTINGS.DEGRADATION_CYCLES, {
@@ -108,7 +111,7 @@ export function registerSettings() {
     range: { min: 2, max: 10, step: 1 },
     default: DEFAULTS.DEGRADATION_CYCLES,
     scope: 'world',
-    config: true,
+    config: false,
   })
 
   // Rota ativa da mesa: world e NÃO-restricted de propósito. A URL precisa
@@ -137,7 +140,7 @@ export function registerSettings() {
     default: DEFAULTS.ROUTE_SCAN_TIMEOUT_MS,
     scope: 'world',
     restricted: true,
-    config: true,
+    config: false,
   })
 
   g.settings.register(MODULE_ID, SETTINGS.REDUNDANCY_CONFIG, {
@@ -154,7 +157,7 @@ export function registerSettings() {
     range: { min: 10, max: 120, step: 5 },
     default: DEFAULTS.FAILOVER_TIMEOUT_SECONDS,
     scope: 'world',
-    config: true,
+    config: false,
   })
 
   // World Gate: quem pode entrar na mesa. Controlado pelo botão no HUD do GM
@@ -199,6 +202,15 @@ export function registerSettings() {
     hint: g.i18n.localize('CONNGUARD.Menu.ServiceWizard.Hint'),
     icon: 'fa-solid fa-network-wired',
     type: ServiceWizardMenuLauncher,
+    restricted: true,
+  })
+
+  g.settings.registerMenu(MODULE_ID, SETTINGS.ADVANCED_MENU, {
+    name: g.i18n.localize('CONNGUARD.Menu.Advanced.Name'),
+    label: g.i18n.localize('CONNGUARD.Menu.Advanced.Label'),
+    hint: g.i18n.localize('CONNGUARD.Menu.Advanced.Hint'),
+    icon: 'fa-solid fa-sliders',
+    type: AdvancedMenuLauncher,
     restricted: true,
   })
 }
@@ -251,6 +263,21 @@ class ServiceWizardMenuLauncher extends foundry.applications.api.ApplicationV2 {
 
   render(_options) {
     openServiceWizard()
+    return this
+  }
+
+  _renderHTML() {
+    return ''
+  }
+
+  _updateHTML() {}
+}
+
+class AdvancedMenuLauncher extends foundry.applications.api.ApplicationV2 {
+  static DEFAULT_OPTIONS = { id: 'connection-guard-advanced-launcher' }
+
+  render(_options) {
+    openAdvancedSettings()
     return this
   }
 

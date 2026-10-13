@@ -220,9 +220,9 @@ export class WorldGate {
     }
   }
 
-  /** Ícone do toggle conforme o estado real do gate. */
-  #toolIcon() {
-    return this.isLocked ? 'fa-solid fa-lock' : 'fa-solid fa-lock-open'
+  /** Ícone do toggle conforme o estado-alvo do gate. */
+  #toolIcon(locked = this.isLocked) {
+    return locked ? 'fa-solid fa-lock' : 'fa-solid fa-lock-open'
   }
 
   /**
@@ -237,17 +237,22 @@ export class WorldGate {
     await this.toggle()
   }
 
-  /** Sincroniza o toggle do Scene Control com o estado real do gate. */
-  #syncSceneControl() {
+  /**
+   * Sincroniza o toggle do Scene Control com o estado-alvo do gate.
+   * `overrideLocked` pinta o estado otimista logo após a confirmação;
+   * sem ele, vale o estado real lido do setting.
+   */
+  #syncSceneControl(overrideLocked) {
     const tool = this.#tool
-    if (tool) {
-      tool.active = this.isLocked
-      tool.icon = this.#toolIcon()
-    }
+    if (!tool) return // cliente sem o controle (player): nada a sincronizar
+
+    const locked = typeof overrideLocked === 'boolean' ? overrideLocked : this.isLocked
+    tool.active = locked
+    tool.icon = this.#toolIcon(locked)
 
     this.#syncing += 1
     try {
-      const pending = ui.controls?.activate({ toggles: { [GATE_TOOL_NAME]: this.isLocked } })
+      const pending = ui.controls?.activate({ toggles: { [GATE_TOOL_NAME]: locked } })
       // `activate` é async: o `onChange` disparado por ele roda durante o await,
       // então o contador só volta a zero depois — mantendo o guard ativo.
       Promise.resolve(pending).finally(() => {
@@ -307,8 +312,17 @@ export class WorldGate {
         this.#syncSceneControl()
         return
       }
-      if (locking) await this.#lock()
-      else await this.#unlock()
+
+      // Feedback imediato: o cadeado vira agora e é revertido se a escrita falhar.
+      this.#syncSceneControl(locking)
+      try {
+        if (locking) await this.#lock()
+        else await this.#unlock()
+      } catch (err) {
+        console.warn(`${MODULE_ID} | falha ao ${locking ? 'fechar' : 'abrir'} a conexão`, err)
+        ui.notifications?.error?.(game.i18n.localize('CONNGUARD.Gate.ToggleFailed'))
+        this.#syncSceneControl()
+      }
     } finally {
       this.#busy = false
     }
@@ -352,7 +366,27 @@ export class WorldGate {
     const backup = collectRoleBackup(users)
     const banUpdates = resolveBanUpdates(users)
 
-    await game.settings.set(MODULE_ID, SETTINGS.GATE_ROLES_BACKUP, JSON.stringify(backup))
+    // Um backup existente indica falha parcial de um fechamento anterior
+    // (os players já estão em NONE). Sobrescrever aqui salvaria roles NONE
+    // como backup e os jogadores nunca seriam restaurados. Quem ficou fora
+    // do backup preservado (ex.: usuário criado após a falha) entra com a
+    // role atual — senão seria banido agora e nunca restaurado no unlock.
+    const existingBackup = parseRolesBackup(
+      game.settings.get(MODULE_ID, SETTINGS.GATE_ROLES_BACKUP),
+    )
+    if (!existingBackup.length) {
+      await game.settings.set(MODULE_ID, SETTINGS.GATE_ROLES_BACKUP, JSON.stringify(backup))
+    } else {
+      const savedIds = new Set(existingBackup.map(entry => entry.id))
+      const additions = backup.filter(entry => !savedIds.has(entry.id))
+      if (additions.length) {
+        await game.settings.set(
+          MODULE_ID,
+          SETTINGS.GATE_ROLES_BACKUP,
+          JSON.stringify([...existingBackup, ...additions]),
+        )
+      }
+    }
     if (banUpdates.length) {
       await User.updateDocuments(banUpdates)
     }
