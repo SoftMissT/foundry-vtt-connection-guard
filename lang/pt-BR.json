@@ -86,23 +86,34 @@
       "GmOnly": "Somente o Mestre pode abrir as configurações avançadas."
     },
     "ServiceWizard": {
-      "Title": "Escolher serviço de conexão",
-      "DetailsTitle": "Configurar serviço escolhido",
-      "Intro": "Primeiro escolha o serviço que o Mestre está usando para hospedar o Foundry.",
+      "Title": "Conectar seus amigos",
+      "DetailsTitle": "Só falta o endereço",
+      "Intro": "Preencha o endereço que os jogadores usam para entrar. Os dados ficam salvos para a mesa.",
+      "ChoiceQuestion": "Como seus amigos entram na sua mesa?",
+      "ChoiceHint": "Não sabe qual escolher? Se seus amigos precisam instalar um programa, é o Radmin. Se você manda um link ou endereço, é o playit/ngrok/Cloudflare. Se todos estão na sua casa ou na mesma rede, é a rede local.",
+      "Choice": {
+        "radmin": "Instalam o Radmin VPN e entram no meu grupo",
+        "playit": "Abrem um link tipo xxxx.playit.gg",
+        "ngrok": "Abrem um endereço temporário que eu gero (ngrok)",
+        "cloudflare": "Abrem um endereço fixo da Cloudflare",
+        "local": "Estão na mesma casa ou rede que eu",
+        "direct": "Eu passo o meu endereço de IP para eles",
+        "custom": "Outro caso / ainda não sei"
+      },
       "NoWebRtc": "Este módulo configura somente a rota do Foundry. Voz no Discord não precisa de STUN/TURN.",
       "Service": "Serviço usado pelo Mestre",
-      "DisplayName": "Nome exibido",
-      "Host": "IP virtual Radmin do Mestre",
-      "Port": "Porta do Foundry",
-      "Endpoint": "Endereço público do Foundry",
+      "DisplayName": "Nome que aparece para a mesa",
+      "Host": "IP do Radmin (começa com 26.)",
+      "Port": "Porta do Foundry (normalmente 30000)",
+      "Endpoint": "Endereço que você manda para os amigos",
       "Continue": "Continuar",
       "Save": "Salvar e ativar rota",
       "Invalid": "Confira o serviço, endereço e porta informados.",
       "Saved": "Serviço ativo: {service}",
-      "RedundancyTitle": "Radmin Emergency Fallback",
-      "RedundancyHint": "Se a conexão principal cair, os jogadores serão redirecionados para este IP Radmin.",
-      "RedundancyEnable": "Ativar Fallback de Emergência",
-      "RadminHost": "IP do Radmin (ex: 26.x.x.x)",
+      "RedundancyTitle": "Plano B (Radmin)",
+      "RedundancyHint": "Se a conexão principal cair, os jogadores podem ser levados para este endereço do Radmin. Opcional — deixe desligado se você não usa Radmin.",
+      "RedundancyEnable": "Ativar plano B",
+      "RadminHost": "IP do Radmin do plano B",
       "RadminPort": "Porta do Foundry no Radmin",
       "InvalidRadmin": "IP ou porta do Radmin inválidos. O fallback não foi ativado.",
       "ReadinessTitle": "Preparação do Radmin Fallback",
@@ -168,7 +179,20 @@
       "ExportJournal": "Exportar Journal",
       "JournalCreated": "Journal criado: {name}",
       "JournalEmpty": "Nenhuma entrada para exportar.",
-      "JournalError": "Erro ao criar journal. Verifique o console."
+      "JournalError": "Erro ao criar journal. Verifique o console.",
+      "DetailsSummary": "Ver detalhes técnicos (tabelas e histórico)",
+      "Verdict": {
+        "AllGood": "Tudo certo",
+        "AllGoodHint": "Nenhum problema de conexão detectado agora.",
+        "Attention": "Atenção",
+        "AttentionHint": "A conexão de alguns jogadores está instável.",
+        "Problem": "Problema",
+        "ProblemHint": "Um ou mais jogadores estão sem resposta."
+      },
+      "Action": {
+        "Reload": "Peça para quem está sem resposta recarregar a página (F5).",
+        "TestRoutes": "Abra o Assistente de conexão e escaneie as rotas para comparar."
+      }
     },
     "Route": {
       "WindowTitle": "Abyss Link Route Oracle",

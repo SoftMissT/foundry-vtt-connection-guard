@@ -1,4 +1,5 @@
-import { MODULE_TITLE, SERVICE_CATALOG } from './constants.js'
+import { MODULE_ID, MODULE_TITLE, SETTINGS, SERVICE_CATALOG } from './constants.js'
+import { resolveConnectionVerdict } from './panel-verdict.js'
 import {
   escapeHtml,
   getConfiguredRouteProfiles,
@@ -30,7 +31,19 @@ export class GmPanel {
   }
 
   async render(_force) {
-    const rows = this.#buildRows()
+    const rows = this.#collectRows()
+    const alerts = this.#diagnostics?.getDegradationAlerts() ?? []
+    const threshold = game.settings.get(MODULE_ID, SETTINGS.DEGRADATION_THRESHOLD)
+    const verdict = resolveConnectionVerdict(
+      rows.map(row => ({
+        hasData: Boolean(row.data),
+        stale: row.data?.stale === true,
+        average: row.data?.average ?? null,
+      })),
+      alerts.length,
+      threshold,
+    )
+
     const routeOracle = this.#buildRouteOracle()
     const drops = this.#buildDrops()
     const degradation = this.#buildDegradation()
@@ -40,36 +53,42 @@ export class GmPanel {
 
     const content = `
       <section class="connguard-panel connguard-abyss connguard-gm-panel">
-        <h3>${game.i18n.localize('CONNGUARD.Panel.UsersTitle')}</h3>
+        ${this.#buildVerdictBlock(verdict)}
 
-        <div class="connguard-table-wrap">
-          <table class="connguard-table">
-            <thead>
-              <tr>
-                <th>${game.i18n.localize('CONNGUARD.Panel.User')}</th>
-                <th>${game.i18n.localize('CONNGUARD.Panel.Latency')}</th>
-                <th>${game.i18n.localize('CONNGUARD.Panel.Jitter')}</th>
-                <th>${game.i18n.localize('CONNGUARD.Panel.Loss')}</th>
-                <th>${game.i18n.localize('CONNGUARD.Panel.Status')}</th>
-              </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-          </table>
-        </div>
+        <details class="connguard-details">
+          <summary>${game.i18n.localize('CONNGUARD.Panel.DetailsSummary')}</summary>
 
-        ${this.#buildActiveRouteSection()}
+          <h3>${game.i18n.localize('CONNGUARD.Panel.UsersTitle')}</h3>
 
-        ${routeOracle}
+          <div class="connguard-table-wrap">
+            <table class="connguard-table">
+              <thead>
+                <tr>
+                  <th>${game.i18n.localize('CONNGUARD.Panel.User')}</th>
+                  <th>${game.i18n.localize('CONNGUARD.Panel.Latency')}</th>
+                  <th>${game.i18n.localize('CONNGUARD.Panel.Jitter')}</th>
+                  <th>${game.i18n.localize('CONNGUARD.Panel.Loss')}</th>
+                  <th>${game.i18n.localize('CONNGUARD.Panel.Status')}</th>
+                </tr>
+              </thead>
+              <tbody>${this.#buildRowsHtml(rows)}</tbody>
+            </table>
+          </div>
 
-        <h3>${game.i18n.localize('CONNGUARD.Panel.DropsTitle')}</h3>
-        ${drops}
+          ${this.#buildActiveRouteSection()}
 
-        ${degradation}
+          ${routeOracle}
 
-        <hr>
+          <h3>${game.i18n.localize('CONNGUARD.Panel.DropsTitle')}</h3>
+          ${drops}
 
-        <h3>${game.i18n.localize('CONNGUARD.Panel.JournalTitle')}</h3>
-        ${journalInfo}
+          ${degradation}
+
+          <hr>
+
+          <h3>${game.i18n.localize('CONNGUARD.Panel.JournalTitle')}</h3>
+          ${journalInfo}
+        </details>
       </section>
     `
 
@@ -220,20 +239,26 @@ export class GmPanel {
     if (section) section.outerHTML = this.#buildActiveRouteSection()
   }
 
-  #buildRows() {
+  #collectRows() {
     const diagnostics = this.#diagnostics
-    if (!diagnostics) return ''
-
     const rows = []
     for (const user of game.users) {
-      const data = diagnostics.getUserData(user.id)
+      const data = diagnostics?.getUserData(user.id) ?? null
       const statusKey = !data
         ? 'CONNGUARD.Panel.StatusUnknown'
         : data.stale
           ? 'CONNGUARD.Panel.StatusNoResponse'
           : 'CONNGUARD.Panel.StatusOk'
+      rows.push({ user, data, statusKey })
+    }
+    return rows
+  }
 
-      rows.push(`
+  #buildRowsHtml(rows) {
+    if (!rows.length) return ''
+    return rows
+      .map(
+        ({ user, data, statusKey }) => `
         <tr>
           <td>
             <strong>${foundry.utils.escapeHTML(user.name)}</strong>
@@ -244,10 +269,37 @@ export class GmPanel {
           <td>${data ? `${data.lossPct}%` : '—'}</td>
           <td>${game.i18n.localize(statusKey)}</td>
         </tr>
-      `)
-    }
+      `,
+      )
+      .join('')
+  }
 
-    return rows.join('')
+  /** Veredito estado-primeiro: uma leitura e uma ação, sem tabela na cara. */
+  #buildVerdictBlock(verdict) {
+    const key =
+      { ok: 'AllGood', attention: 'Attention', problem: 'Problem' }[verdict.level] ?? 'AllGood'
+    const icon =
+      {
+        ok: 'fa-circle-check',
+        attention: 'fa-triangle-exclamation',
+        problem: 'fa-circle-exclamation',
+      }[verdict.level] ?? 'fa-circle-check'
+    const action =
+      verdict.level === 'problem'
+        ? 'CONNGUARD.Panel.Action.Reload'
+        : verdict.level === 'attention'
+          ? 'CONNGUARD.Panel.Action.TestRoutes'
+          : null
+
+    return `
+      <div class="connguard-verdict connguard-verdict--${verdict.level}">
+        <i class="fa-solid ${icon} connguard-verdict-icon" aria-hidden="true"></i>
+        <div class="connguard-verdict-body">
+          <h2>${game.i18n.localize(`CONNGUARD.Panel.Verdict.${key}`)}</h2>
+          <p>${game.i18n.localize(`CONNGUARD.Panel.Verdict.${key}Hint`)}</p>
+          ${action ? `<p class="connguard-verdict-action"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> ${game.i18n.localize(action)}</p>` : ''}
+        </div>
+      </div>`
   }
 
   #buildRouteOracle() {

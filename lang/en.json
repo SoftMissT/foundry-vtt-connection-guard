@@ -86,23 +86,34 @@
       "GmOnly": "Only the GM can open advanced settings."
     },
     "ServiceWizard": {
-      "Title": "Choose connection service",
-      "DetailsTitle": "Configure selected service",
-      "Intro": "First choose the service the GM is using to host Foundry.",
+      "Title": "Connect your friends",
+      "DetailsTitle": "Just the address",
+      "Intro": "Fill in the address your players use to connect. It is saved for the table.",
+      "ChoiceQuestion": "How do your friends get into your table?",
+      "ChoiceHint": "Not sure which one? If your friends install a program, it is Radmin. If you send them a link or address, it is playit/ngrok/Cloudflare. If everyone is at your house or on the same network, it is the local network.",
+      "Choice": {
+        "radmin": "They install Radmin VPN and join my group",
+        "playit": "They open a link like xxxx.playit.gg",
+        "ngrok": "They open a temporary address I generate (ngrok)",
+        "cloudflare": "They open a fixed Cloudflare address",
+        "local": "They are at the same house or network as me",
+        "direct": "I give them my IP address",
+        "custom": "Something else / not sure yet"
+      },
       "NoWebRtc": "This module configures only the Foundry route. Discord voice does not need STUN/TURN.",
       "Service": "Service used by the GM",
-      "DisplayName": "Display name",
-      "Host": "GM's Radmin virtual IP",
-      "Port": "Foundry port",
-      "Endpoint": "Public Foundry address",
+      "DisplayName": "Name shown to the table",
+      "Host": "Radmin IP (starts with 26.)",
+      "Port": "Foundry port (usually 30000)",
+      "Endpoint": "Address you send to your friends",
       "Continue": "Continue",
       "Save": "Save and activate route",
       "Invalid": "Check the selected service, address, and port.",
       "Saved": "Active service: {service}",
-      "RedundancyTitle": "Radmin Emergency Fallback",
-      "RedundancyHint": "If the primary connection drops, players will be redirected to this Radmin IP.",
-      "RedundancyEnable": "Enable Emergency Fallback",
-      "RadminHost": "Radmin IP (e.g., 26.x.x.x)",
+      "RedundancyTitle": "Plan B (Radmin)",
+      "RedundancyHint": "If the main connection drops, players can be sent to this Radmin address. Optional — leave it off if you do not use Radmin.",
+      "RedundancyEnable": "Enable Plan B",
+      "RadminHost": "Plan B Radmin IP",
       "RadminPort": "Foundry port on Radmin",
       "InvalidRadmin": "Invalid Radmin IP or port. Fallback was not enabled.",
       "ReadinessTitle": "Radmin Fallback Readiness",
@@ -168,7 +179,20 @@
       "ExportJournal": "Export Journal",
       "JournalCreated": "Journal created: {name}",
       "JournalEmpty": "No entries to export.",
-      "JournalError": "Error creating journal. Check the console."
+      "JournalError": "Error creating journal. Check the console.",
+      "DetailsSummary": "Show technical details (tables and history)",
+      "Verdict": {
+        "AllGood": "All good",
+        "AllGoodHint": "No connection problem detected right now.",
+        "Attention": "Heads up",
+        "AttentionHint": "Some players have an unstable connection.",
+        "Problem": "Problem",
+        "ProblemHint": "One or more players are not responding."
+      },
+      "Action": {
+        "Reload": "Ask the unresponsive player to reload the page (F5).",
+        "TestRoutes": "Open the Connection assistant and scan the routes to compare."
+      }
     },
     "Route": {
       "WindowTitle": "Abyss Link Route Oracle",

@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.5.0
+
+- **Painel do GM estado-primeiro**: o painel abre com um veredito grande — **Tudo certo / Atenção / Problema** — com uma ação recomendada por estado ("peça para recarregar a página", "escaneie as rotas") e as tabelas/histórico atrás de "Ver detalhes técnicos". Novo `scripts/panel-verdict.js` (função pura) + suíte `verify-panel.mjs` (20 verificações).
+- **Assistente em linguagem de gente**: a primeira pergunta virou "Como seus amigos entram na sua mesa?" com opções do mundo real ("Instalam o Radmin VPN e entram no meu grupo", "Abrem um link tipo xxxx.playit.gg", "Estão na mesma casa ou rede que eu") e uma ajuda para quem não sabe; os rótulos do formulário foram reescritos ("Endereço que você manda para os amigos", "Plano B (Radmin)").
+- **Verificação visual**: harness `scripts-dev/panel-harness.html` renderizado no Chromium (1000px e 420px) — contraste no tema Abyss entre 6,33:1 e 15,05:1, zero overflow; o harness troca os ícones FontAwesome por glifos e não usa as fontes do Foundry (declarado).
+- i18n pt-BR/en: +18 chaves (paridade 247/247).
+
 ## 3.4.0
 
 - **Modo simples**: os 7 settings técnicos (intervalo de medição, limiar e ciclos de degradação, histórico de quedas, timeout do scanner, timeout do failover, espera de reconexão) saem da tela nativa de configurações e passam a viver no novo menu GM **"Avançado (rede)"** (`scripts/advanced-settings.js`) — com linguagem simples, escrita sanitizada (limites, passo, padrão) e gravação só do que mudou.

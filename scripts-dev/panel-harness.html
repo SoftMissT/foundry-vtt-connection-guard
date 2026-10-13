@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Connection Guard harness do painel (v3.5.0, dev-only)</title>
+    <link rel="stylesheet" href="../styles/connection-guard.css" />
+    <style>
+      /* Só do harness: imita o básico de janela do Foundry para o teste de layout. */
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family: 'Signika', 'Segoe UI', sans-serif;
+        background: #16181d;
+        color: #eee;
+      }
+      .harness-block {
+        max-width: 720px;
+        margin: 0 0 28px;
+      }
+      .harness-title {
+        font-size: 13px;
+        opacity: 0.7;
+        margin: 0 0 6px;
+      }
+      .window-app {
+        background: rgba(30, 33, 40, 0.98);
+        border-radius: 8px;
+        padding: 14px;
+      }
+      .window-app.light {
+        background: #f5f5f5;
+        color: #222;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin: 8px 0;
+      }
+      .notes {
+        font-size: 12px;
+        opacity: 0.8;
+        margin: 0;
+      }
+      h2,
+      h3 {
+        margin: 8px 0 6px;
+      }
+    </style>
+  </head>
+  <body class="connection-guard-abyss-theme">
+    <div class="harness-block">
+      <p class="harness-title">1. Veredito Tudo certo (tema Abyss)</p>
+      <section class="connguard-panel connguard-abyss connguard-gm-panel">
+        <div class="connguard-verdict connguard-verdict--ok">
+          <i class="fa-solid fa-circle-check connguard-verdict-icon" aria-hidden="true">&#10004;</i>
+          <div class="connguard-verdict-body">
+            <h2>Tudo certo</h2>
+            <p>Nenhum problema de conexão detectado agora.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="harness-block">
+      <p class="harness-title">2. Veredito Atenção + ação (tema Abyss)</p>
+      <section class="connguard-panel connguard-abyss connguard-gm-panel">
+        <div class="connguard-verdict connguard-verdict--attention">
+          <i class="fa-solid fa-triangle-exclamation connguard-verdict-icon" aria-hidden="true"
+            >&#9888;</i
+          >
+          <div class="connguard-verdict-body">
+            <h2>Atenção</h2>
+            <p>A conexão de alguns jogadores está instável.</p>
+            <p class="connguard-verdict-action">
+              <i class="fa-solid fa-arrow-right" aria-hidden="true">&#8594;</i> Abra o Assistente de
+              conexão e escaneie as rotas para comparar.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="harness-block">
+      <p class="harness-title">3. Veredito Problema + detalhes abertos (tema Abyss)</p>
+      <section class="connguard-panel connguard-abyss connguard-gm-panel">
+        <div class="connguard-verdict connguard-verdict--problem">
+          <i class="fa-solid fa-circle-exclamation connguard-verdict-icon" aria-hidden="true"
+            >&#10071;</i
+          >
+          <div class="connguard-verdict-body">
+            <h2>Problema</h2>
+            <p>Um ou mais jogadores estão sem resposta.</p>
+            <p class="connguard-verdict-action">
+              <i class="fa-solid fa-arrow-right" aria-hidden="true">&#8594;</i> Peça para quem está
+              sem resposta recarregar a página (F5).
+            </p>
+          </div>
+        </div>
+        <details class="connguard-details" open>
+          <summary>Ver detalhes técnicos (tabelas e histórico)</summary>
+          <h3>Usuários</h3>
+          <div class="connguard-table-wrap">
+            <table class="connguard-table">
+              <thead>
+                <tr>
+                  <th>Usuário</th>
+                  <th>Latência</th>
+                  <th>Jitter</th>
+                  <th>Perda est.</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Nelson</strong> <span class="connguard-pill">(GM)</span></td>
+                  <td>42ms</td>
+                  <td>3</td>
+                  <td>0%</td>
+                  <td>OK</td>
+                </tr>
+                <tr>
+                  <td><strong>Ana</strong></td>
+                  <td>310ms</td>
+                  <td>55</td>
+                  <td>0%</td>
+                  <td>OK</td>
+                </tr>
+                <tr>
+                  <td><strong>Beto</strong></td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>Sem resposta</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="connguard-muted">Entradas registradas: 18</p>
+        </details>
+      </section>
+    </div>
+
+    <div class="harness-block">
+      <p class="harness-title">4. Veredito Atenção (tema padrão, sem Abyss)</p>
+      <section class="connguard-panel connguard-gm-panel">
+        <div class="connguard-verdict connguard-verdict--attention">
+          <i class="fa-solid fa-triangle-exclamation connguard-verdict-icon" aria-hidden="true"
+            >&#9888;</i
+          >
+          <div class="connguard-verdict-body">
+            <h2>Atenção</h2>
+            <p>A conexão de alguns jogadores está instável.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="harness-block">
+      <p class="harness-title">5. Assistente primeira pergunta (tema Abyss)</p>
+      <div class="window-app connguard-panel connguard-abyss" data-module-id="connection-guard">
+        <p>Como seus amigos entram na sua mesa?</p>
+        <div class="form-group connguard-choice">
+          <label for="cg-radmin"
+            ><input id="cg-radmin" type="radio" name="service" checked /><span
+              >Radmin VPN Free</span
+            ></label
+          >
+          <p class="notes">Instalam o Radmin VPN e entram no meu grupo</p>
+        </div>
+        <div class="form-group connguard-choice">
+          <label for="cg-playit"
+            ><input id="cg-playit" type="radio" name="service" /><span>playit.gg</span></label
+          >
+          <p class="notes">Abrem um link tipo xxxx.playit.gg</p>
+        </div>
+        <div class="form-group connguard-choice">
+          <label for="cg-local"
+            ><input id="cg-local" type="radio" name="service" /><span>LAN / rede local</span></label
+          >
+          <p class="notes">Estão na mesma casa ou rede que eu</p>
+        </div>
+        <p class="notes">
+          Não sabe qual escolher? Se seus amigos precisam instalar um programa, é o Radmin. Se você
+          manda um link ou endereço, é o playit/ngrok/Cloudflare. Se todos estão na sua casa ou na
+          mesma rede, é a rede local.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

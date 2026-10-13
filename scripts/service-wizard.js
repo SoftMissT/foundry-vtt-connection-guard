@@ -208,18 +208,23 @@ function renderContent(selectedType, profiles, redundancy) {
 }
 
 function renderServiceChoice(selectedType) {
-  const options = SERVICES.map(
-    service =>
-      `<option value="${service.type}" ${service.type === selectedType ? 'selected' : ''}>${escapeHtml(game.i18n.localize(service.labelKey))}</option>`,
-  ).join('')
+  const options = SERVICES.map(service => {
+    const id = `connection-guard-service-${service.type}`
+    return `
+      <div class="form-group connguard-choice">
+        <label for="${id}">
+          <input id="${id}" type="radio" name="service" value="${service.type}" ${service.type === selectedType ? 'checked' : ''} />
+          <span>${escapeHtml(game.i18n.localize(service.labelKey))}</span>
+        </label>
+        <p class="notes">${escapeHtml(game.i18n.localize(`CONNGUARD.ServiceWizard.Choice.${service.type}`))}</p>
+      </div>`
+  }).join('')
 
   return `
-    <p>${game.i18n.localize('CONNGUARD.ServiceWizard.Intro')}</p>
+    <p>${game.i18n.localize('CONNGUARD.ServiceWizard.ChoiceQuestion')}</p>
+    ${options}
+    <p class="notes"><i class="fas fa-circle-info"></i> ${game.i18n.localize('CONNGUARD.ServiceWizard.ChoiceHint')}</p>
     <p class="notes"><i class="fas fa-circle-info"></i> ${game.i18n.localize('CONNGUARD.ServiceWizard.NoWebRtc')}</p>
-    <div class="form-group">
-      <label for="connection-guard-service">${game.i18n.localize('CONNGUARD.ServiceWizard.Service')}</label>
-      <select id="connection-guard-service" name="service">${options}</select>
-    </div>
   `
 }
 

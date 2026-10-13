@@ -746,3 +746,102 @@ body.connection-guard-abyss-theme [data-module-id='connection-guard'] .form-grou
   opacity: 0.85;
   line-height: 1.5;
 }
+
+/* ==== Painel do GM: veredito estado-primeiro (v3.5.0) ==== */
+.connguard-verdict {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--color-border-light-tertiary, #999);
+  border-left-width: 6px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.connguard-verdict-icon {
+  font-size: 26px;
+  line-height: 1.2;
+}
+
+.connguard-verdict-body h2 {
+  margin: 0 0 2px;
+  font-size: 18px;
+}
+
+.connguard-verdict-body p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.connguard-verdict-action {
+  margin-top: 6px !important;
+  font-weight: 600;
+}
+
+.connguard-verdict--ok {
+  border-left-color: #2ecc71;
+}
+
+.connguard-verdict--ok .connguard-verdict-icon {
+  color: #1f9d55;
+}
+
+.connguard-verdict--attention {
+  border-left-color: #d29a00;
+}
+
+.connguard-verdict--attention .connguard-verdict-icon {
+  color: #b8860b;
+}
+
+.connguard-verdict--problem {
+  border-left-color: #e74c3c;
+}
+
+.connguard-verdict--problem .connguard-verdict-icon {
+  color: #c0392b;
+}
+
+body.connection-guard-abyss-theme .connguard-verdict {
+  background: var(--cg-abyss-surface-2, rgba(28, 22, 35, 0.85));
+  border-color: var(--cg-abyss-pink-line, rgba(225, 28, 75, 0.55));
+}
+
+body.connection-guard-abyss-theme .connguard-verdict--attention .connguard-verdict-icon {
+  color: #f1c40f;
+}
+
+body.connection-guard-abyss-theme .connguard-verdict--ok .connguard-verdict-icon {
+  color: #2ecc71;
+}
+
+body.connection-guard-abyss-theme .connguard-verdict--problem .connguard-verdict-icon {
+  color: #ff6b5e;
+}
+
+.connguard-details {
+  margin-top: 4px;
+}
+
+.connguard-details > summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 6px 2px;
+}
+
+.connguard-details[open] > summary {
+  margin-bottom: 8px;
+}
+
+/* ==== Assistente: escolhas em linguagem de gente (v3.5.0) ==== */
+.connguard-choice label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.connguard-choice .notes {
+  margin: 2px 0 8px 24px;
+}
