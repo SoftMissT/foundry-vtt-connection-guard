@@ -108,10 +108,12 @@ export function normalizeUrl(rawUrl) {
     const withProtocol = hasProtocol ? trimmed : `${protocol}${trimmed}`
 
     const url = new URL(withProtocol)
+    if (!['http:', 'https:'].includes(url.protocol)) return null
+    if (url.username || url.password) return null
     url.hash = ''
     url.pathname = ''
     url.search = ''
-    return url.origin
+    return url.origin === 'null' ? null : url.origin
   } catch {
     return null
   }

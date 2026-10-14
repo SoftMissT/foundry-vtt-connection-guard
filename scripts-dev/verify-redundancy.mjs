@@ -15,6 +15,9 @@ import {
 } from '../scripts/route-redundancy-manager.js'
 import { JOURNAL_TYPES } from '../scripts/constants.js'
 import { resolveChipView } from '../scripts/active-route-chip.js'
+import { normalizeUrl } from '../scripts/route-profiles.js'
+import { normalizeLatencySample, normalizeRouteReport } from '../scripts/diagnostics.js'
+import { promptFirstRunSetup, shouldPromptFirstRun } from '../scripts/service-wizard.js'
 import {
   buildHostFirewallCommand,
   extractRadminPort,
@@ -1367,6 +1370,152 @@ const CLOUDFLARE_ROUTE = {
   )
   check('T6 safeParse validated', parsed.validated, true)
   check('T6 safeParse corrupt', safeParseReadiness('{corrupt').validated, false)
+}
+
+// SEC-01 URLs aceitas no scanner e nos redirects são apenas origins HTTP(S) sem credenciais.
+{
+  setLocation('https://foundry.example')
+  check('SEC-01 https válido', normalizeUrl('https://mesa.example/path?q=1'), 'https://mesa.example')
+  check(
+    'SEC-01 host sem protocolo herda https',
+    normalizeUrl('mesa.example:30000'),
+    'https://mesa.example:30000',
+  )
+  check('SEC-01 rejeita ftp', normalizeUrl('ftp://mesa.example'), null)
+  check('SEC-01 rejeita javascript', normalizeUrl('javascript://alert(1)'), null)
+  check('SEC-01 rejeita credenciais', normalizeUrl('https://user:pass@mesa.example'), null)
+}
+
+// SEC-02 telemetria do socket é validada antes de chegar à store/UI/journal.
+{
+  const users = new Set(['u1'])
+  const sample = normalizeLatencySample(
+    { userId: 'u1', average: 42, jitter: 3, lossPct: 0, timestamp: 1 },
+    users,
+    1234,
+  )
+  check('SEC-02 amostra válida', sample?.timestamp, 1234)
+  check(
+    'SEC-02 rejeita usuário desconhecido',
+    normalizeLatencySample({ userId: 'evil', average: 1, jitter: 0, lossPct: 0 }, users),
+    null,
+  )
+  check(
+    'SEC-02 rejeita número como string',
+    normalizeLatencySample({ userId: 'u1', average: '1', jitter: 0, lossPct: 0 }, users),
+    null,
+  )
+  check(
+    'SEC-02 rejeita perda fora da faixa',
+    normalizeLatencySample({ userId: 'u1', average: 1, jitter: 0, lossPct: 101 }, users),
+    null,
+  )
+}
+
+// SEC-03 relatórios remotos são limitados, normalizados e reclassificados localmente.
+{
+  const report = normalizeRouteReport(
+    {
+      userId: 'u1',
+      userName: '<img src=x onerror=alert(1)>',
+      currentOrigin: 'https://mesa.example/path',
+      durationMs: 20,
+      results: [
+        {
+          id: 'main',
+          label: 'Mesa',
+          type: 'custom',
+          url: 'https://mesa.example/path',
+          priority: 1,
+          reachable: true,
+          medianMs: 40,
+          averageMs: 42,
+          minMs: 38,
+          maxMs: 45,
+          jitterMs: 7,
+          lossPct: 0,
+          score: '<script>',
+          cssClass: '" onmouseover="alert(1)',
+        },
+      ],
+    },
+    new Set(['u1']),
+    5678,
+  )
+  check('SEC-03 relatório válido', report?.results.length, 1)
+  check('SEC-03 origin normalizada', report?.currentOrigin, 'https://mesa.example')
+  check('SEC-03 score recalculado', typeof report?.results[0].score, 'number')
+  check('SEC-03 classe recalculada', report?.results[0].cssClass, 'connguard-route-stable')
+  check(
+    'SEC-03 rejeita javascript URL',
+    normalizeRouteReport(
+      {
+        userId: 'u1',
+        results: [{ url: 'javascript://alert(1)', reachable: false }],
+      },
+      new Set(['u1']),
+    ),
+    null,
+  )
+}
+
+// UX-01 convite de configuração aparece apenas ao GM sem rota e uma única vez.
+{
+  check(
+    'UX-01 GM sem rota e não visto',
+    shouldPromptFirstRun({ isGM: true, hasActiveRoute: false, seen: false }),
+    true,
+  )
+  check(
+    'UX-01 jogador não recebe convite',
+    shouldPromptFirstRun({ isGM: false, hasActiveRoute: false, seen: false }),
+    false,
+  )
+  check(
+    'UX-01 rota existente não recebe convite',
+    shouldPromptFirstRun({ isGM: true, hasActiveRoute: true, seen: false }),
+    false,
+  )
+  check(
+    'UX-01 convite já visto não repete',
+    shouldPromptFirstRun({ isGM: true, hasActiveRoute: false, seen: true }),
+    false,
+  )
+}
+
+{
+  const previous = { game: globalThis.game, foundry: globalThis.foundry }
+  const setCalls = []
+  let confirmCalls = 0
+  globalThis.game = {
+    user: { isGM: true },
+    settings: {
+      get: (_moduleId, key) => (key === 'onboardingSeen' ? false : ''),
+      set: async (_moduleId, key, value) => setCalls.push({ key, value }),
+    },
+    i18n: { localize: key => key },
+  }
+  globalThis.foundry = {
+    applications: {
+      api: {
+        DialogV2: {
+          confirm: async () => {
+            confirmCalls += 1
+            return false
+          },
+        },
+      },
+    },
+  }
+  try {
+    check('UX-02 cancelar retorna false', await promptFirstRunSetup(), false)
+    check('UX-02 diálogo abre uma vez', confirmCalls, 1)
+    check('UX-02 convite fica marcado como visto', setCalls[0]?.key, 'onboardingSeen')
+    check('UX-02 setting recebe true', setCalls[0]?.value, true)
+  } finally {
+    globalThis.game = previous.game
+    globalThis.foundry = previous.foundry
+  }
 }
 
 console.log(report.join('\n'))

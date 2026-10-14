@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.6.0
+
+- **Primeiro uso**: GM sem rota ativa recebe uma única oferta, por cliente, para abrir o assistente de serviço.
+- **Fronteiras de segurança**: URLs ficam restritas a HTTP/HTTPS sem credenciais; telemetria e relatórios do socket são normalizados antes de store/UI/Journal; o World Gate deixou de aceitar ou emitir comandos pelo socket e usa somente o setting de mundo.
+- **Dependências**: removido o pacote de tipos do Foundry que não era usado e atualizada a dependência transitiva vulnerável de desenvolvimento; auditoria npm ficou sem vulnerabilidades conhecidas.
+- **Empacotamento**: `module.zip` não inclui mais uma cópia de si mesmo; `SECURITY.md` passa a acompanhar o pacote.
+- **Documentação**: política de segurança ampliada com modelo de ameaça, dados persistidos, comportamento de rede, limitações e canal privado de reporte.
+
 ## 3.5.1
 
 - **`SECURITY.md`**: política de segurança (versões suportadas, canal privado de reporte e escopo do módulo: sem credenciais, sem privilégios, socket validado, apenas as rotas configuradas são sondadas). README ganhou a seção "Segurança".

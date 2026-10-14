@@ -1,13 +1,18 @@
 import { MODULE_ID, SOCKET_EVENT, SOCKET_MESSAGES, JOURNAL_TYPES, SETTINGS } from './constants.js'
 import { registerSettings, setMenuDependencies } from './settings.js'
 import { LatencyMonitor } from './latency-monitor.js'
-import { DiagnosticsStore } from './diagnostics.js'
+import {
+  DiagnosticsStore,
+  normalizeLatencySample,
+  normalizeRouteReport,
+} from './diagnostics.js'
 import { ReconnectManager } from './reconnect-manager.js'
 import { PlayerListUI } from './player-list-ui.js'
 import { JournalLogger } from './journal-logger.js'
 import { ActiveRouteChip } from './active-route-chip.js'
 import { RouteRedundancyManager } from './route-redundancy-manager.js'
 import { WorldGate } from './world-gate.js'
+import { promptFirstRunSetup } from './service-wizard.js'
 
 const journal = new JournalLogger()
 
@@ -32,10 +37,12 @@ Hooks.once('init', () => {
  * Ponto único de lógica para evitar duplicação.
  */
 function handleSample(payload, diagnostics, playerListUI, journalRef) {
-  diagnostics.recordSample(payload)
-  playerListUI.refresh(payload.userId)
-  const userName = game.users.get(payload.userId)?.name ?? payload.userId
-  journalRef.log(JOURNAL_TYPES.LATENCY, { ...payload, userName })
+  const sample = normalizeLatencySample(payload, game.users)
+  if (!sample) return
+  diagnostics.recordSample(sample)
+  playerListUI.refresh(sample.userId)
+  const userName = game.users.get(sample.userId)?.name ?? sample.userId
+  journalRef.log(JOURNAL_TYPES.LATENCY, { ...sample, userName })
 }
 
 /** Roteia mensagens futuras sem quebrar o payload legado de latência. */
@@ -43,8 +50,10 @@ function handleSocketMessage(payload, diagnostics, playerListUI, journalRef) {
   if (!payload) return
 
   if (payload.type === SOCKET_MESSAGES.ROUTE_SCAN_RESULT) {
-    diagnostics.recordRouteReport(payload.report)
-    journalRef.log(JOURNAL_TYPES.ROUTE, payload.report)
+    const report = normalizeRouteReport(payload.report, game.users)
+    if (!report) return
+    diagnostics.recordRouteReport(report)
+    journalRef.log(JOURNAL_TYPES.ROUTE, report)
     return
   }
 
@@ -86,6 +95,9 @@ Hooks.once('ready', () => {
   ui.controls?.render({ force: true, reset: true })
 
   setMenuDependencies(diagnostics, journal)
+  promptFirstRunSetup().catch(err => {
+    console.warn(`${MODULE_ID} | falha ao abrir configuração inicial`, err)
+  })
   applyAbyssTheme()
   Hooks.on('updateSetting', onThemeSettingUpdate)
 

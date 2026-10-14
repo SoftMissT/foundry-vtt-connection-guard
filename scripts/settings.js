@@ -178,6 +178,13 @@ export function registerSettings() {
     config: false,
   })
 
+  g.settings.register(MODULE_ID, SETTINGS.ONBOARDING_SEEN, {
+    type: Boolean,
+    default: false,
+    scope: 'client',
+    config: false,
+  })
+
   g.settings.registerMenu(MODULE_ID, SETTINGS.GM_PANEL_MENU, {
     name: g.i18n.localize('CONNGUARD.Menu.GmPanel.Name'),
     label: g.i18n.localize('CONNGUARD.Menu.GmPanel.Label'),

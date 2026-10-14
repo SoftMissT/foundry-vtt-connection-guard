@@ -13,7 +13,7 @@ import {
   resolveBanUpdates,
   WorldGate,
 } from '../scripts/world-gate.js'
-import { SETTINGS, SOCKET_MESSAGES } from '../scripts/constants.js'
+import { SETTINGS } from '../scripts/constants.js'
 
 let checks = 0
 let failures = 0
@@ -429,7 +429,7 @@ function gateSetup({
   gateTeardown()
 }
 
-// GATE-11 GM #lock() → backup salvo, roles banidas, GATE_LOCKED true, socket emit
+// GATE-11 GM #lock() → backup salvo, roles banidas e GATE_LOCKED true
 async function testLock() {
   const emits = []
   const env = gateSetup({
@@ -464,15 +464,11 @@ async function testLock() {
     true,
   )
   check('GATE-11 GATE_LOCKED true', env.store[SETTINGS.GATE_LOCKED], true)
-  check(
-    'GATE-11 socket emit locked',
-    emits.some(e => e.type === SOCKET_MESSAGES.GATE_CHANGED && e.locked === true),
-    true,
-  )
+  check('GATE-11 sem controle por socket', emits.length, 0)
   gateTeardown()
 }
 
-// GATE-12 GM #unlock() → roles restauradas, GATE_LOCKED false, socket emit
+// GATE-12 GM #unlock() → roles restauradas e GATE_LOCKED false
 async function testUnlock() {
   const emits = []
   const env = gateSetup({
@@ -508,11 +504,7 @@ async function testUnlock() {
   )
   check('GATE-12 backup limpo', env.store[SETTINGS.GATE_ROLES_BACKUP], '')
   check('GATE-12 GATE_LOCKED false', env.store[SETTINGS.GATE_LOCKED], false)
-  check(
-    'GATE-12 socket emit open',
-    emits.some(e => e.type === SOCKET_MESSAGES.GATE_CHANGED && e.locked === false),
-    true,
-  )
+  check('GATE-12 sem controle por socket', emits.length, 0)
   gateTeardown()
 }
 
@@ -611,11 +603,7 @@ async function testConfirmAccept() {
     env.UserUpdateCalls.some(u => u._id === 'p1' && u.role === 0),
     true,
   )
-  check(
-    'GATE-16 socket emit locked',
-    emits.some(e => e.locked === true),
-    true,
-  )
+  check('GATE-16 sem controle por socket', emits.length, 0)
   gateTeardown()
 }
 

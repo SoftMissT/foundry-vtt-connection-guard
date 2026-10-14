@@ -17,6 +17,7 @@ const RUNTIME_FILES = [
   'LICENSE',
   'README.md',
   'CHANGELOG.md',
+  'SECURITY.md',
 ]
 
 // No CI, a tag da release (ex.: refs/tags/v1.2.3, via GITHUB_REF_NAME=v1.2.3)
@@ -52,7 +53,7 @@ async function main() {
 
   const zipPath = path.join(dist, 'module.zip')
   await zip({
-    source: '*',
+    source: RUNTIME_FILES,
     destination: zipPath,
     cwd: dist,
   })

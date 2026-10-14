@@ -1,8 +1,6 @@
 import {
   MODULE_ID,
   SETTINGS,
-  SOCKET_EVENT,
-  SOCKET_MESSAGES,
   DEFAULTS,
   JOURNAL_TYPES,
 } from './constants.js'
@@ -19,7 +17,7 @@ import {
  * - FECHAR: salva os roles atuais dos players (backup) e define role NONE
  *   (ban nativo) em todos os não-GM. Role NONE impede login no servidor.
  * - ABRIR: restaura os roles salvos.
- * - Self-eject: players conectados recebem o estado via updateSetting/socket
+ * - Self-eject: players conectados recebem o estado via updateSetting
  *   e mostram um overlay full-screen + redirecionam ao login.
  *
  * UI: o botão do GM é um Scene Control nativo (hook getSceneControlButtons,
@@ -121,7 +119,6 @@ export function resolveBanUpdates(users) {
 export class WorldGate {
   #journal = null
   #settingHookId = null
-  #socketHandler = null
   #overlayEl = null
   #redirectTimer = null
   #redirectIssued = false
@@ -158,9 +155,6 @@ export class WorldGate {
       this.#onLockStateChanged(this.#readLocked())
     })
 
-    this.#socketHandler = payload => this.#onSocketMessage(payload)
-    game.socket?.on(SOCKET_EVENT, this.#socketHandler)
-
     return this
   }
 
@@ -169,10 +163,6 @@ export class WorldGate {
     if (this.#settingHookId !== null) {
       Hooks.off('updateSetting', this.#settingHookId)
       this.#settingHookId = null
-    }
-    if (this.#socketHandler) {
-      game.socket?.off(SOCKET_EVENT, this.#socketHandler)
-      this.#socketHandler = null
     }
     this.#clearRedirectTimer()
     this.#removeOverlay()
@@ -283,12 +273,6 @@ export class WorldGate {
     this.#syncSceneControl()
   }
 
-  #onSocketMessage(payload) {
-    if (payload?.type !== SOCKET_MESSAGES.GATE_CHANGED) return
-    if (payload.locked === true) this.#onLockStateChanged(true)
-    else this.#onLockStateChanged(false)
-  }
-
   // ------------------------------------------------------------------
   // Toggle (chamado pelo Scene Control do GM)
   // ------------------------------------------------------------------
@@ -397,7 +381,6 @@ export class WorldGate {
       banned: banUpdates.length,
     })
     ui.notifications?.info(game.i18n.localize('CONNGUARD.Gate.LockedNotif'))
-    game.socket?.emit(SOCKET_EVENT, { type: SOCKET_MESSAGES.GATE_CHANGED, locked: true })
   }
 
   async #unlock() {
@@ -420,7 +403,6 @@ export class WorldGate {
       restored: restoreUpdates.length,
     })
     ui.notifications?.info(game.i18n.localize('CONNGUARD.Gate.UnlockedNotif'))
-    game.socket?.emit(SOCKET_EVENT, { type: SOCKET_MESSAGES.GATE_CHANGED, locked: false })
   }
 
   // ------------------------------------------------------------------

@@ -89,6 +89,8 @@ O badge aparece automaticamente ao lado do nome de cada usuário na lista de jog
 
 _Apenas GM_ **Configurar Jogo → Configurações → Connection Guard → Configurar Serviço**
 
+Na primeira abertura de um mundo sem rota ativa, o módulo oferece esse assistente automaticamente uma vez por cliente. Se você escolher “Não”, ele continua disponível no caminho acima.
+
 1. Responda **Como seus amigos entram na sua mesa?** (Radmin VPN, um link de túnel tipo playit/ngrok/Cloudflare, mesma rede local...) e preencha o endereço pedido.
 2. Salvar e ativar rota.
 
@@ -247,7 +249,7 @@ Não deveria ele aparece centralizado, some em 15s com uma animação suave, e t
 
 ## Segurança
 
-Encontrou uma vulnerabilidade? Não abra issue pública — use o canal privado descrito em [SECURITY.md](SECURITY.md). O módulo não guarda credenciais, não instala nada e não pede privilégio administrativo.
+Encontrou uma vulnerabilidade? Não abra issue pública — use o canal privado descrito em [SECURITY.md](SECURITY.md). O módulo não guarda credenciais, não instala nada e não pede privilégio administrativo. Telemetria recebida por socket é tratada como não confiável; o World Gate só muda por setting de mundo e permissões nativas do Foundry.
 
 ---
 

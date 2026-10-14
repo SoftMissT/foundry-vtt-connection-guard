@@ -64,6 +64,36 @@ function existingFor(type, profiles) {
   return profiles.find(profile => profile.type === type) || null
 }
 
+export function shouldPromptFirstRun({ isGM, hasActiveRoute, seen }) {
+  return isGM === true && hasActiveRoute !== true && seen !== true
+}
+
+export async function promptFirstRunSetup() {
+  if (
+    !shouldPromptFirstRun({
+      isGM: game.user?.isGM,
+      hasActiveRoute: Boolean(getActiveRoute()),
+      seen: game.settings.get(MODULE_ID, SETTINGS.ONBOARDING_SEEN),
+    })
+  ) {
+    return false
+  }
+  await game.settings.set(MODULE_ID, SETTINGS.ONBOARDING_SEEN, true)
+  const confirmed = await foundry.applications.api.DialogV2.confirm({
+    window: { title: game.i18n.localize('CONNGUARD.ServiceWizard.Title') },
+    content: `<p>${escapeHtml(game.i18n.localize('CONNGUARD.ServiceWizard.ChoiceQuestion'))}</p><p class="notes">${escapeHtml(game.i18n.localize('CONNGUARD.ServiceWizard.ChoiceHint'))}</p>`,
+    yes: { label: game.i18n.localize('CONNGUARD.Menu.ServiceWizard.Label') },
+    no: {
+      label: game.i18n.localize('CONNGUARD.Gate.ConfirmNo'),
+      default: true,
+    },
+    modal: true,
+    rejectClose: false,
+  })
+  if (confirmed === true) await openServiceWizard()
+  return confirmed === true
+}
+
 /** GM-only, no-code route setup. The selected service is the only route saved and activated. */
 export async function openServiceWizard() {
   if (!game.user?.isGM) {
